@@ -1,0 +1,1 @@
+{"description":"edgetunnel + country-specific Cloudflare IP filter in a single Cloudflare Worker.","name":"edgetunnel-ipfilter","private":true,"scripts":{"test":"node --test test/*.test.mjs"},"type":"module","version":"1.0.0"}
