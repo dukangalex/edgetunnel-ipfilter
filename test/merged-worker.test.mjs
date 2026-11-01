@@ -515,3 +515,108 @@ test('订阅转换 (CHN): 内置模式且未配置任何外部后端时 Surge �
     const body = await res.text();
     assert.ok(body.includes('EXTERNAL_SUBCONVERTER_URL'), '错误信息应指明如何配置外部后端: ' + body.slice(0, 160));
 });
+
+test('一体化: /socks5/self-nodes 返回当前订阅节点与活池状态, 未登录 401', async () => {
+    const ua = 'ipf-test-ua';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const cookie = 'auth=' + md5md5(ua + secret + 'test-admin-pass');
+    const kvStore = { 'ADD.txt': 'ipf://JP-US?limit=1' };
+    const env = {
+        ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const ctx = { waitUntil() {} };
+    function reqS(path, auth) {
+        const headers = { 'User-Agent': ua };
+        if (auth) headers.Cookie = cookie;
+        const r = new Request('https://x.test' + path, { headers });
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        return r;
+    }
+    globalThis.__IPF_TEST_PROBE = async () => ({ alive: true, ms: 42 });
+    try {
+        const anon = await worker.fetch(reqS('/socks5/self-nodes', false), env, ctx);
+        assert.equal(anon.status, 401, '未登录应 401');
+        const res = await worker.fetch(reqS('/socks5/self-nodes', true), env, ctx);
+        assert.equal(res.status, 200);
+        const data = JSON.parse(await res.text());
+        assert.equal(data.total, 2, 'JP/US 各 limit=1');
+        assert.equal(data.alive, 2, '探测全活');
+        assert.ok(data.nodes.every(n => n.address && n.ms === 42), '节点应带地址与探测延迟');
+        const page = await worker.fetch(reqS('/socks5-ui', true), env, ctx);
+        const html = await page.text();
+        assert.ok(html.includes('ipf-self-panel'), '检测页应注入一体化面板脚本');
+    } finally {
+        delete globalThis.__IPF_TEST_PROBE;
+    }
+});
+
+test('一体化: /socks5/check-config 检测已配置 SOCKS5 且凭据不外泄', async () => {
+    const ua = 'ipf-test-ua';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const cookie = 'auth=' + md5md5(ua + secret + 'test-admin-pass');
+    const kvStore = {};
+    const env = {
+        ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const ctx = { waitUntil() {} };
+    // 读-改-写: 先取完整配置 (空 KV 会播种默认配置), 只改 SOCKS5 账号再存回,
+    // 避免手写配置缺字段被保存校验拒绝 (配置不完整)。
+    const getReq = new Request('https://x.test/admin/config.json', { headers: { 'User-Agent': ua, Cookie: cookie } });
+    Object.defineProperty(getReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const getRes = await worker.fetch(getReq, env, ctx);
+    assert.equal(getRes.status, 200, '读取配置应成功');
+    const cfg = JSON.parse(await getRes.text());
+    cfg.反代 = cfg.反代 || {};
+    cfg.反代.SOCKS5 = Object.assign({}, cfg.反代.SOCKS5, { 启用: 'socks5', 账号: 'user:pass@127.0.0.1:9' });
+    const saveReq = new Request('https://x.test/admin/config.json', {
+        method: 'POST',
+        headers: { 'User-Agent': ua, Cookie: cookie, 'Content-Type': 'application/json' },
+        body: JSON.stringify(cfg),
+    });
+    Object.defineProperty(saveReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const saveRes = await worker.fetch(saveReq, env, ctx);
+    assert.equal(saveRes.status, 200, '配置保存应成功: ' + (await saveRes.text()).slice(0, 100));
+    const req = new Request('https://x.test/socks5/check-config', { headers: { 'User-Agent': ua, Cookie: cookie } });
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, env, ctx);
+    assert.equal(res.status, 200);
+    const text = await res.text();
+    const data = JSON.parse(text);
+    assert.equal(data.configured, true, '应识别到已配置的 SOCKS5');
+    assert.equal(data.checks.length, 1);
+    assert.equal(data.checks[0].target, '127.0.0.1:9', '目标只应出现主机:端口');
+    assert.equal(typeof data.checks[0].success, 'boolean');
+    assert.ok(!text.includes('user:pass') && !text.includes('pass@'), '响应不得包含代理凭据');
+});
+
+test('一体化: 转换按国家筛选 (名称判定 + IP 数据集反查 + 未知保留)', async () => {
+    const kvStore = {};
+    const env = {
+        UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const items = [
+        CHN_VLESS('1.1.1.2', '🇺🇸 美国节点'),
+        CHN_VLESS('2.2.2.1', '🇯🇵 日本节点'),
+        CHN_VLESS('2.2.2.2', 'node-01'),
+        CHN_VLESS('203.0.113.7', 'plain-node'),
+    ].join('|');
+    const qs = new URLSearchParams({ target: 'clash', regions: 'JP', url: items });
+    const req = new Request('https://x.test/conv?' + qs.toString());
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, env, { waitUntil() {} });
+    assert.equal(res.status, 200);
+    const body = await res.text();
+    assert.ok(body.includes('2.2.2.1'), 'JP 名称节点应保留');
+    assert.ok(body.includes('203.0.113.7'), '地区未知节点应保留');
+    assert.ok(!body.includes('1.1.1.2'), 'US 名称节点应被筛掉');
+    assert.ok(!body.includes('2.2.2.2'), 'IP 反查为 US 的节点应被筛掉');
+
+    const pageReq = new Request('https://x.test/convert');
+    Object.defineProperty(pageReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const page = await worker.fetch(pageReq, env, { waitUntil() {} });
+    const html = await page.text();
+    assert.ok(html.includes('ipf-conv-bar'), '转换页应注入按国家筛选条');
+});

@@ -1,3 +1,12 @@
+## [integration 1.9] - 2026-11-01
+
+### One whole: the modules now work for each other
+
+- **The checker serves this deployment**: the `/socks5-ui` page gains a 🔗 本部署一体化 panel — `/socks5/self-nodes` lists the nodes the current subscription actually contains (the living pool's real expansion) with each node's latest probe status/latency from the health registry, and `/socks5/check-config` verifies the admin-configured SOCKS5 upstream with the check engine (the account is used server-side only; responses show host:port, never credentials). Both endpoints sit behind the same admin login as the checker itself.
+- **The filter joins conversion**: `/conv`, `/chain` and `/sub?url=` accept `regions=JP-HK` — converted output keeps only nodes from those regions. Detection order: flag emoji / localized name / country code in the node name, then a reverse lookup of IP hosts in the filter's own dataset; nodes whose region cannot be determined are kept, never silently dropped. The `/convert` page gains a matching 🌏 按国家筛选转换 bar. (Short links and the external-passthrough formats are unchanged.)
+- **Shared status**: the admin 🧰 整合工具 card now shows the shared pool's vitality (candidates / confirmed alive / dropped dead) — one pool, four modules.
+- 融为一体：检测页新增 🔗 本部署一体化面板——/socks5/self-nodes 列出当前订阅实际包含的节点（活池真实展开）及各自健康档案中的最近探测状态与延迟；/socks5/check-config 用检测引擎验证后台已配置的 SOCKS5 反代（账号仅服务端使用，响应只出现主机:端口、绝不带凭据），两接口与检测页同一登录把关。转换接口 /conv、/chain、/sub?url= 新增 regions 参数，转换任何订阅都能按国家筛选（判定顺序：名称旗帜/中文名/国家码 → IP 数据集反查；判不出的保留不丢）。/convert 页加同款筛选条；后台工具卡显示四模块共用的节点池活性。
+
 ## [integration 1.8] - 2026-11-01
 
 ### Built-in converter is the default; project identity in the admin page
