@@ -1,3 +1,11 @@
+## [integration 1.8] - 2026-11-01
+
+### Built-in converter is the default; project identity in the admin page
+
+- **The integrated converter is now the default, visibly**: the shipped default for 订阅转换配置.SUBAPI is empty, and empty means "use this project's built-in converter" — Clash / sing-box are generated in-process (chain included), V2Ray / Surge / Loon / Quantumult X go through the converter interface's `EXTERNAL_SUBCONVERTER_URL` passthrough. Upstream's public backend is no longer the default for new deployments (existing deployments keep their saved config). If neither a passthrough nor a backend is configured, non-native formats answer a clear 501 instead of fetching a meaningless relative URL. Passthrough requests forward edgetunnel's full parameter set (config template, emoji, udp, sort, …), which the backend's output depends on.
+- **Admin page entry points**: a 🧰 整合工具 card at the top of the settings area links all three integrated modules （国家优选筛选 / 代理检测 / 订阅转换）; the 订阅转换后端 field carries a placeholder and a note explaining the built-in default; the page footer's social links now point to this project (GitHub repository and the author's channel) instead of upstream's.
+- 订阅转换默认即内置并明示：新装默认 SUBAPI 为空，空即用本项目内置转换（Clash/sing-box 原生含链式，其余四格式经 EXTERNAL_SUBCONVERTER_URL 透传），不再默认走上游公共后端（已保存配置的部署不受影响）；无任何外部后端时非原生格式明确返回 501 说明；透传会转发 edgetunnel 的完整参数集（config 模板等，后端产出依赖它们）。后台设置区顶部新增 🧰 整合工具卡（三个整合模块一级入口），「订阅转换后端」输入框加内置默认说明，页脚社交链接改指本项目（仓库与作者频道）。
+
 ## [integration 1.7] - 2026-10-31
 
 ### Integrated subscription converter (subscription-chain-converter-cf)

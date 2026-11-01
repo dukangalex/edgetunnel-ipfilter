@@ -391,7 +391,7 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         if (u.includes('edt-pages.github.io')) {
             // 复刻上游真实页面陷阱: <template> 内容里有一个字面量 </body>,
             // 注入必须落在文档真正的 </body> (最后一个) 之前, 不能进模板。
-            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div></body></html>', {
+            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a></body></html>', {
                 status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
             });
         }
@@ -418,6 +418,12 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         assert.ok(html.includes('ipf-admin-card'), '应注入内置入口脚本');
         assert.ok(html.includes('内置国家优选'), '注入脚本应含卡片文案');
         assert.ok(html.indexOf('ipf-admin-card') > html.indexOf('</template>'), '注入脚本不得落进 <template> 内容');
+        assert.ok(html.includes('ipf-tools-card'), '注入脚本应含整合工具卡');
+        assert.ok(html.includes('ipfConvHint'), '注入脚本应含订阅转换内置提示');
+        assert.ok(html.includes('href="https://github.com/dukangalex/edgetunnel-ipfilter"'), '页脚 GitHub 应指向本项目仓库');
+        assert.ok(html.includes('href="https://t.me/AngelaNexus"'), '页脚 Telegram 应指向本项目频道');
+        assert.ok(!html.includes('href="https://github.com/cmliu/edgetunnel"'), '页脚不得再指向上游仓库');
+        assert.ok(!html.includes('href="https://t.me/CMLiussss"'), '页脚不得再指向上游频道');
         assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
 
         const loginReq = new Request('https://x.test/login', { headers: { 'User-Agent': ua } });
@@ -429,4 +435,83 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
     } finally {
         globalThis.fetch = realFetch;
     }
+});
+
+test('整合版默认: SUBAPI 留空走内置转换 (源码默认 + 新装配置)', async () => {
+    const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
+    assert.ok(src.includes("SUBAPI: '',"), '默认配置 SUBAPI 应为空 (内置转换)');
+    assert.ok(!src.includes('SUBAPI: `https://SUBAPI.'), '不得再把上游公共后端写成默认');
+    const ua = 'ipf-test-ua';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const cookie = md5md5(ua + secret + 'test-admin-pass');
+    const kvStore = {};
+    const envD = {
+        ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const req = new Request('https://x.test/admin/config.json', { headers: { 'User-Agent': ua, Cookie: 'auth=' + cookie } });
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, envD, { waitUntil() {} });
+    assert.equal(res.status, 200);
+    const cfg = JSON.parse(await res.text());
+    assert.equal(cfg.订阅转换配置.SUBAPI, '', '新装默认 SUBAPI 应为空');
+});
+
+function surgeEnv(extra) {
+    const testUuid = '11111111-2222-4333-8444-555555555555';
+    const configFixture = {
+        协议类型: 'vless', 传输协议: 'ws',
+        优选订阅生成: { local: true, 本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 }, SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3 },
+        订阅转换配置: { SUBAPI: '', SUBCONFIG: '', SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false, APPEND_TYPE: false, SORT: false, EXPAND: true },
+        CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
+        反代: { PROXYIP: 'auto', SOCKS5: { 启用: null, 全局: false, 账号: '', 白名单: [] } },
+        TG: { 启用: false, BotToken: null, ChatID: null },
+    };
+    const kvStore = { 'config.json': JSON.stringify(configFixture), 'ADD.txt': 'ipf://JP-US?limit=1' };
+    return {
+        testUuid,
+        env: Object.assign({
+            ADMIN: 'test-admin-pass', UUID: testUuid,
+            KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+        }, extra || {}),
+    };
+}
+
+test('订阅转换 (CHN): 内置模式下 Surge 经 EXTERNAL_SUBCONVERTER_URL 透传', async () => {
+    const { testUuid, env } = surgeEnv({ EXTERNAL_SUBCONVERTER_URL: 'https://conv.example.invalid' });
+    let sawPassthrough = '';
+    const prevFetch = globalThis.fetch;
+    globalThis.fetch = async (input, init) => {
+        const u = typeof input === 'string' ? input : input.url;
+        if (u.startsWith('https://conv.example.invalid/')) {
+            sawPassthrough = u;
+            // 首行会被 edgetunnel 的 Surge 热补丁替换为 MANAGED-CONFIG 头, 哨兵放第二行
+            return new Response('# subconverter surge output\nSURGE-SENTINEL-OUTPUT', { status: 200 });
+        }
+        return prevFetch(input, init);
+    };
+    try {
+        const token = md5md5('x.test' + testUuid);
+        const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'Surge/5.5.0' } });
+        Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        const res = await worker.fetch(req, env, { waitUntil() {} });
+        assert.equal(res.status, 200);
+        const body = await res.text();
+        assert.ok(body.includes('SURGE-SENTINEL-OUTPUT'), 'Surge 应经外部透传返回, 实际: ' + body.slice(0, 120));
+        assert.ok(sawPassthrough.includes('target=surge'), '透传应带 target=surge: ' + sawPassthrough);
+        assert.ok(sawPassthrough.includes('config='), '透传应转发 edgetunnel 的完整参数 (config 等): ' + sawPassthrough);
+    } finally {
+        globalThis.fetch = prevFetch;
+    }
+});
+
+test('订阅转换 (CHN): 内置模式且未配置任何外部后端时 Surge 明确 501', async () => {
+    const { testUuid, env } = surgeEnv({});
+    const token = md5md5('x.test' + testUuid);
+    const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'Surge/5.5.0' } });
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, env, { waitUntil() {} });
+    assert.equal(res.status, 501);
+    const body = await res.text();
+    assert.ok(body.includes('EXTERNAL_SUBCONVERTER_URL'), '错误信息应指明如何配置外部后端: ' + body.slice(0, 160));
 });
