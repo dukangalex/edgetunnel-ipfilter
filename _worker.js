@@ -474,7 +474,10 @@ async function IPF_注入管理页(res) {
         if (!res || !res.ok || ct.indexOf('text/html') === -1) return res;
         html = await res.text();
         if (html.indexOf('id="customIPs"') === -1 || html.indexOf('</body>') === -1) {
-            return new Response(html, { status: res.status, headers: res.headers });
+            const passHeaders = new Headers(res.headers);
+            passHeaders.delete('expires');
+            passHeaders.set('cache-control', 'no-store, no-cache, must-revalidate');
+            return new Response(html, { status: res.status, headers: passHeaders });
         }
         let script = '';
         try {
@@ -486,11 +489,20 @@ async function IPF_注入管理页(res) {
             return new Response(html, { status: res.status, headers: res.headers });
         }
         if (!script) return new Response(html, { status: res.status, headers: res.headers });
-        const out = html.replace('</body>', '<script>' + script + '</' + 'script></body>');
+        // Anchor on the LAST </body>: the upstream page embeds a <template>
+        // whose content contains a literal '</body>' much earlier, and a
+        // script injected there would sit inert inside the template.
+        const anchorIdx = html.lastIndexOf('</body>');
+        if (anchorIdx === -1) return new Response(html, { status: res.status, headers: res.headers });
+        const out = html.slice(0, anchorIdx) + '<script>' + script + '</' + 'script>' + html.slice(anchorIdx);
         const headers = new Headers(res.headers);
         headers.delete('content-length');
         headers.delete('etag');
         headers.delete('content-encoding');
+        headers.delete('expires');
+        // The admin shell must never be cached: it is the entry point for
+        // injected features, and a stale shell silently hides new versions.
+        headers.set('cache-control', 'no-store, no-cache, must-revalidate');
         return new Response(out, { status: res.status, headers });
     } catch (e) {
         if (html !== null) {
