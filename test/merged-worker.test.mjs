@@ -182,6 +182,7 @@ async function callSubWithAdd(addText) {
     if (!body.startsWith('vless://')) {
         try { body = Buffer.from(body, 'base64').toString('utf8'); } catch { /* keep raw */ }
     }
+    callSubWithAdd.lastStore = kvStore;
     return body.split('\n').filter(l => l.startsWith('vless://'));
 }
 
@@ -199,6 +200,27 @@ test('未设置 ADD.txt 时使用内置筛选默认条目 (新装开箱即优选
     assert.ok(links.every(l => l.includes('@1.1.1.') || l.includes('@2.2.2.')));
 });
 
+test('活池: 订阅生成时剔除死节点、选最快、健康档案落盘', async () => {
+    globalThis.__IPF_TEST_PROBE = async (ip) => {
+        if (ip === '1.1.1.2:8443') return { alive: false, ms: 0 };
+        return { alive: true, ms: ip === '2.2.2.2:2053' ? 20 : 50 };
+    };
+    try {
+        const links = await callSubWithAdd('ipf://JP-US?limit=1');
+        assert.equal(links.length, 2);
+        assert.ok(links.some(l => l.includes('@1.1.1.1:443')), 'JP 应选存活节点');
+        assert.ok(!links.some(l => l.includes('1.1.1.2')), 'JP 死节点应被剔除');
+        assert.ok(links.some(l => l.includes('@2.2.2.2:2053')), 'US 应选最快节点');
+        const healthRaw = callSubWithAdd.lastStore['IPF_health_v1'];
+        assert.ok(healthRaw, '健康档案应写入 KV');
+        const health = JSON.parse(healthRaw);
+        assert.ok(health.ips['1.1.1.2:8443'][1] >= 1, '死节点失败计数应落盘');
+        assert.ok(health.ips['2.2.2.2:2053'][0] >= 1, '存活节点成功计数应落盘');
+    } finally {
+        delete globalThis.__IPF_TEST_PROBE;
+    }
+});
+
 test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理时注入卡片脚本', async () => {
     const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
     const b64 = src.match(/const IPF_管理页脚本_B64 = '([A-Za-z0-9+/=]+)'/);
@@ -206,7 +228,7 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
     const code = Buffer.from(b64[1], 'base64').toString('utf8');
     assert.ok(code.includes('customIPSection') && code.includes('ipf://'), '脚本应包含卡片锚点与 ipf 逻辑');
     assert.doesNotThrow(() => new Function(code), '注入脚本应为合法 JS');
-    assert.equal((src.match(/IPF_注入管理页\(await fetch/g) || []).length, 1, '管理页代理应只在一处接入注入');
+    assert.equal((src.match(/IPF_注入管理页\(await fetch/g) || []).length, 2, '管理页与登录页各接入一处注入');
 
     const realFetch = globalThis.fetch;
     globalThis.fetch = async (input, init) => {
@@ -242,6 +264,13 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         assert.ok(html.includes('内置国家优选'), '注入脚本应含卡片文案');
         assert.ok(html.indexOf('ipf-admin-card') > html.indexOf('</template>'), '注入脚本不得落进 <template> 内容');
         assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
+
+        const loginReq = new Request('https://x.test/login', { headers: { 'User-Agent': ua } });
+        Object.defineProperty(loginReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        const loginRes = await worker.fetch(loginReq, envA, { waitUntil() {} });
+        const loginHtml = await loginRes.text();
+        assert.ok(loginHtml.includes('ipf-badge'), '登录页应注入品牌徽章脚本');
+        assert.ok(loginHtml.includes('ipf-theme'), '登录页应注入品牌主题');
     } finally {
         globalThis.fetch = realFetch;
     }

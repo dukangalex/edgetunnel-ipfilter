@@ -1,3 +1,12 @@
+## [integration 1.5] - 2026-10-31
+
+### Living pool + its own UI identity
+
+- **Living node pool**: the upstream candidate list is now only a source. At subscription generation time, candidates for every `ipf://` region are probed in-process (TCP connect), dead ones are dropped, the fastest live ones are selected, and outcomes are remembered in a KV health registry (`IPF_health_v1`) — proven nodes are preferred, repeat-dead nodes are avoided, and the pool continuously heals itself through normal use. No cron, no extra setup; without socket support it degrades to plain sampling. The admin card shows pool vitality via `/?pool_stats=1`.
+- **UI identity**: the proxied admin and login pages receive the project's own theme (teal→blue brand gradient, branded primary buttons, selection/scrollbar accents) plus a floating 🌏 badge that opens the filter page; the settings card gets a matching gradient header and controls; the filter page itself is retitled to the project name.
+- 活池：上游候选表只作来源。订阅生成时逐地区进程内实测（TCP 连接探测），死节点剔除、最快者入选，结果记入 KV 健康档案（IPF_health_v1）——验过的优先、反复死亡的避开，池子在使用中自我修复。无定时任务、无额外配置；无 socket 环境时退化为普通采样。后台卡片经 /?pool_stats=1 显示节点池活性。
+- UI 差异化：代理下发的后台与登录页注入本项目主题（青绿→蓝品牌渐变、品牌主按钮、选区/滚动条点缀）与 🌏 悬浮徽章（点开筛选页）；设置卡片换上同色渐变头与控件；筛选页标题改为项目名。
+
 ## [integration 1.4.1] - 2026-10-31
 
 ### Fix
