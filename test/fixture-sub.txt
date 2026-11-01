@@ -1,0 +1,3 @@
+vless://11111111-2222-4333-8444-555555555555@exit1.example.com:443?encryption=none&security=tls&sni=exit1.example.com&type=ws&host=exit1.example.com&path=%2F#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC-%E5%87%BA%E5%8F%A3
+vless://11111111-2222-4333-8444-555555555555@exit2.example.com:443?encryption=none&security=tls&sni=exit2.example.com&type=ws&host=exit2.example.com&path=%2F#%F0%9F%87%BA%F0%9F%87%B8%20%E7%BE%8E%E5%9B%BD-%E5%87%BA%E5%8F%A3
+trojan://test-password@trojan.example.com:443?sni=trojan.example.com#%F0%9F%87%B8%F0%9F%87%AC%20%E6%96%B0%E5%8A%A0%E5%9D%A1-Trojan

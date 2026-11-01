@@ -352,7 +352,7 @@ test('订阅转换 (CHN): 页面/直出/链式/短链/规则懒镜像', async ()
 test('订阅转换 (CHN): edgetunnel /sub 经内置转换器出 Clash (无外部 SUBAPI)', async () => {
     const testUuid = '11111111-2222-4333-8444-555555555555';
     const configFixture = {
-        协议类型: 'vless', 传输协议: 'ws',
+        协议类型: 'trojan', 传输协议: 'ws',
         优选订阅生成: { local: true, 本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 }, SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3 },
         订阅转换配置: { SUBAPI: '', SUBCONFIG: '', SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false, APPEND_TYPE: false, SORT: false, EXPAND: true },
         CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
@@ -474,7 +474,7 @@ test('整合版默认: SUBAPI 留空走内置转换 (源码默认 + 新装配置
 function surgeEnv(extra) {
     const testUuid = '11111111-2222-4333-8444-555555555555';
     const configFixture = {
-        协议类型: 'vless', 传输协议: 'ws',
+        协议类型: 'trojan', 传输协议: 'ws',
         优选订阅生成: { local: true, 本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 }, SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3 },
         订阅转换配置: { SUBAPI: '', SUBCONFIG: '', SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false, APPEND_TYPE: false, SORT: false, EXPAND: true },
         CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
@@ -484,6 +484,7 @@ function surgeEnv(extra) {
     const kvStore = { 'config.json': JSON.stringify(configFixture), 'ADD.txt': 'ipf://JP-US?limit=1' };
     return {
         testUuid,
+        configFixture,
         env: Object.assign({
             ADMIN: 'test-admin-pass', UUID: testUuid,
             KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
@@ -491,43 +492,101 @@ function surgeEnv(extra) {
     };
 }
 
-test('订阅转换 (CHN): 内置模式下 Surge 经 EXTERNAL_SUBCONVERTER_URL 透传', async () => {
+test('订阅转换 (CHN): 内置模式下 Surge 由内置转换原生生成 (零外部依赖)', async () => {
+    // 即使还设着 EXTERNAL_SUBCONVERTER_URL 变量, 也不许再被调用
     const { testUuid, env } = surgeEnv({ EXTERNAL_SUBCONVERTER_URL: 'https://conv.example.invalid' });
-    let sawPassthrough = '';
+    // 配置在 isolate 内有 30 秒缓存且先于本例的测试已缓存了 vless 配置;
+    // 用带查询串的新模块实例 (独立 isolate 状态) 保证本例的 trojan 配置生效。
+    const freshWorker = (await import(new URL('../_worker.js?surge-native', import.meta.url))).default;
+    let sawExternal = '';
     const prevFetch = globalThis.fetch;
     globalThis.fetch = async (input, init) => {
         const u = typeof input === 'string' ? input : input.url;
-        if (u.startsWith('https://conv.example.invalid/')) {
-            sawPassthrough = u;
-            // 首行会被 edgetunnel 的 Surge 热补丁替换为 MANAGED-CONFIG 头, 哨兵放第二行
-            return new Response('# subconverter surge output\nSURGE-SENTINEL-OUTPUT', { status: 200 });
-        }
+        if (u.startsWith('https://conv.example.invalid/')) { sawExternal = u; return new Response('EXTERNAL-USED', { status: 200 }); }
         return prevFetch(input, init);
     };
     try {
         const token = md5md5('x.test' + testUuid);
         const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'Surge/5.5.0' } });
         Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
-        const res = await worker.fetch(req, env, { waitUntil() {} });
+        const res = await freshWorker.fetch(req, env, { waitUntil() {} });
         assert.equal(res.status, 200);
         const body = await res.text();
-        assert.ok(body.includes('SURGE-SENTINEL-OUTPUT'), 'Surge 应经外部透传返回, 实际: ' + body.slice(0, 120));
-        assert.ok(sawPassthrough.includes('target=surge'), '透传应带 target=surge: ' + sawPassthrough);
-        assert.ok(sawPassthrough.includes('config='), '透传应转发 edgetunnel 的完整参数 (config 等): ' + sawPassthrough);
+        assert.equal(sawExternal, '', '不许再调用任何外部转换后端');
+        assert.ok(!body.includes('EXTERNAL-USED'), '输出不许来自外部后端');
+        assert.ok(body.includes('[Proxy]'), 'Surge 应有 [Proxy] 段: ' + body.slice(0, 200));
+        assert.equal((body.match(/= trojan,/g) || []).length, 2, '两个 trojan 节点应全部原生渲染');
+        assert.ok(body.includes('[Proxy Group]'), 'Surge 应有 [Proxy Group] 段');
+        assert.ok(body.includes('[Rule]'), 'Surge 应有 [Rule] 段');
     } finally {
         globalThis.fetch = prevFetch;
     }
 });
 
-test('订阅转换 (CHN): 内置模式且未配置任何外部后端时 Surge 明确 501', async () => {
-    const { testUuid, env } = surgeEnv({});
-    const token = md5md5('x.test' + testUuid);
-    const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'Surge/5.5.0' } });
-    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
-    const res = await worker.fetch(req, env, { waitUntil() {} });
-    assert.equal(res.status, 501);
-    const body = await res.text();
-    assert.ok(body.includes('EXTERNAL_SUBCONVERTER_URL'), '错误信息应指明如何配置外部后端: ' + body.slice(0, 160));
+test('订阅转换 (CHN): V2Ray / Loon / Quantumult X 直出与链式原生生成', async () => {
+    const kvStore = {};
+    const env = {
+        UUID: '11111111-2222-4333-8444-555555555555',
+        KV: {
+            async get(k, opts) {
+                const v = kvStore[k];
+                if (v === undefined) return null;
+                if (opts && opts.type === 'arrayBuffer') return v instanceof ArrayBuffer ? v : new TextEncoder().encode(String(v)).buffer;
+                return typeof v === 'string' ? v : null;
+            },
+            async put(k, v) { kvStore[k] = v; },
+        },
+    };
+    const ctx = { waitUntil() {} };
+    const reqCHN = (path, init) => {
+        const r = new Request('https://x.test' + path, init);
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        return r;
+    };
+    const prevFetch = globalThis.fetch;
+    const exitText = [CHN_VLESS('exit1.example.com', '🇯🇵 日本-出口'), CHN_VLESS('exit2.example.com', '🇺🇸 美国-出口')].join('\n');
+    const entryText = [CHN_VLESS('entry1.example.com', '🇭🇰 香港-入口')].join('\n');
+    globalThis.fetch = async (input) => {
+        const u = typeof input === 'string' ? input : input.url;
+        if (u.startsWith('https://subs.test/exit')) return new Response(Buffer.from(exitText, 'utf8').toString('base64'), { status: 200 });
+        if (u.startsWith('https://subs.test/entry')) return new Response(Buffer.from(entryText, 'utf8').toString('base64'), { status: 200 });
+        if (u.includes('raw.githubusercontent.com')) return new Response(new Uint8Array(256).fill(7), { status: 200 });
+        return new Response('not found', { status: 404 });
+    };
+    try {
+        const v2 = await worker.fetch(reqCHN('/conv?target=v2ray&url=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(v2.status, 200);
+        const v2decoded = Buffer.from((await v2.text()).replace(/\s/g, ''), 'base64').toString('utf8');
+        assert.equal((v2decoded.match(/vless:\/\//g) || []).length, 2, 'V2Ray 应是可解码的链接集合, 含 2 个 vless 链接');
+
+        const qx = await worker.fetch(reqCHN('/conv?target=quanx&url=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(qx.status, 200);
+        const qxText = await qx.text();
+        assert.ok(qxText.includes('[server_local]'), 'Quantumult X 应使用真实段名 [server_local]');
+        assert.ok(!qxText.includes('[proxy_local]'), 'Quantumult X 没有 [proxy_local] 段, 不许出现');
+        assert.equal((qxText.match(/vless=/g) || []).length, 2, 'QuanX 两个 vless 节点应全部渲染');
+
+        const loonChain = await worker.fetch(reqCHN('/chain?target=loon&entry=' + encodeURIComponent('https://subs.test/entry') + '&exit=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(loonChain.status, 200);
+        const loonText = await loonChain.text();
+        assert.ok(loonText.includes('[Proxy Chain]'), 'Loon 链式应使用 [Proxy Chain] 段');
+        assert.ok(loonText.includes('⛓ 链式代理'), 'Loon 链式应有 ⛓ 链式代理 定义');
+
+        const shorten = await worker.fetch(reqCHN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'quanx', url: 'https://subs.test/exit' }) }), env, ctx);
+        assert.equal(shorten.status, 200);
+        const shortUrl = await shorten.text();
+        const code = shortUrl.split('/').pop();
+        assert.ok(shortUrl.includes('/c/' + code), 'quanx 短链应为 /c/<code> 形式: ' + shortUrl);
+        const viaShort = await worker.fetch(reqCHN('/c/' + code), env, ctx);
+        assert.equal(viaShort.status, 200);
+        assert.ok((await viaShort.text()).includes('[server_local]'), '短链出件应为 QuanX 原生输出');
+
+        const surgeVless = await worker.fetch(reqCHN('/conv?target=surge&url=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(surgeVless.status, 502, 'Surge 不支持 VLESS, 应明确失败而不是输出空壳');
+        assert.ok((await surgeVless.text()).includes('没有 Surge 可用的节点'), '失败信息应说明原因');
+    } finally {
+        globalThis.fetch = prevFetch;
+    }
 });
 
 test('一体化: /socks5/self-nodes 返回当前订阅节点与活池状态, 未登录 401', async () => {

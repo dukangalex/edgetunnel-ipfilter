@@ -1,3 +1,12 @@
+## [integration 2.0] - 2026-11-01
+
+### All six formats are native now — zero external dependencies
+
+- The integrated converter renders **all six** target formats in-process: Clash / Mihomo, sing-box, and now **V2Ray, Surge, Loon and Quantumult X natively** (1.7–1.11 relayed the last four to an external subconverter). The `EXTERNAL_SUBCONVERTER_URL` passthrough is removed entirely — nothing in the conversion path leaves the deployment, and the admin note by the 订阅转换后端 field says so. Chaining is available in every format that can express it: Surge via `underlying-proxy`, Loon via its `[Proxy Chain]` section, Quantumult X via `via-server`; V2Ray degrades to a plain link collection (the format has no policy groups). Quantumult X output uses the client's real section names (`[server_local]` / `[policy]`). Short links, the `/conv` / `/chain` / `/sub?url=` endpoints and region filtering (`regions=`) work for all six targets.
+- Honest limits, set by client capability: Surge has no VLESS or TUIC — such nodes are skipped, and if nothing renderable remains the converter answers an explicit error instead of an empty shell (through edgetunnel's `/sub` bridge this surfaces as a clear 422 explanation, never a garbage fetch). gRPC transport is not rendered for Surge / Loon / Quantumult X. The full protocol × format matrix and the per-format chain notes live in the converter project's `NATIVE_FORMATS_REPORT.md`. Quantumult X chain (`via-server`) follows the community-documented syntax and is flagged there for real-client verification.
+- Per the project's structure rule, the converter-core upgrade landed in the source project first (dukangalex/subscription-chain-converter-cf) and was then re-vendored into this build.
+- 六种格式全部原生、零外部依赖：转换核心现在在进程内直接生成全部六种格式（V2Ray / Surge / Loon / Quantumult X 不再透传外部 subconverter，透传通道整体移除）；链式在各格式按其原生机制实现（Surge 的 underlying-proxy、Loon 的 [Proxy Chain] 段、Quantumult X 的 via-server；V2Ray 无策略组概念，退化为链接集合）。诚实边界：Surge 无 VLESS/TUIC（跳过，无可渲染节点时明确报错、/sub 桥接返回 422 说明，绝不输出空壳或乱抓）；grpc 传输在 Surge/Loon/QuanX 不渲染；协议×格式完整矩阵见转换器项目的 NATIVE_FORMATS_REPORT.md（其中 QuanX 的 via-server 为社区语法、标注待真机验证）。核心升级先落转换器原项目、再按结构规矩收进整合版。
+
 ## [integration 1.11] - 2026-11-01
 
 ### Contact information on every product surface
