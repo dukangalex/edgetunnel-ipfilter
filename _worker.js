@@ -933,7 +933,7 @@ th{color:var(--inks);font-weight:600}
       <button data-sec="logs">📄 日志</button>
     </nav>
     <div class="railfoot">
-      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.2</span></div>
+      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.2.1</span></div>
       <div class="row"><button class="tbtn" id="themeBtn" type="button">切换浅色</button><a class="tbtn" href="/logout">退出登录</a></div>
     </div>
   </aside>
@@ -947,7 +947,7 @@ th{color:var(--inks);font-weight:600}
         <div class="panel" id="ovUsagePanel" style="display:none"><div class="kv">Cloudflare 用量</div><div class="val" id="ovUsage">—</div><div class="bar"><i id="ovUsageBar" style="width:0%"></i></div></div>
       </div>
       <div class="panel"><h3>服务信息</h3><div class="grid2">
-        <div><div class="kv">主机名</div><div class="val mono" id="ovHost">—</div></div>
+        <div><div class="kv">主机名（已打码）</div><div class="linkrow"><div class="val mono" id="ovHost" style="flex:1;min-width:0">—</div><button class="btn sm" id="ovHostShow" type="button">显示</button><button class="btn sm" id="ovHostCopy" type="button">复制</button></div></div>
         <div><div class="kv">配置加载时间</div><div class="val" id="ovTime">—</div></div>
         <div><div class="kv">UUID（已打码）</div><div class="val mono" id="ovUuid">—</div></div>
         <div><div class="kv">协议 / 传输</div><div class="val" id="ovProto">—</div></div>
@@ -1008,7 +1008,8 @@ th{color:var(--inks);font-weight:600}
 function $(id){return document.getElementById(id);}
 var toastTimer=null;
 function toast(msg,bad){var t=$('toast');t.textContent=msg;t.className='show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.className='';},3400);}
-function maskStr(s){if(!s)return '—';if(s.length<=16)return '••••••••';return s.slice(0,12)+'••••••'+s.slice(-4);}
+function maskStr(s){if(!s)return '—';var i=s.indexOf('://');var head=i>0?s.slice(0,i+3):'';return head+'••••••••••'+(s.length>4?s.slice(-4):'');}
+function maskHost(s){if(!s)return '—';var p=s.lastIndexOf('.');return '••••••••'+(p>0?s.slice(p):'');}
 var CFG=null,ADDTXT='',loaded={};
 function getJSON(u){return fetch(u,{headers:{'Accept':'application/json'}}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});}
 function getText(u){return fetch(u).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();});}
@@ -1035,10 +1036,10 @@ function loadOverview(){
   getJSON('/api/ipinfo').then(function(j){$('ovIp').textContent=(j.ip||'—')+(j.country_code?' · '+j.country_code:'');$('ovIpSub').textContent=((j.asn||'')+' '+(j.as_name||'')+(j.colo?' · '+j.colo:'')).trim();}).catch(function(){$('ovIp').textContent='读取失败';});
   getJSON('/?pool_stats=1').then(poolText).catch(function(){$('ovPool').textContent='读取失败';$('rgPool').textContent='读取失败';$('toolPool').textContent='读取失败';});
 }
-var FULL={node:'',link:''};
-function bindMask(boxId,showId,copyId,key){
-  var shown=false;
-  function paint(){$(boxId).textContent=shown?FULL[key]:(FULL[key]?maskStr(FULL[key]):'—');$(showId).textContent=shown?'隐藏':'显示';}
+var FULL={node:'',link:'',host:''};
+function bindMask(boxId,showId,copyId,key,maskFn){
+  var shown=false;var mf=maskFn||maskStr;
+  function paint(){$(boxId).textContent=shown?FULL[key]:(FULL[key]?mf(FULL[key]):'—');$(showId).textContent=shown?'隐藏':'显示';}
   $(showId).onclick=function(){shown=!shown;paint();};
   $(copyId).onclick=function(){copyText(FULL[key]);};
   paint();
@@ -1054,7 +1055,7 @@ function buildSubs(){
 }
 function loadConfig(){
   return getJSON('/admin/config.json?ts='+Date.now()).then(function(j){CFG=j;
-    $('ovHost').textContent=CFG.HOST||'—';
+    FULL.host=CFG.HOST||'';bindMask('ovHost','ovHostShow','ovHostCopy','host',maskHost);
     $('ovTime').textContent=CFG['加载时间']||'—';
     $('ovUuid').textContent=CFG.UUID?('••••••••••••••••••••••••••••'+CFG.UUID.slice(-4)):'—';
     $('ovProto').textContent=((CFG['协议类型']||'—')+' / '+(CFG['传输协议']||'—'));
