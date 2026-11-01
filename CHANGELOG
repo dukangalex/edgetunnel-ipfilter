@@ -1,3 +1,12 @@
+## [integration 2.2.3] - 2026-11-01
+
+### Reset and update, in this project's own image — plus more convenience
+
+- The two upstream facilities left unrestored in 2.2.2 return as this project's own versions. **Reset**: the Advanced page gains a danger zone that restores the runtime's factory defaults — but keeps the deployment's identity (UUID, hosts, subscription token), any Telegram/Cloudflare credentials, the chain entry, and the random-IP-off baseline; before resetting it downloads a backup of the current config and keeps a browser-local copy, so **恢复上次备份 (restore backup)** undoes a reset in one click. **Updates**: the overview gains a version panel that checks this repository's CHANGELOG for the latest integration version and links to the changelog and the repo — no upstream addresses involved.
+- 2.2.2 里没补的两项（重置配置、更新面板）以自有版本回归：重置保留身份、凭据与链式入口，执行前下载备份且可一键撤销；更新面板查本仓库的 CHANGELOG 判断是否有新版本。
+- Settings gains a **simple mode** (常用分组 only — the advanced groups hide), the gRPC UserAgent field gains a "fill with the current browser UA" button, the security self-check adds a built-in-conversion item, and the log view gains a text filter.
+- 设置加简洁模式；gRPC UserAgent 可一键填入当前浏览器 UA；安全自检加「订阅转换走内置」一项；日志加过滤框。
+
 ## [integration 2.2.2] - 2026-11-01
 
 ### Console convenience restored to upstream parity
