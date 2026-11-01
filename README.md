@@ -59,6 +59,23 @@ ipf://JP-HK-SG-US?limit=10
 Every `/sub` generation then expands that entry in-process into fresh country-filtered IPs from the built-in module (regions separated by `-`, `limit` = max per region). No HTTP self-request is involved — Cloudflare forbids a Worker from fetching its own routes, so the older "paste your own filter URL into ADD" approach cannot work from the same deployment; `ipf://` is the supported way. One deployment is fully self-contained: proxy, filter and subscription source in a single `_worker.js`.
 此后每次生成 `/sub` 订阅，都会在进程内把该条目展开为本模块的国家筛选结果（地区用 `-` 连接，`limit` 为单地区上限）。全程不发 HTTP 自调用——Cloudflare 禁止 Worker 请求自身路由，所以"把本站筛选 URL 填进 ADD"这种旧接法在同部署内必然失败，`ipf://` 才是正解。一个部署即自包含：代理、筛选、订阅数据源全在同一个 `_worker.js` 里。
 
+#### Your regions, your counts / 地区与数量完全自选
+
+The `ipf://JP-HK-SG-US?limit=10` line is only the shipped default — nothing about it is hard-coded. The entry is plain data in the preferred-IP list, so every deployer chooses freely. Fresh deployments even work out of the box: random-IP mode now defaults to OFF in this project, and with no custom list set, the default entry above is used automatically.
+`ipf://JP-HK-SG-US?limit=10` 只是出厂默认，代码里没有任何写死。它就是优选列表里的一行普通数据，每个部署者都能自由改。新装开箱即用：本项目已把随机 IP 模式的默认值改为关，未设置自定义列表时自动使用上面这条默认条目。
+
+| Want 想要 | Write 写 |
+| --- | --- |
+| Only Japan, 20 nodes 只要日本 20 个 | `ipf://JP?limit=20` |
+| Five regions, 5 each 五个地区各 5 个 | `ipf://JP-HK-SG-TW-KR?limit=5` |
+| A region with no cap 某地区不限量 | `ipf://DE?limit=0` |
+| Different caps per set 不同组合不同量 | two lines 两行：`ipf://JP?limit=20` + `ipf://US-DE?limit=5` |
+| Filtered + hand-picked mixed 筛选与手填混排 | add plain lines like `1.2.3.4:443#MyNode` next to the `ipf://` lines 在 `ipf://` 行旁加 `1.2.3.4:443#我的节点` 这类普通行 |
+
+- Any of the 70+ region codes works — browse them visually at `/ips-ui` or fetch the full list from `/?get_regions=1`. 全部 70 多个地区代码任选，可在 `/ips-ui` 图形化浏览，或用 `/?get_regions=1` 取全量列表。
+- Entries take effect on the next subscription fetch; no redeploy needed. 改完下一次拉订阅即生效，无需重新部署。
+- Prefer the upstream behavior instead? Turn random-IP mode back ON in the subscription-generation settings and the `ipf://` entries are bypassed. 想用回上游行为：在订阅生成设置里把随机 IP 模式打开即可，`ipf://` 条目会被绕过。
+
 Filter UI preview / 筛选界面预览:
 
 <img src="https://raw.githubusercontent.com/dukangalex/Cloudflare-Country-Specific-IP-Filter/main/Image/Light.png" width="100%" style="border-radius: 10px;">

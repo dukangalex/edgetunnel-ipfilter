@@ -1,3 +1,10 @@
+## [integration 1.2] - 2026-10-31
+
+### Change
+
+- Fresh deployments now use the built-in filter out of the box: random-IP mode defaults to OFF, and with no custom preferred-IP list set, subscription generation falls back to the default entry `ipf://JP-HK-SG-US?limit=10`. The entry is ordinary editable data — any regions, any per-region limit, multiple `ipf://` lines, mixed with hand-written entries — and takes effect on the next subscription fetch.
+- 新装开箱即走内置筛选：随机 IP 模式默认关闭，未设置自定义优选列表时订阅生成自动使用默认条目 `ipf://JP-HK-SG-US?limit=10`。该条目是可自由编辑的普通数据——地区、单地区数量、多条 `ipf://`、与手写条目混排均可，改完下一次拉订阅即生效。
+
 ## [integration 1.1] - 2026-10-31
 
 ### Integration

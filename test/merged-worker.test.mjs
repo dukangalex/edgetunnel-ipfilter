@@ -144,3 +144,56 @@ test('订阅经 ipf:// 条目进程内生成 (整合闭环) 且 config.json 只�
     assert.equal(getCounts['config.json'], 1, '30 秒内第二次请求应命中配置缓存');
     assert.equal(getCounts['ADD.txt'], 2, 'ADD.txt 不缓存, 每次订阅都读');
 });
+
+// 与上一个用例共用同一份 config 语义 (随机IP 关), 只换 ADD.txt 内容。
+async function callSubWithAdd(addText) {
+    const testUuid = '11111111-2222-4333-8444-555555555555';
+    const configFixture = {
+        协议类型: 'vless', 传输协议: 'ws',
+        优选订阅生成: {
+            local: true,
+            本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 },
+            SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3,
+        },
+        订阅转换配置: {
+            SUBAPI: 'https://subapi.example.invalid', SUBCONFIG: 'https://config.example.invalid/x.ini',
+            SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false,
+            APPEND_TYPE: false, SORT: false, EXPAND: true,
+        },
+        CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
+        反代: { PROXYIP: 'auto', SOCKS5: { 启用: null, 全局: false, 账号: '', 白名单: [] } },
+        TG: { 启用: false, BotToken: null, ChatID: null },
+    };
+    const kvStore = { 'config.json': JSON.stringify(configFixture) };
+    if (addText !== null) kvStore['ADD.txt'] = addText;
+    const envX = {
+        ADMIN: 'test-admin-pass', UUID: testUuid,
+        KV: {
+            async get(k) { return kvStore[k] ?? null; },
+            async put(k, v) { kvStore[k] = v; },
+        },
+    };
+    const token = md5md5('x.test' + testUuid);
+    const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'subconverter' } });
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, envX, { waitUntil() {} });
+    let body = await res.text();
+    if (!body.startsWith('vless://')) {
+        try { body = Buffer.from(body, 'base64').toString('utf8'); } catch { /* keep raw */ }
+    }
+    return body.split('\n').filter(l => l.startsWith('vless://'));
+}
+
+test('多条 ipf:// 条目可混排 (不同地区/数量 + 手写 IP 并存)', async () => {
+    const links = await callSubWithAdd('ipf://JP?limit=1\n9.9.9.9:443#手动节点\nipf://US?limit=2');
+    assert.equal(links.length, 4, 'JP 1 + 手写 1 + US 2');
+    assert.ok(links.some(l => l.includes('@9.9.9.9:443')), '手写条目原样保留');
+    assert.equal(links.filter(l => l.includes('@1.1.1.')).length, 1, 'JP 只取 limit=1');
+    assert.equal(links.filter(l => l.includes('@2.2.2.')).length, 2, 'US 取满 limit=2');
+});
+
+test('未设置 ADD.txt 时使用内置筛选默认条目 (新装开箱即优选)', async () => {
+    const links = await callSubWithAdd(null);
+    assert.equal(links.length, 4, '默认条目 JP-HK-SG-US?limit=10, 夹具中 JP/US 各 2 条');
+    assert.ok(links.every(l => l.includes('@1.1.1.') || l.includes('@2.2.2.')));
+});
