@@ -212,7 +212,9 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
     globalThis.fetch = async (input, init) => {
         const u = typeof input === 'string' ? input : input.url;
         if (u.includes('edt-pages.github.io')) {
-            return new Response('<html><body><div id="customIPSection"><textarea id="customIPs"></textarea></div></body></html>', {
+            // 复刻上游真实页面陷阱: <template> 内容里有一个字面量 </body>,
+            // 注入必须落在文档真正的 </body> (最后一个) 之前, 不能进模板。
+            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div></body></html>', {
                 status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
             });
         }
@@ -238,6 +240,8 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         assert.ok(html.includes('id="customIPs"'), '原始管理页内容应保留');
         assert.ok(html.includes('ipf-admin-card'), '应注入内置入口脚本');
         assert.ok(html.includes('内置国家优选'), '注入脚本应含卡片文案');
+        assert.ok(html.indexOf('ipf-admin-card') > html.indexOf('</template>'), '注入脚本不得落进 <template> 内容');
+        assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
     } finally {
         globalThis.fetch = realFetch;
     }

@@ -1,3 +1,10 @@
+## [integration 1.4.1] - 2026-10-31
+
+### Fix
+
+- Admin card injection anchored to the **last** `</body>` — the upstream admin page embeds a `<template>` whose content contains a literal `</body>`, and injecting at the first occurrence buried the script inside the template where it never runs. The injected admin response is also marked `Cache-Control: no-store` so the shell can never go stale after an upgrade.
+- 管理页卡片注入改为锚定**最后一个** `</body>`——上游管理页内嵌的 `<template>` 内容里有一个字面量 `</body>`，注入到第一个会出现脚本被埋进模板、永不执行。注入后的管理页同时标注 `Cache-Control: no-store`，杜绝外壳缓存导致升级后看不到新版。
+
 ## [integration 1.4] - 2026-10-31
 
 ### Built-in admin entry
