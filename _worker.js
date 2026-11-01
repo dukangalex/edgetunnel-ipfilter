@@ -924,6 +924,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);outline:none;bo
 .mbox .kv{color:var(--sub);font-size:12px}
 .mbox .row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-top:1px solid var(--line)}
 .netsw{margin-left:8px;padding:1px 8px;font-size:11px}
+.srow{padding:7px 0;border-bottom:1px dashed var(--line)} .srow .btn{margin-left:8px}
 .fdiv{margin:14px 0 2px;font-size:12px;color:var(--sub);border-top:1px dashed var(--line);padding-top:10px}
 .qrbox{background:#fff;padding:10px;border-radius:10px;width:max-content;max-width:100%}.qrbox svg{width:220px;height:220px;display:block}
 .linkbox{flex:1;min-width:220px;background:var(--s2);border:1px solid var(--hl);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:12.5px;word-break:break-all;color:var(--inkm)}
@@ -961,7 +962,7 @@ th{color:var(--inks);font-weight:600}
       <button data-sec="logs">📄 日志</button>
     </nav>
     <div class="railfoot">
-      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.5.0</span></div>
+      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.6.0</span></div>
       <div class="row"><button class="tbtn" id="themeBtn" type="button">切换浅色</button><a class="tbtn" href="/logout">退出登录</a></div>
     </div>
   </aside>
@@ -970,12 +971,18 @@ th{color:var(--inks);font-weight:600}
       <p class="secintro">先看这里：服务状态、四路网络出口检测与安全自检都在这一页，打开后台先扫一眼有没有异常。</p>
       <div class="banner" id="hostBanner" hidden><span id="hostBannerTxt"></span><button class="btn sm" id="hostBannerOk" type="button">知道了</button></div>
       <h2 class="ptitle">概览</h2>
+<div class="panel" id="startPanel"><h3>第一次使用？四步上手</h3>
+<div class="srow">1. 先选节点地区：到「优选生成」页勾选想要的国家/地区。<button class="btn sm gobtn" data-go="regions" type="button">去选地区</button></div>
+<div class="srow">2. 拿订阅链接：到「订阅」页复制链接（或扫二维码）。<button class="btn sm gobtn" data-go="subs" type="button">去拿链接</button></div>
+<div class="srow">3. 把链接导入你的客户端（Clash / sing-box / Shadowrocket 等），更新订阅，能刷出节点就是部署成功。</div>
+<div class="srow">4. 进阶功能都在左侧栏：链式代理在「订阅」页，用量与通知在「设置」页，慢慢探索即可。</div>
+<div class="linkrow" style="margin-top:8px"><button class="btn sm" id="startHide" type="button">知道了，不再显示</button></div></div>
       <div class="cards">
         <div class="panel"><div class="kv">出口信息（本机请求）</div><div class="val" id="ovIp">加载中…</div><div class="mut" id="ovIpSub"></div></div>
-        <div class="panel"><div class="kv">节点池状态</div><div class="val" id="ovPool">加载中…</div><div class="mut">四模块共用同一活池，订阅生成时逐个实测</div></div>
+        <div class="panel"><div class="kv">节点池状态</div><div class="val" id="ovPool">加载中…</div><div class="mut">四模块共用同一可用节点池，订阅生成时逐个实测</div></div>
         <div class="panel"><div class="kv">优选订阅</div><div class="val" id="ovSub">加载中…</div><div class="mut">在「优选生成」里调整地区与数量</div></div>
         <div class="panel"><div class="kv">安全自检</div><div class="val" id="ovSec">—</div></div>
-        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.5.0</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><button class="btn sm" id="updLogBtn" type="button">查看更新日志</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div><pre id="updLog" class="mono" style="display:none;white-space:pre-wrap;max-height:320px;overflow:auto;margin-top:10px;font-size:12px;line-height:1.6"></pre></div>
+        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.6.0</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><button class="btn sm" id="updLogBtn" type="button">查看更新日志</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div><pre id="updLog" class="mono" style="display:none;white-space:pre-wrap;max-height:320px;overflow:auto;margin-top:10px;font-size:12px;line-height:1.6"></pre></div>
         <div class="panel" id="ovUsagePanel" style="display:none"><div class="kv">Cloudflare 用量</div><div class="val" id="ovUsage">—</div><div class="bar"><i id="ovUsageBar" style="width:0%"></i></div></div>
       </div>
       <div class="panel"><h3>服务信息</h3><div class="grid2">
@@ -1010,16 +1017,16 @@ th{color:var(--inks);font-weight:600}
 <div class="srow"><div class="slabel">Quantumult X</div><div class="linkrow"><div class="linkbox" id="subQuanxMask">—</div><button class="btn sm" id="subQuanxShow" type="button">显示</button><button class="btn sm" id="subQuanxCopy" type="button">复制</button><button class="btn sm" id="subQuanxQr" type="button">二维码</button></div></div>
 <p class="mut">分格式链接在链接上带格式标记，不依赖客户端 UA。注意 Surge 本身不支持 VLESS 协议：当前节点为 VLESS 时，Surge 链接会返回一段说明文字（协议限制，不是故障）。</p><p class="mut">关于令牌：订阅链接里的 token 由「主机名 + UUID」计算生成，更换 UUID 后 token 随之变化、旧链接立即失效。UUID 在「概览」页可见末四位，完整值只在部署变量中修改。</p></div>
 <div class="panel"><h3>链式代理</h3>
-<p class="mut">链路长这样：你的设备 → 入口节点（第一跳）→ 出口节点（落地）→ 目标站。出口固定为本部署的节点（自动，不用配）；入口在下面配。没有合适的外部入口就留空，那就是单跳直连。</p>
-<div class="grid2"><div><div class="kv">入口状态</div><div class="val" id="chnStat">—</div></div><div><div class="kv">出口</div><div class="val">本部署节点（自动）</div></div></div>
-<div class="linkrow" style="margin-top:10px"><button class="btn sm" id="chnEditBtn" type="button">更换入口</button><button class="btn sm" id="chnRefreshBtn" type="button">刷新为本部署节点快照</button><button class="btn sm warn" id="chnClearBtn" type="button">清空入口（恢复单跳）</button></div>
-<div id="chnEdit" style="display:none;margin-top:10px"><textarea id="chnTxt" rows="5" placeholder="一行一个节点链接，或多条用 | 分隔；也可以填一个订阅地址"></textarea><div class="linkrow" style="margin-top:8px"><button class="btn primary sm" id="chnSaveBtn" type="button">保存入口</button><span class="mut" id="chnMsg"></span></div><p class="mut">把别的机场或部署的节点作入口填这里。注意：填本部署自己的节点就是「自链」——落地 IP 不变、只是多绕一跳，一般不建议。</p></div>
+<p class="mut">链式代理是让流量多绕一站：你的设备 → 入口节点（第一跳）→ 出口节点（真正落地）→ 目标站。这里的出口就是你这个部署的节点，不用配；要配的是入口——通常填另一个机场或另一套部署。入口留空 = 不绕站，单跳直连。</p>
+<div class="grid2"><div><div class="kv">入口状态</div><div class="val" id="chnStat">—</div></div><div><div class="kv">出口</div><div class="val">你这个部署的节点（自动）</div></div></div>
+<div class="linkrow" style="margin-top:10px"><button class="btn sm" id="chnEditBtn" type="button">更换入口</button><button class="btn sm" id="chnRefreshBtn" type="button">填入本部署自己的节点</button><button class="btn sm warn" id="chnClearBtn" type="button">清空入口（恢复单跳）</button></div>
+<div id="chnEdit" style="display:none;margin-top:10px"><textarea id="chnTxt" rows="5" placeholder="粘贴订阅地址，或一行一个节点链接"></textarea><div class="linkrow" style="margin-top:8px"><button class="btn primary sm" id="chnSaveBtn" type="button">保存入口</button><span class="mut" id="chnMsg"></span></div><p class="mut">把另一个机场或部署的订阅地址、或节点链接填进来（一行一个，或用 | 分隔）。注意：入口填你这个部署自己的节点，落地不会变、只是多绕一圈，一般不用这么填。</p></div>
 </div>
       <div class="panel"><h3>路径</h3><div class="grid2"><div><div class="kv">节点路径</div><div class="val mono" id="subPath">—</div></div><div><div class="kv">完整节点路径</div><div class="val mono" id="subFullPath">—</div></div></div></div>
       <div class="panel" id="qrPanel" style="display:none"><h3 id="qrTitle">二维码</h3><div id="qrBox" class="qrbox"></div><p class="mut">用客户端扫码导入。二维码内容含凭据，请勿截图外发。</p></div>
     </section>
     <section id="sec-regions">
-      <p class="secintro">选择要优选的国家/地区并保存，订阅会自动追加对应地区的优选节点；节点经活池实时探测，失效的会被自动剔除。</p>
+      <p class="secintro">选择要优选的国家/地区并保存，订阅会自动追加对应地区的优选节点；节点经可用节点池实时探测，失效的会被自动剔除。</p>
       <h2 class="ptitle">优选生成</h2>
       <div class="panel">
         <p class="mut" id="rgStatus">加载中…</p>
@@ -1040,7 +1047,7 @@ th{color:var(--inks);font-weight:600}
       <p class="secintro">三个整合工具都在本部署内运行：优选 IP 筛选、SOCKS5 检测、订阅链式转换，数据不经过第三方页面。</p>
       <h2 class="ptitle">整合工具</h2>
       <div class="tools">
-        <a class="tool" href="/ips-ui"><div class="tt">🌏 国家优选筛选</div><div class="td">按国家筛选优选 IP，活池实测</div></a>
+        <a class="tool" href="/ips-ui"><div class="tt">🌏 国家优选筛选</div><div class="td">按国家筛选优选 IP，可用节点池实测</div></a>
         <a class="tool" href="/socks5-ui"><div class="tt">🔎 代理检测</div><div class="td">SOCKS5 / HTTP / TURN / SSTP 可用性与出口检测</div></a>
         <a class="tool" href="/convert"><div class="tt">🔗 订阅转换</div><div class="td">六种格式齐全，支持链式代理与短链</div></a>
       </div>
@@ -3396,7 +3403,7 @@ function copyText(t){if(!t){toast('没有可复制的内容',true);return;}
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('已复制');},function(){legacyCopy(t);});}else legacyCopy(t);}
 function legacyCopy(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制');}catch(e){toast('复制失败，请手动复制',true);}document.body.removeChild(ta);}
 function poolText(s){
-  var t='活池：共 '+s.total+' 条 · 本会话实测 '+s.sessionProbed+'，存活 '+s.sessionAlive+' · 历史档案 '+s.healthTracked+' 条（存活 '+s.knownAlive+' / 死亡 '+s.knownDead+'）';
+  var t='可用节点池：共 '+s.total+' 条 · 本会话实测 '+s.sessionProbed+'，存活 '+s.sessionAlive+' · 历史档案 '+s.healthTracked+' 条（存活 '+s.knownAlive+' / 死亡 '+s.knownDead+'）';
   $('ovPool').textContent=t;$('rgPool').textContent=t;$('toolPool').textContent=t;
 }
 function loadOverview(){
@@ -3592,7 +3599,7 @@ var HINTS={
  'ECHConfig>DNS':'用来获取 ECH 配置的 DNS 服务。选国内 DNS（阿里 / 腾讯 / 360 / OneDNS）时，下面的解析域名会自动联动为 cloudflare-ech.com。',
  'ECHConfig>SNI':'用来解析 ECH 配置的域名，不是节点伪装域名；拿不准就选「自动」或 cloudflare-ech.com。',
  '优选订阅生成>local':'开启后，订阅在本部署内按下方规则生成优选节点，不依赖外部优选服务。',
- '优选订阅生成>本地IP库>随机IP':'从本地 IP 库随机抽取地址生成节点；本部署已用「活池」实时探测（见优选生成页），默认关闭。',
+ '优选订阅生成>本地IP库>随机IP':'从本地 IP 库随机抽取地址生成节点；本部署已用「可用节点池」实时探测（见优选生成页），默认关闭。',
  '优选订阅生成>本地IP库>随机数量':'每次随机抽取的 IP 数量，仅在随机 IP 开启时有效。',
  '优选订阅生成>本地IP库>指定端口':'优选节点使用的端口；-1 表示随机（默认）。',
  '优选订阅生成>SUBNAME':'订阅在客户端里显示的名字。',
@@ -3775,7 +3782,7 @@ function loadLogs(){
 }
 $('logRefresh').onclick=function(){loaded.logs=1;loadLogs();};
 $('logFilter').addEventListener('input',function(){if(loaded.logs)loadLogs();});
-var CUR_VER='2.5.0';
+var CUR_VER='2.6.0';
 function cmpVer(a,b){var x=a.split('.').map(Number),y=b.split('.').map(Number);for(var i=0;i<3;i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)?1:-1;}return 0;}
 function checkUpdate(){var st=$('updStat');if(!st)return;st.textContent='检查中…';fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){window.__clTxt=t;var m=t.match(/\\[integration ([0-9]+\\.[0-9]+\\.[0-9]+)\\]/);if(!m){st.textContent='无法解析仓库版本';return;}var latest=m[1];var c=cmpVer(latest,CUR_VER);if(c===0)st.textContent='已是最新版';else if(c>0)st.textContent='有新版本 '+latest+' 可用，见更新日志';else st.textContent='本地版本领先于仓库发布（'+latest+'）';}).catch(function(){st.textContent='检查失败，可手动前往仓库查看';});}
 $('updCheck').onclick=checkUpdate;
@@ -3953,7 +3960,7 @@ window.__renderChain=function(){
   else{
     var links=v.split('|').map(function(x){return x.trim();}).filter(Boolean);
     var own = CFG.UUID && v.indexOf(CFG.UUID)>=0;
-    st.textContent=(own?'本部署节点快照（自链）':'自定义入口')+' · '+links.length+' 条';
+    st.textContent=(own?'本部署自己的节点（落地不变）':'外部入口')+' · '+links.length+' 条';
   }
   var tx=$('chnTxt'); if(tx) tx.value=v;
 };
@@ -3970,7 +3977,7 @@ $('chnRefreshBtn').onclick=function(){
     var links=t.split(/\\r?\\n/).map(function(x){return x.trim();}).filter(function(x){return x.indexOf('://')>0;});
     if(!links.length)throw new Error('没有拉到节点');
     $('chnEdit').style.display=''; $('chnTxt').value=links.join('|');
-    $('chnMsg').textContent='已生成快照 '+links.length+' 条，点「保存入口」生效（自链，一般不建议）';
+    $('chnMsg').textContent='已填入本部署节点 '+links.length+' 条，点「保存入口」生效（落地不变，一般不用）';
   }).catch(function(e){ $('chnMsg').textContent='刷新失败：'+e.message; });
 };
 var __chnArm=false;
@@ -3980,6 +3987,13 @@ $('chnClearBtn').onclick=function(){
   __chnArm=false; b.textContent='清空入口（恢复单跳）';
   __saveChain('','已清空入口，恢复单跳直连');
 };
+
+// ---------- first-run guide ----------
+(function(){ var sp=document.getElementById('startPanel'); if(!sp)return;
+  if(localStorage.getItem('ipf-nostart')) sp.style.display='none';
+  document.getElementById('startHide').onclick=function(){ localStorage.setItem('ipf-nostart','1'); sp.style.display='none'; };
+  sp.querySelectorAll('.gobtn').forEach(function(b){ b.onclick=function(){ var t=document.querySelector('.rail button[data-sec="'+b.dataset.go+'"]'); if(t)t.click(); }; });
+})();
 
 checkUpdate();
 loadOverview();loadConfig();loadRegions();
