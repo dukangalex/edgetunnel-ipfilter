@@ -72,6 +72,7 @@ The `ipf://JP-HK-SG-US?limit=10` line is only the shipped default — nothing ab
 | Different caps per set 不同组合不同量 | two lines 两行：`ipf://JP?limit=20` + `ipf://US-DE?limit=5` |
 | Filtered + hand-picked mixed 筛选与手填混排 | add plain lines like `1.2.3.4:443#MyNode` next to the `ipf://` lines 在 `ipf://` 行旁加 `1.2.3.4:443#我的节点` 这类普通行 |
 
+- **Built-in admin entry / 后台内置入口**: the admin page (`/admin` → 优选订阅生成） grows a **「🌏 内置国家优选」** card right above the custom-IP editor — pick regions as chips, set the per-region count, click 启用并保存. No syntax to memorize; the card writes the `ipf://` entry for you through the admin's own save channel, and shows the current state whenever you open the page. 后台「优选订阅生成」里、自定义优选编辑器正上方有内置卡片：点选地区、填数量、一键保存，不用记任何语法，卡片会通过后台自身的保存通道写入，并实时显示当前启用状态。
 - Any of the 70+ region codes works — browse them visually at `/ips-ui` or fetch the full list from `/?get_regions=1`. 全部 70 多个地区代码任选，可在 `/ips-ui` 图形化浏览，或用 `/?get_regions=1` 取全量列表。
 - Entries take effect on the next subscription fetch; no redeploy needed. 改完下一次拉订阅即生效，无需重新部署。
 - Prefer the upstream behavior instead? Turn random-IP mode back ON in the subscription-generation settings and the `ipf://` entries are bypassed. 想用回上游行为：在订阅生成设置里把随机 IP 模式打开即可，`ipf://` 条目会被绕过。

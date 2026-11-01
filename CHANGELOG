@@ -1,3 +1,10 @@
+## [integration 1.4] - 2026-10-31
+
+### Built-in admin entry
+
+- The admin page gains a 「🌏 内置国家优选」 card above the custom-IP editor (the upstream admin UI is proxied, so the card is injected while serving it — fully defensive: any failure leaves the original page untouched). Region chips are loaded from the deployment's own region list, the per-region count is a plain number input, and 启用并保存 / 停用 write through the admin's own `/admin/ADD.txt` channel. The card reflects the current `ipf://` state on open and warns when the subscription mode is not set to custom.
+- 管理页新增内置入口卡片：位于自定义优选编辑器上方（上游管理页为代理加载，卡片在下发时注入，全防御式，失败不影响原页面）。地区选项从本部署的地区列表实时加载，数量为普通数字输入，启用/停用经后台自有 `/admin/ADD.txt` 通道保存；打开页面即显示当前 `ipf://` 状态，订阅模式非自定义时给出提示。
+
 ## [integration 1.3] - 2026-10-31
 
 ### Deployment parity

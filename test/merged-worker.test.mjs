@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 const origDigest = globalThis.crypto.subtle.digest.bind(globalThis.crypto.subtle);
 globalThis.crypto.subtle.digest = async (algo, data) => {
@@ -196,4 +197,48 @@ test('未设置 ADD.txt 时使用内置筛选默认条目 (新装开箱即优选
     const links = await callSubWithAdd(null);
     assert.equal(links.length, 4, '默认条目 JP-HK-SG-US?limit=10, 夹具中 JP/US 各 2 条');
     assert.ok(links.every(l => l.includes('@1.1.1.') || l.includes('@2.2.2.')));
+});
+
+test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理时注入卡片脚本', async () => {
+    const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
+    const b64 = src.match(/const IPF_管理页脚本_B64 = '([A-Za-z0-9+/=]+)'/);
+    assert.ok(b64, '应内嵌 base64 注入脚本');
+    const code = Buffer.from(b64[1], 'base64').toString('utf8');
+    assert.ok(code.includes('customIPSection') && code.includes('ipf://'), '脚本应包含卡片锚点与 ipf 逻辑');
+    assert.doesNotThrow(() => new Function(code), '注入脚本应为合法 JS');
+    assert.equal((src.match(/IPF_注入管理页\(await fetch/g) || []).length, 1, '管理页代理应只在一处接入注入');
+
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (input, init) => {
+        const u = typeof input === 'string' ? input : input.url;
+        if (u.includes('edt-pages.github.io')) {
+            return new Response('<html><body><div id="customIPSection"><textarea id="customIPs"></textarea></div></body></html>', {
+                status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
+            });
+        }
+        return realFetch(input, init);
+    };
+    try {
+        const ua = 'ipf-test-ua';
+        const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+        const cookie = md5md5(ua + secret + 'test-admin-pass');
+        const kvStore = {};
+        const envA = {
+            ADMIN: 'test-admin-pass',
+            KV: {
+                async get(k) { return kvStore[k] ?? null; },
+                async put(k, v) { kvStore[k] = v; },
+            },
+        };
+        const req = new Request('https://x.test/admin', { headers: { 'User-Agent': ua, Cookie: 'auth=' + cookie } });
+        Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        const res = await worker.fetch(req, envA, { waitUntil() {} });
+        assert.equal(res.status, 200);
+        const html = await res.text();
+        assert.ok(html.includes('id="customIPs"'), '原始管理页内容应保留');
+        assert.ok(html.includes('ipf-admin-card'), '应注入内置入口脚本');
+        assert.ok(html.includes('内置国家优选'), '注入脚本应含卡片文案');
+    } finally {
+        globalThis.fetch = realFetch;
+    }
 });
