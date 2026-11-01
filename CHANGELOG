@@ -1,3 +1,12 @@
+## [integration 3.0.0] - 2026-11-01
+
+### Admin UI returns to the upstream layout, with this project's features fused in
+
+- The admin and login pages are once again the upstream EDT-Pages pages (vendored into the Worker, still fully self-hosted — nothing is fetched from the Pages site at runtime), so upstream users keep their exact operating habits. No upstream feature was removed.
+- 管理与登录页恢复为上游 EDT-Pages 页面（内嵌进 Worker，依然完全自托管，运行时不从 Pages 站点抓取），上游用户的操作习惯原样保留，上游功能一个未删。
+- This project's features are fused in as native modules of the same page: a Chain module next to the converter settings, a region picker inside the preferred-subscription module (tick regions instead of collecting addresses), a tools module linking the region filter / proxy checker / chain converter pages, and the built-in converter offered as the first backend option. Data and update endpoints point at this repository's self-hosted copies.
+- 本项目功能以同页原生模块的形式融合：订阅转换旁的链式代理模块、优选订阅生成内的地区勾选（勾地区代替收集地址）、整合工具模块（地区筛选/代理检测/链式转换入口），内置转换列为后端第一选项；数据与更新端点指向本仓库的自托管副本。
+
 ## [integration 2.6.0] - 2026-11-01
 
 ### Written for first-time deployers

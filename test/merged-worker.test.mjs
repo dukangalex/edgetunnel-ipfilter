@@ -392,12 +392,13 @@ test('订阅转换 (CHN): edgetunnel /sub 经内置转换器出 Clash (无外部
     assert.ok(!body.includes('订阅转换后端异常'), '不得出现外部后端异常');
 });
 
-test('自研管理台 (2.2): 页面自带零代理, 登录流与鉴权完整', async () => {
+test('上游 UI 管理台 (3.0): 页面自带零代理, 登录流与鉴权完整, 自有模块已融合', async () => {
     const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
     assert.ok(!src.includes('fetch(Pages静态页面'), '不得再从 edt-pages 抓取任何页面');
     assert.ok(!src.includes('__IPF_ADMIN_B64__') && !src.includes('IPF_注入管理页'), '旧注入机制应已移除');
-    assert.ok(src.includes('管理台 · edgetunnel-ipfilter'), '应内嵌自研管理台页面');
-    assert.ok(src.includes('登录 · edgetunnel-ipfilter'), '应内嵌自研登录页');
+    assert.ok(src.includes('preferredSubscriptionModule'), '应内嵌上游 UI 管理页');
+    assert.ok(src.includes('ipfChainModule') && src.includes('edgetunnel-ipfilter added modules'), '应融合自有模块脚本');
+    assert.ok(src.includes('登录设置页面'), '应内嵌上游 UI 登录页');
 
     const ua = 'ipf-test-ua';
     const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
@@ -422,9 +423,8 @@ test('自研管理台 (2.2): 页面自带零代理, 登录流与鉴权完整', a
     res = await callA('https://x.test/login');
     assert.equal(res.status, 200);
     let body = await res.text();
-    assert.ok(body.includes('管理台登录') && body.includes('edgetunnel-ipfilter'), '登录页应为自研页面');
+    assert.ok(body.includes('登录设置页面') && body.includes('edgetunnel-ipfilter'), '登录页应为本项目登录页');
     assert.ok(body.includes('github.com/dukangalex/edgetunnel-ipfilter'), '登录页应带本项目联系方式');
-    assert.ok(!body.includes('edt-pages'), '登录页不得出现上游页面来源');
     // 已登录: /login -> 302 /admin; /admin -> 自研管理台
     res = await callA('https://x.test/login', { cookie: true });
     assert.equal(res.status, 302);
@@ -432,9 +432,8 @@ test('自研管理台 (2.2): 页面自带零代理, 登录流与鉴权完整', a
     res = await callA('https://x.test/admin', { cookie: true });
     assert.equal(res.status, 200);
     body = await res.text();
-    assert.ok(body.includes('管理台 · edgetunnel-ipfilter'), '/admin 应返回自研管理台');
-    assert.ok(body.includes('优选生成') && body.includes('整合工具') && body.includes('sec-settings') && body.includes('sec-logs'), '管理台应含各功能区');
-    assert.ok(!body.includes('edt-pages'), '管理台不得出现上游页面来源');
+    assert.ok(body.includes('preferredSubscriptionModule'), '/admin 应返回上游 UI 管理页');
+    assert.ok(body.includes('优选订阅生成') && body.includes('ipfChainModule') && body.includes('ipfToolsModule'), '管理台应含上游模块与自有融合模块');
     assert.equal(res.headers.get('cache-control'), 'no-store');
     // POST /login 正确密码 -> success + auth cookie (与校验同式)
     res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'test-admin-pass' }) });
@@ -444,7 +443,7 @@ test('自研管理台 (2.2): 页面自带零代理, 登录流与鉴权完整', a
     // POST /login 错误密码 -> 回到自研登录页, 不下发成功标记
     res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'wrong-pass' }) });
     body = await res.text();
-    assert.ok(!body.includes('"success":true') && body.includes('管理台登录'), '错误密码应回到自研登录页');
+    assert.ok(!body.includes('"success":true') && body.includes('登录设置页面'), '错误密码应回到登录页');
     // /logout -> 302 且清除 cookie
     res = await callA('https://x.test/logout', { cookie: true });
     assert.equal(res.status, 302);

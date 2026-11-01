@@ -1,22 +1,26 @@
 [
-    {
-        "label": "🔄 CM负载均衡后端",
-        "value": "https://subapi.cmliussss.net"
-    },
-    {
-        "label": "🛟 CM应急备用后端",
-        "value": "https://subapi.fxxk.dedyn.io"
-    },
-    {
-        "label": "⚡ 肥羊增强型后端",
-        "value": "https://api.v1.mk"
-    },
-    {
-        "label": "🛡️ 肥羊备用后端",
-        "value": "https://url.v1.mk"
-    },
-    {
-        "label": "🎬 周润发后端",
-        "value": "https://subapi.zrfme.com"
-    }
+ {
+  "label": "内置转换（本部署 · 推荐）",
+  "value": ""
+ },
+ {
+  "label": "🔄 CM负载均衡后端",
+  "value": "https://subapi.cmliussss.net"
+ },
+ {
+  "label": "🛟 CM应急备用后端",
+  "value": "https://subapi.fxxk.dedyn.io"
+ },
+ {
+  "label": "⚡ 肥羊增强型后端",
+  "value": "https://api.v1.mk"
+ },
+ {
+  "label": "🛡️ 肥羊备用后端",
+  "value": "https://url.v1.mk"
+ },
+ {
+  "label": "🎬 周润发后端",
+  "value": "https://subapi.zrfme.com"
+ }
 ]
