@@ -1,3 +1,29 @@
+## [integration 2.4.0] - 2026-11-01
+
+### Guidance everywhere and upstream-parity details
+
+- Every settings field now carries a one-line explanation, every section opens with a guidance line, and key selects annotate their options (ECH DNS providers, ECH-capable fingerprints, transport use cases).
+- 每个设置字段都带一行说明，每个分区顶部有一句引导语，关键下拉的选项带注释（ECH DNS 服务商、支持 ECH 的指纹、传输协议适用场景）。
+- ECH linkage: choosing a domestic DoH preset automatically pairs the ECH SNI with cloudflare-ech.com.
+- ECH 联动：选用国内 DoH 预设时，ECH 解析域名自动配为 cloudflare-ech.com。
+- The settings save button stays disabled until something actually changes; the Cloudflare usage group gained a verify button that checks the credentials currently typed, without saving first.
+- 设置保存按钮在没有改动时保持禁用；Cloudflare 用量组新增「验证凭据并查询用量」，用当前填写的值直接验证，无需先保存。
+- Network module: the walled-egress card can switch between X.com and ChatGPT, and clicking an IP opens a detail view (location, provider, ASN, timezone).
+- 网络模块：墙外测试卡可在 X.com 与 ChatGPT 之间切换来源；点击 IP 可打开详情（地区、运营商、ASN、时区）。
+- The update panel displays the changelog inline; the operation log gained a time column; an overview banner warns when the current domain is not in the host list.
+- 更新面板可直接在页内查看更新日志；操作日志补上时间列；当前域名不在主机列表中时，概览会出现提醒横幅。
+
+## [integration 2.3.0] - 2026-11-01
+
+### Collapsible panels, per-format subscription links, network module
+
+- Every panel in the console can be collapsed with the chevron at its top-right corner; the state is remembered per panel.
+- 管理台所有面板都可用右上角箭头折叠，折叠状态按面板记忆。
+- The subscription section lists one link per format - adaptive, Base64, Clash, sing-box, Surge, Loon, Quantumult X - each masked by default with show / copy / QR actions.
+- 订阅区按格式逐行列出链接：自适应、Base64、Clash、sing-box、Surge、Loon、Quantumult X，默认打码，各带显示 / 复制 / 二维码。
+- New Current Network module on the overview: four egress checks (domestic, international, Cloudflare via this deployment's own endpoint, and a walled-site probe) plus an eight-site latency grid; IPs are masked by default and revealed per card on click.
+- 概览新增「当前网络信息」模块：四路出口检测（国内、国外、Cloudflare 本部署回显、墙外）加八站延迟栅格；IP 默认脱敏，点击卡片才显示真实值。
+
 ## [integration 2.2.3] - 2026-11-01
 
 ### Reset and update, in this project's own image — plus more convenience
