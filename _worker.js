@@ -899,6 +899,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);outline:none;bo
 .btn.sm{padding:5px 10px;font-size:12.5px}
 .linkrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 #sec-settings.simple .advG{display:none}
+.panel{position:relative}
+.pchev{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--sub);cursor:pointer;font-size:13px;line-height:1;z-index:2}
+.panel.closed .pbody{display:none}
+.srow{padding:10px 0;border-top:1px solid var(--line)}
+.srow .slabel{font-size:12px;color:var(--sub);margin-bottom:6px}
+.netgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:10px}
+.netcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.netname{font-size:12px;color:var(--sub);margin-bottom:6px}
+.netip{font-size:15px;word-break:break-all}
+.netloc{font-size:12px;margin-top:2px}
+.nettip{font-size:11px;color:var(--sub);margin-top:6px}
+.latgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.latcard{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.latname{font-size:13px}.latregion{font-size:11px;color:var(--sub);margin-left:6px}
+.latms{font-size:16px;font-weight:600}
+.fhint{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.55}
+.secintro{color:var(--sub);font-size:13px;margin:2px 0 14px;line-height:1.6}
+.banner{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid #b45309;background:rgba(180,83,9,.14);color:var(--ink);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.6}
+.banner[hidden]{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:80;padding:16px}
+.modal[hidden]{display:none}
+.mbox{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:460px;width:100%;max-height:82vh;overflow:auto}
+.mbox .kv{color:var(--sub);font-size:12px}
+.mbox .row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-top:1px solid var(--line)}
+.netsw{margin-left:8px;padding:1px 8px;font-size:11px}
 .qrbox{background:#fff;padding:10px;border-radius:10px;width:max-content;max-width:100%}.qrbox svg{width:220px;height:220px;display:block}
 .linkbox{flex:1;min-width:220px;background:var(--s2);border:1px solid var(--hl);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:12.5px;word-break:break-all;color:var(--inkm)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -935,19 +960,21 @@ th{color:var(--inks);font-weight:600}
       <button data-sec="logs">📄 日志</button>
     </nav>
     <div class="railfoot">
-      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.2.3</span></div>
+      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.4.0</span></div>
       <div class="row"><button class="tbtn" id="themeBtn" type="button">切换浅色</button><a class="tbtn" href="/logout">退出登录</a></div>
     </div>
   </aside>
   <main>
     <section id="sec-overview" class="on">
+      <p class="secintro">先看这里：服务状态、四路网络出口检测与安全自检都在这一页，打开后台先扫一眼有没有异常。</p>
+      <div class="banner" id="hostBanner" hidden><span id="hostBannerTxt"></span><button class="btn sm" id="hostBannerOk" type="button">知道了</button></div>
       <h2 class="ptitle">概览</h2>
       <div class="cards">
         <div class="panel"><div class="kv">出口信息（本机请求）</div><div class="val" id="ovIp">加载中…</div><div class="mut" id="ovIpSub"></div></div>
         <div class="panel"><div class="kv">节点池状态</div><div class="val" id="ovPool">加载中…</div><div class="mut">四模块共用同一活池，订阅生成时逐个实测</div></div>
         <div class="panel"><div class="kv">优选订阅</div><div class="val" id="ovSub">加载中…</div><div class="mut">在「优选生成」里调整地区与数量</div></div>
         <div class="panel"><div class="kv">安全自检</div><div class="val" id="ovSec">—</div></div>
-        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.2.3</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter/blob/main/CHANGELOG" target="_blank" rel="noopener">更新日志</a><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div></div>
+        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.4.0</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><button class="btn sm" id="updLogBtn" type="button">查看更新日志</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div><pre id="updLog" class="mono" style="display:none;white-space:pre-wrap;max-height:320px;overflow:auto;margin-top:10px;font-size:12px;line-height:1.6"></pre></div>
         <div class="panel" id="ovUsagePanel" style="display:none"><div class="kv">Cloudflare 用量</div><div class="val" id="ovUsage">—</div><div class="bar"><i id="ovUsageBar" style="width:0%"></i></div></div>
       </div>
       <div class="panel"><h3>服务信息</h3><div class="grid2">
@@ -956,15 +983,36 @@ th{color:var(--inks);font-weight:600}
         <div><div class="kv">UUID（已打码）</div><div class="val mono" id="ovUuid">—</div></div>
         <div><div class="kv">协议 / 传输</div><div class="val" id="ovProto">—</div></div>
       </div></div>
+      <div class="panel"><h3>当前网络信息</h3>
+      <div class="netgrid">
+        <div class="netcard" data-net="cn"><div class="netname">● 国内测试 · mir6 回显</div><div class="netip mono">检测中…</div><div class="netloc">—</div><div class="nettip">你访问国内站点所使用的 IP</div></div>
+        <div class="netcard" data-net="os"><div class="netname">● 国外测试 · ipapi.is</div><div class="netip mono">检测中…</div><div class="netloc">—</div><div class="nettip">你访问未被墙的国外站点所使用的 IP</div></div>
+        <div class="netcard" data-net="cf"><div class="netname">● Cloudflare · 本部署回显</div><div class="netip mono">检测中…</div><div class="netloc">—</div><div class="nettip">你访问 CF 站点所使用的 IP（由本部署自有接口回显）</div></div>
+        <div class="netcard" data-net="x"><div class="netname">● 墙外测试 · <span id="xSrcName">X.com</span><button class="btn sm netsw" id="xSrcBtn" type="button">切换 ChatGPT</button></div><div class="netip mono">检测中…</div><div class="netloc">—</div><div class="nettip" id="xTip">你访问 X 所使用的 IP（由你的 PROXYIP 决定）</div></div>
+      </div>
+      <p class="mut">国内测试由你的分流规则决定，国外测试由你的优选 IP 决定，CF 与墙外测试由你的 PROXYIP 决定。IP 默认脱敏，点击卡片可显示真实值；回显经公共服务完成，本部署不存储这些数据。</p>
+      <div class="latgrid" id="latGrid"></div>
+      <div class="linkrow"><button class="btn sm" id="netRefresh" type="button">重新检测</button><span class="mut" id="netStat"></span></div>
+      </div>
     </section>
     <section id="sec-subs">
+      <p class="secintro">节点与订阅链接都在这里，默认打码，点「显示」才展开；分发给他人前请确认对方可信。</p>
       <h2 class="ptitle">订阅</h2>
       <div class="panel"><h3>节点链接</h3><div class="linkrow"><div class="linkbox" id="subNodeMask">—</div><button class="btn sm" id="subNodeShow" type="button">显示</button><button class="btn sm" id="subNodeCopy" type="button">复制</button><button class="btn sm" id="subNodeQr" type="button">二维码</button></div><p class="mut">含凭据信息，默认打码；复制直接取全文，不要粘贴到公开场合。</p></div>
-      <div class="panel"><h3>自适应订阅链接</h3><div class="linkrow"><div class="linkbox" id="subLinkMask">—</div><button class="btn sm" id="subLinkShow" type="button">显示</button><button class="btn sm" id="subLinkCopy" type="button">复制</button><button class="btn sm" id="subLinkQr" type="button">二维码</button></div><p class="mut">按客户端自动返回对应格式（Clash / sing-box / V2Ray / Surge / Loon / QuanX）。</p></div>
+      <div class="panel"><h3>订阅链接（分格式）</h3>
+<div class="srow"><div class="slabel">自适应（按客户端自动返回对应格式）</div><div class="linkrow"><div class="linkbox" id="subLinkMask">—</div><button class="btn sm" id="subLinkShow" type="button">显示</button><button class="btn sm" id="subLinkCopy" type="button">复制</button><button class="btn sm" id="subLinkQr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">Base64（V2Ray 系通用）</div><div class="linkrow"><div class="linkbox" id="subB64Mask">—</div><button class="btn sm" id="subB64Show" type="button">显示</button><button class="btn sm" id="subB64Copy" type="button">复制</button><button class="btn sm" id="subB64Qr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">Clash / Mihomo</div><div class="linkrow"><div class="linkbox" id="subClashMask">—</div><button class="btn sm" id="subClashShow" type="button">显示</button><button class="btn sm" id="subClashCopy" type="button">复制</button><button class="btn sm" id="subClashQr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">sing-box</div><div class="linkrow"><div class="linkbox" id="subSbMask">—</div><button class="btn sm" id="subSbShow" type="button">显示</button><button class="btn sm" id="subSbCopy" type="button">复制</button><button class="btn sm" id="subSbQr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">Surge</div><div class="linkrow"><div class="linkbox" id="subSurgeMask">—</div><button class="btn sm" id="subSurgeShow" type="button">显示</button><button class="btn sm" id="subSurgeCopy" type="button">复制</button><button class="btn sm" id="subSurgeQr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">Loon</div><div class="linkrow"><div class="linkbox" id="subLoonMask">—</div><button class="btn sm" id="subLoonShow" type="button">显示</button><button class="btn sm" id="subLoonCopy" type="button">复制</button><button class="btn sm" id="subLoonQr" type="button">二维码</button></div></div>
+<div class="srow"><div class="slabel">Quantumult X</div><div class="linkrow"><div class="linkbox" id="subQuanxMask">—</div><button class="btn sm" id="subQuanxShow" type="button">显示</button><button class="btn sm" id="subQuanxCopy" type="button">复制</button><button class="btn sm" id="subQuanxQr" type="button">二维码</button></div></div>
+<p class="mut">分格式链接在链接上带格式标记，不依赖客户端 UA。注意 Surge 本身不支持 VLESS 协议：当前节点为 VLESS 时，Surge 链接会返回一段说明文字（协议限制，不是故障）。</p><p class="mut">关于令牌：订阅链接里的 token 由「主机名 + UUID」计算生成，更换 UUID 后 token 随之变化、旧链接立即失效。UUID 在「概览」页可见末四位，完整值只在部署变量中修改。</p></div>
       <div class="panel"><h3>路径</h3><div class="grid2"><div><div class="kv">节点路径</div><div class="val mono" id="subPath">—</div></div><div><div class="kv">完整节点路径</div><div class="val mono" id="subFullPath">—</div></div></div></div>
       <div class="panel" id="qrPanel" style="display:none"><h3 id="qrTitle">二维码</h3><div id="qrBox" class="qrbox"></div><p class="mut">用客户端扫码导入。二维码内容含凭据，请勿截图外发。</p></div>
     </section>
     <section id="sec-regions">
+      <p class="secintro">选择要优选的国家/地区并保存，订阅会自动追加对应地区的优选节点；节点经活池实时探测，失效的会被自动剔除。</p>
       <h2 class="ptitle">优选生成</h2>
       <div class="panel">
         <p class="mut" id="rgStatus">加载中…</p>
@@ -982,6 +1030,7 @@ th{color:var(--inks);font-weight:600}
       </div>
     </section>
     <section id="sec-tools">
+      <p class="secintro">三个整合工具都在本部署内运行：优选 IP 筛选、SOCKS5 检测、订阅链式转换，数据不经过第三方页面。</p>
       <h2 class="ptitle">整合工具</h2>
       <div class="tools">
         <a class="tool" href="/ips-ui"><div class="tt">🌏 国家优选筛选</div><div class="td">按国家筛选优选 IP，活池实测</div></a>
@@ -991,22 +1040,26 @@ th{color:var(--inks);font-weight:600}
       <div class="panel"><h3>一体化状态</h3><p class="mut" id="toolPool">加载中…</p><p class="mut">检测页可查看当前订阅的实际节点与健康档案；转换接口支持按国家筛选（regions 参数）。</p></div>
     </section>
     <section id="sec-settings">
+      <p class="secintro">改完点本区底部「保存设置」统一生效（有改动时按钮才会亮起）。每个字段下面都有说明，不确定的保持默认即可。</p>
       <h2 class="ptitle">设置</h2>
       <div class="linkrow" style="margin-bottom:12px"><button class="btn sm" id="simpleBtn" type="button">简洁模式：关</button><span class="mut">简洁模式只显示常用分组（隐藏反代、Telegram 通知、Cloudflare 用量）</span></div>
       <div id="setGroups" style="display:flex;flex-direction:column;gap:16px"></div>
       <div class="savebar"><button class="btn primary" id="setSave" type="button">保存设置</button><span class="mut">保存后立即生效；未在此页列出的字段保持不变（可在「高级」里编辑原始 JSON）。</span></div>
     </section>
     <section id="sec-advanced">
+      <p class="secintro">原始配置与危险操作区。直接改 JSON 前请看清结构；重置会恢复出厂默认，执行前会自动备份，可一键撤销。</p>
       <h2 class="ptitle">高级</h2>
       <div class="panel"><h3>配置原始 JSON（config.json）</h3><textarea id="advConfig" rows="18" spellcheck="false"></textarea><div class="linkrow" style="margin-top:10px"><button class="btn primary" id="advConfigSave" type="button">保存 JSON</button><button class="btn" id="advConfigReload" type="button">重新加载</button></div></div>
       <div class="panel"><h3>订阅条目（ADD.txt）</h3><textarea id="advAdd" rows="8" spellcheck="false"></textarea><div class="linkrow" style="margin-top:10px"><button class="btn primary" id="advAddSave" type="button">保存 ADD.txt</button><button class="btn" id="advAddReload" type="button">重新加载</button></div><p class="mut">每行一条：普通节点链接，或 ipf://地区-地区?limit=N 的内置优选条目。</p></div>
       <div class="panel"><h3>危险区</h3><p class="mut">恢复默认设置：功能设置恢复为本项目的出厂默认（由本部署运行时生成）。UUID、主机、订阅令牌、Telegram 与 Cloudflare 凭据、链式入口会被保留，随机 IP 保持关闭；执行前会自动下载一份当前配置备份，浏览器本机也会留一份，可用「恢复上次备份」撤销。</p><div class="linkrow" style="margin-top:10px"><button class="btn sm" id="resetBtn" type="button" style="border-color:#b91c1c;color:#fca5a5">恢复默认设置</button><button class="btn sm" id="restoreBtn" type="button" style="display:none">恢复上次备份</button></div></div>
     </section>
     <section id="sec-logs">
+      <p class="secintro">这里记录登录后台、拉取订阅、保存配置等操作，可按关键词过滤；订阅 token 在列表里已打码。</p>
       <h2 class="ptitle">日志</h2>
-      <div class="panel"><div class="linkrow" style="margin-bottom:10px"><button class="btn sm" id="logRefresh" type="button">刷新</button><input id="logFilter" type="text" placeholder="过滤：类型 / 地区 / IP / URL" style="flex:1;min-width:160px"><span class="mut">订阅与访问记录（订阅 token 已打码）</span></div><div style="overflow:auto"><table><thead><tr><th>类型</th><th>地区</th><th>IP</th><th>ASN</th><th>URL</th><th>UA</th></tr></thead><tbody id="logBody"><tr><td colspan="6" class="mut">加载中…</td></tr></tbody></table></div></div>
+      <div class="panel"><div class="linkrow" style="margin-bottom:10px"><button class="btn sm" id="logRefresh" type="button">刷新</button><input id="logFilter" type="text" placeholder="过滤：类型 / 地区 / IP / URL" style="flex:1;min-width:160px"><span class="mut">订阅与访问记录（订阅 token 已打码）；日志只保留最近约 4MB，超量后自动清理最老记录</span></div><div style="overflow:auto"><table><thead><tr><th>时间</th><th>类型</th><th>地区</th><th>IP</th><th>ASN</th><th>URL</th><th>UA</th></tr></thead><tbody id="logBody"><tr><td colspan="7" class="mut">加载中…</td></tr></tbody></table></div></div>
     </section>
-  </main>
+  <div class="modal" id="ipModal" hidden><div class="mbox"><h3 style="margin-top:0">IP 详细信息</h3><div id="ipModalBody"><p class="mut">查询中…</p></div><p class="mut" style="margin-top:10px">数据来源：ipapi.is（公共回显服务），仅供参考。</p><div class="linkrow"><button class="btn sm" id="ipModalClose" type="button">关闭</button></div></div></div>
+</main>
 </div>
 <div id="toast"></div>
 <script>
@@ -3354,7 +3407,7 @@ function bindMask(boxId,showId,copyId,key,maskFn){
 function buildSubs(){
   FULL.node=CFG.LINK||'';
   var tok=getPath(CFG,['优选订阅生成','TOKEN'])||'';
-  FULL.link=tok?(location.origin+'/sub?token='+tok):'';
+  FULL.link=tok?(location.origin+'/sub?token='+tok):'';FULL.b64=FULL.link?FULL.link+'&b64':'';FULL.clash=FULL.link?FULL.link+'&clash':'';FULL.sb=FULL.link?FULL.link+'&sb':'';FULL.surge=FULL.link?FULL.link+'&surge':'';FULL.loon=FULL.link?FULL.link+'&loon':'';FULL.quanx=FULL.link?FULL.link+'&quanx':'';
   $('subPath').textContent=CFG.PATH||'—';
   $('subFullPath').textContent=CFG['完整节点路径']||'—';
   bindMask('subNodeMask','subNodeShow','subNodeCopy','node');
@@ -3363,6 +3416,18 @@ function buildSubs(){
   $('subLinkQr').onclick=function(){showQr(FULL.link,'订阅链接二维码');};
   window.__renderSec=function(){if(!CFG)return;var rows=[];var tok=getPath(CFG,['优选订阅生成','TOKEN']);rows.push([!!tok,'订阅访问令牌已生成']);rows.push([!CFG['跳过证书验证'],'未跳过证书验证']);rows.push([!!CFG['ECH'],'ECH 已启用']);rows.push([getPath(CFG,['订阅转换配置','内置转换'])!==false&&!getPath(CFG,['订阅转换配置','SUBAPI']),'订阅转换走内置（数据不出本部署）']);var ce=getPath(CFG,['订阅转换配置','链式入口']);rows.push([!!(ce&&String(ce).length>10),'链式入口已配置']);$('ovSec').innerHTML=rows.map(function(r){return '<div>'+(r[0]?'✓ ':'⚠ ')+r[1]+'</div>';}).join('');};
   bindMask('subLinkMask','subLinkShow','subLinkCopy','link');
+  bindMask('subB64Mask','subB64Show','subB64Copy','b64');
+  bindMask('subClashMask','subClashShow','subClashCopy','clash');
+  bindMask('subSbMask','subSbShow','subSbCopy','sb');
+  bindMask('subSurgeMask','subSurgeShow','subSurgeCopy','surge');
+  bindMask('subLoonMask','subLoonShow','subLoonCopy','loon');
+  bindMask('subQuanxMask','subQuanxShow','subQuanxCopy','quanx');
+  $('subB64Qr').onclick=function(){showQr(FULL.b64,'Base64 订阅二维码');};
+  $('subClashQr').onclick=function(){showQr(FULL.clash,'Clash 订阅二维码');};
+  $('subSbQr').onclick=function(){showQr(FULL.sb,'sing-box 订阅二维码');};
+  $('subSurgeQr').onclick=function(){showQr(FULL.surge,'Surge 订阅二维码');};
+  $('subLoonQr').onclick=function(){showQr(FULL.loon,'Loon 订阅二维码');};
+  $('subQuanxQr').onclick=function(){showQr(FULL.quanx,'Quantumult X 订阅二维码');};
 }
 function loadConfig(){
   return getJSON('/admin/config.json?ts='+Date.now()).then(function(j){CFG=j;
@@ -3372,6 +3437,7 @@ function loadConfig(){
     $('ovProto').textContent=((CFG['协议类型']||'—')+' / '+(CFG['传输协议']||'—'));
     var u=getPath(CFG,['CF','Usage']);
     if(u&&typeof u.total==='number'&&typeof u.max==='number'&&u.max>0){$('ovUsagePanel').style.display='';$('ovUsage').textContent=u.total+' / '+u.max+' 次请求';$('ovUsageBar').style.width=Math.min(100,Math.round(u.total/u.max*100))+'%';}
+    try{var hb=$('hostBanner');if(hb&&CFG.HOSTS&&CFG.HOSTS.indexOf(location.hostname)<0&&(Date.now()-(+localStorage.getItem('ipf-hostwarn')||0)>86400000)){hb.hidden=false;$('hostBannerTxt').textContent='当前访问域名 '+location.hostname+' 不在主机列表中：通过这个域名拉取的订阅不会把它用作节点域名。如需使用，请到「设置 → 基础 → 主机列表」添加并保存。';}}catch(e){}
     buildSubs();buildSettings();if(window.__renderSec)window.__renderSec();
     $('advConfig').value=JSON.stringify(CFG,null,2);
   }).catch(function(e){toast('配置读取失败：'+e.message,true);});
@@ -3433,7 +3499,7 @@ var SPEC=[
  {g:'ECH',fields:[
   {p:['ECH'],label:'启用 ECH',type:'bool'},
   {p:['ECHConfig','DNS'],label:'ECH DNS',type:'preset',opts:['udp://208.67.220.220:443','udp://149.112.112.112:9953','udp://45.90.28.0:5353','udp://188.166.206.224:5003','https://doh.applied-privacy.net/query','https://odvr.nic.cz/doh','https://dns.alidns.com/dns-query','https://sm2.doh.pub/dns-query','https://doh.360.cn/dns-query','https://doh.onedns.net/dns-query']},
-  {p:['ECHConfig','SNI'],label:'ECH SNI',type:'preset',opts:['__AUTO__','crypto.cloudflare.com','encryptedsni.com','icook.hk','cm.edu.kg','godotengine.org','www.britannica.com','www.prometheus.io','www.kyocera.com','celestia.org','lido.fi'],optLabels:{'__AUTO__':'自动'}}
+  {p:['ECHConfig','SNI'],label:'ECH SNI',type:'preset',opts:['__AUTO__','cloudflare-ech.com','crypto.cloudflare.com','encryptedsni.com','icook.hk','cm.edu.kg','godotengine.org','www.britannica.com','www.prometheus.io','www.kyocera.com','celestia.org','lido.fi'],optLabels:{'__AUTO__':'自动'}}
  ]},
  {g:'优选订阅生成',fields:[
   {p:['优选订阅生成','local'],label:'本地生成优选订阅',type:'bool'},
@@ -3489,6 +3555,67 @@ var SPEC=[
   {p:['CF','UsageAPI'],label:'Usage API 地址',type:'text'}
  ]}
 ];
+
+var OPTLABELS={
+ '协议类型':{'vless':'VLESS（通用）','trojan':'Trojan','ss':'Shadowsocks'},
+ '传输协议':{'ws':'WebSocket（通用，速度快）','xhttp':'XHTTP（长连接不断流）','grpc':'gRPC'},
+ 'Fingerprint':{'chrome':'chrome（支持 ECH）','firefox':'firefox（支持 ECH）'},
+ 'ECHConfig>DNS':{'udp://208.67.220.220:443':'udp://208.67.220.220:443（OpenDNS）','udp://149.112.112.112:9953':'udp://149.112.112.112:9953（Quad9）','udp://45.90.28.0:5353':'udp://45.90.28.0:5353（NextDNS）','udp://188.166.206.224:5003':'udp://188.166.206.224:5003（Tiarap）','https://doh.applied-privacy.net/query':'https://doh.applied-privacy.net/query（Applied Privacy）','https://odvr.nic.cz/doh':'https://odvr.nic.cz/doh（CZ.NIC）','https://dns.alidns.com/dns-query':'https://dns.alidns.com/dns-query（阿里 DoH，国内推荐）','https://sm2.doh.pub/dns-query':'https://sm2.doh.pub/dns-query（腾讯国密 DoH）','https://doh.360.cn/dns-query':'https://doh.360.cn/dns-query（360 DoH）','https://doh.onedns.net/dns-query':'https://doh.onedns.net/dns-query（OneDNS）'},
+ 'ECHConfig>SNI':{'cloudflare-ech.com':'cloudflare-ech.com（Cloudflare ECH 域名，推荐）','crypto.cloudflare.com':'crypto.cloudflare.com（Cloudflare 密码学服务）','encryptedsni.com':'encryptedsni.com（Cloudflare 加密 SNI）'}
+};
+function __olab(f,o){var m=OPTLABELS[f.p.join('>')];return (m&&m[o])||(f.optLabels&&f.optLabels[o])||o;}
+var HINTS={
+ 'HOSTS':'节点使用的域名列表，一行一个；订阅里的节点地址会从这里取。新增域名要先在 Cloudflare 做好解析。',
+ 'PATH':'节点的伪装路径，客户端与服务端必须一致；改了之后要重新导入订阅。',
+ '协议类型':'节点协议，一般保持 VLESS；改协议后旧订阅立即不可用，需要重新分发。',
+ '传输协议':'传输方式：WebSocket 最通用；XHTTP 适合长连接、单线程下载；gRPC 需客户端支持。',
+ 'ALPN':'TLS 协商的应用层协议，一般保持默认；与 ECH 搭配时可按需指定。',
+ 'Fingerprint':'模拟的浏览器指纹，用于 TLS 握手伪装；chrome / firefox 支持 ECH。',
+ 'gRPC模式':'仅在传输协议为 gRPC 时生效：gun 为通用模式，multi 为多路复用。',
+ 'gRPCUserAgent':'gRPC 传输时携带的 User-Agent，可用右侧按钮填入当前浏览器 UA。',
+ '跳过证书验证':'允许证书异常的连接，会降低安全性；新版 Xray 已不支持此功能，非必要不要开启。',
+ '启用0RTT':'降低握手延迟，但会放大重放攻击风险，不熟悉就不要开启。',
+ '随机路径':'每次生成的节点路径随机变化，娱乐性大于实用性。',
+ 'TLS分片':'填分片参数（如 1,40-60,30-50,tlshello）可绕过部分基于 SNI 的干扰；留空即关闭。不同客户端（Shadowrocket / Happ）习惯的参数不同。',
+ 'SS>加密方式':'Shadowsocks 的加密算法，保持 aes-128-gcm 即可。',
+ 'SS>TLS':'协议为 Shadowsocks 时，是否再套一层 TLS。',
+ 'ECH':'加密 TLS 握手里的域名信息，避免域名被针对性阻断导致节点集体 -1；需客户端支持（v2rayN ≥ 7.17、v2rayNG ≥ 2.0、Mihomo、sing-box）并配合下方 DNS。',
+ 'ECHConfig>DNS':'用来获取 ECH 配置的 DNS 服务。选国内 DNS（阿里 / 腾讯 / 360 / OneDNS）时，下面的解析域名会自动联动为 cloudflare-ech.com。',
+ 'ECHConfig>SNI':'用来解析 ECH 配置的域名，不是节点伪装域名；拿不准就选「自动」或 cloudflare-ech.com。',
+ '优选订阅生成>local':'开启后，订阅在本部署内按下方规则生成优选节点，不依赖外部优选服务。',
+ '优选订阅生成>本地IP库>随机IP':'从本地 IP 库随机抽取地址生成节点；本部署已用「活池」实时探测（见优选生成页），默认关闭。',
+ '优选订阅生成>本地IP库>随机数量':'每次随机抽取的 IP 数量，仅在随机 IP 开启时有效。',
+ '优选订阅生成>本地IP库>指定端口':'优选节点使用的端口；-1 表示随机（默认）。',
+ '优选订阅生成>SUBNAME':'订阅在客户端里显示的名字。',
+ '优选订阅生成>SUBUpdateTime':'告诉客户端每隔多少小时自动更新一次订阅。',
+ '优选订阅生成>SUB':'把其他订阅源合并进本订阅，一行一个地址；某个源失效会拖慢拉取。',
+ '订阅转换配置>内置转换':'开启后由本部署内置的转换器生成各客户端格式，数据不出本部署，推荐开启；关闭时才走下面的外部 SUBAPI。',
+ '订阅转换配置>SUBAPI':'外部订阅转换后端地址；使用内置转换时留空即可。',
+ '订阅转换配置>SUBCONFIG':'转换用的规则配置（分流与策略组），可从预设选择，也可填自己的地址。',
+ '订阅转换配置>SUBEMOJI':'在节点名里按地区匹配并显示旗帜 Emoji。',
+ '订阅转换配置>SUBLIST':'只输出节点列表，不附带规则和策略组。',
+ '订阅转换配置>UDP':'为生成的配置启用 UDP 转发。',
+ '订阅转换配置>XUDP':'启用 XUDP（Xray / sing-box 的 UDP 封装），需客户端支持。',
+ '订阅转换配置>TLS13':'在生成的节点参数里启用 TLS 1.3。',
+ '订阅转换配置>APPEND_TYPE':'在节点名后追加协议类型标记。',
+ '订阅转换配置>SORT':'按节点名排序输出。',
+ '订阅转换配置>EXPAND':'把规则全文展开写进配置，文件更大，一般不用开启。',
+ '订阅转换配置>链式入口':'本机节点作出口时，先经这些入口节点中转（链式代理）。这里是节点链接快照，由每月维护自动刷新，一般不用手动修改。',
+ '反代>PROXYIP':'访问 Cloudflare 自家站点（如 ChatGPT、X）时的跳板地址，格式 IP:端口；留空或填 auto 表示用内置默认。可先用「整合工具」里的检测页验活再填。',
+ '反代>SOCKS5>全局':'把非 Cloudflare 站点的流量也走这个 SOCKS5 代理；开启后落地 IP 会随之变化。',
+ '反代>SOCKS5>账号':'SOCKS5 代理地址，可带账号密码：user:pass@host:port。',
+ '反代>SOCKS5>启用':'决定路径里用哪套协议模板解析这个代理账号；一般留默认（socks5）。',
+ '反代>SOCKS5>白名单':'只有访问这些地址时才走 SOCKS5，一行一个。',
+ 'TG>启用':'有人登录后台、拉取订阅等事件时，通过 Telegram 机器人发通知。',
+ 'TG>BotToken':'机器人令牌，从 @BotFather 获取；只保存在本部署，不外发。',
+ 'TG>ChatID':'接收通知的会话 ID（个人或群组）。',
+ 'CF>Email':'用量查询方式一：Cloudflare 账户邮箱，与下面的 Global API Key 配套。',
+ 'CF>GlobalAPIKey':'用量查询方式一：账户的 Global API Key，与邮箱配套；属于高权限凭据，只保存在本部署。',
+ 'CF>AccountID':'用量查询方式二：账户 ID，与下面的 API Token 配套。',
+ 'CF>APIToken':'用量查询方式二：API Token，只需 Account Analytics 只读权限即可。',
+ 'CF>UsageAPI':'多账号汇总统计时用的 UsageAPI 地址；单账号不用填。'
+};
+['PROXYIP','SOCKS5>全局','SOCKS5>标准','HTTP>全局','HTTP>标准','HTTPS>全局','HTTPS>标准','TURN>全局','TURN>标准','SSTP>全局','SSTP>标准'].forEach(function(k){ HINTS['反代>路径模板>'+k]='路径反代的 URL 模板，必须包含占位符 {{IP:PORT}}；可用下方「路径模板库」整套套用，一般不用逐个改。'; });
 var INPUTS=[];
 function buildSettings(){
   var wrap=$('setGroups');wrap.innerHTML='';INPUTS=[];
@@ -3507,10 +3634,10 @@ function buildSettings(){
         var l=document.createElement('label');l.className='fl';l.textContent=f.label;div.appendChild(l);
         if(f.type==='list'){input=document.createElement('textarea');input.rows=3;input.value=Array.isArray(v)?v.join('\\n'):'';div.appendChild(input);}
         else if(f.type==='area'){input=document.createElement('textarea');input.rows=4;input.value=v==null?'':String(v);div.appendChild(input);}
-        else if(f.type==='select'){input=document.createElement('select');var cur=v==null?'':String(v);var has=false;f.opts.forEach(function(o){var op=document.createElement('option');op.value=o;op.textContent=(f.optLabels&&f.optLabels[o])||o;if(o===cur)has=true;input.appendChild(op);});if(!has&&cur){var op2=document.createElement('option');op2.value=cur;op2.textContent=cur+'（当前值）';input.insertBefore(op2,input.firstChild);}input.value=cur;div.appendChild(input);}
+        else if(f.type==='select'){input=document.createElement('select');var cur=v==null?'':String(v);var has=false;f.opts.forEach(function(o){var op=document.createElement('option');op.value=o;op.textContent=__olab(f,o);if(o===cur)has=true;input.appendChild(op);});if(!has&&cur){var op2=document.createElement('option');op2.value=cur;op2.textContent=cur+'（当前值）';input.insertBefore(op2,input.firstChild);}input.value=cur;div.appendChild(input);}
         else if(f.type==='preset'){
           var cur2=v==null?'':String(v);var sel=document.createElement('select');
-          f.opts.forEach(function(o){var op=document.createElement('option');op.value=o;op.textContent=(f.optLabels&&f.optLabels[o])||o;sel.appendChild(op);});
+          f.opts.forEach(function(o){var op=document.createElement('option');op.value=o;op.textContent=__olab(f,o);sel.appendChild(op);});
           var opc=document.createElement('option');opc.value='__custom__';opc.textContent='自定义';sel.appendChild(opc);
           var txt=document.createElement('input');txt.type='text';txt.value=cur2;txt.style.marginTop='6px';
           if(f.opts.indexOf(cur2)>=0){sel.value=cur2;txt.style.display='none';}else{sel.value='__custom__';}
@@ -3525,6 +3652,7 @@ function buildSettings(){
         else{input=document.createElement('input');input.type=f.type==='password'?'password':(f.type==='num'?'number':'text');input.value=v==null?'':String(v);div.appendChild(input);}
       }
       if(f.p[0]==='gRPCUserAgent'){var ub=document.createElement('button');ub.className='btn sm';ub.type='button';ub.textContent='填入当前浏览器 UA';ub.style.marginTop='6px';ub.onclick=function(){input.value=navigator.userAgent;};div.appendChild(ub);}
+      var hint=HINTS[f.p.join('>')];if(hint){var hd=document.createElement('div');hd.className='fhint';hd.textContent=hint;div.appendChild(hd);}
       panel.appendChild(div);
       if(f.type!=='preset')INPUTS.push({f:f,el:input});
     });
@@ -3545,6 +3673,44 @@ function buildSettings(){
     wrap.appendChild(panel);
   });
 }
+var _origBuildSettings=buildSettings; buildSettings=function(){ _origBuildSettings(); __postSettings(); };
+function __gv(path){for(var i=0;i<INPUTS.length;i++){if(INPUTS[i].f.p.join('>')===path){var it=INPUTS[i];if(it.f.type==='bool')return it.el.checked;if(it.f.type==='preset')return it.el.value==='__custom__'?it.el2.value:it.el.value;return it.el.value;}}return '';}
+function __postSettings(){
+  makeCollapsible();
+  var sb=$('setSave'); if(sb) sb.disabled=true;
+  // ECH linkage: domestic DoH -> SNI cloudflare-ech.com (only when SNI still on auto)
+  var dns=null,sni=null;
+  INPUTS.forEach(function(it){var k=it.f.p.join('>');if(k==='ECHConfig>DNS')dns=it;if(k==='ECHConfig>SNI')sni=it;});
+  if(dns&&sni){
+    var DOM=['https://dns.alidns.com/dns-query','https://sm2.doh.pub/dns-query','https://doh.360.cn/dns-query','https://doh.onedns.net/dns-query'];
+    var link=function(){
+      var v=dns.el.value==='__custom__'?dns.el2.value.trim():dns.el.value;
+      if(DOM.indexOf(v)<0)return;
+      var sv=sni.el.value==='__custom__'?sni.el2.value.trim():sni.el.value;
+      if(sv==='__AUTO__'||sv===''){ sni.el.value='cloudflare-ech.com'; sni.el2.value='cloudflare-ech.com'; sni.el2.style.display='none'; toast('已联动：ECH 解析域名设为 cloudflare-ech.com（国内 DNS 推荐搭配）'); }
+    };
+    dns.el.addEventListener('change',link); dns.el2.addEventListener('input',link);
+  }
+  // CF verify row
+  var panels=document.querySelectorAll('#setGroups .panel');
+  panels.forEach(function(p){var h=p.querySelector('h3');if(!h||h.textContent!=='Cloudflare 用量查询')return;
+    var div=document.createElement('div');div.className='f';
+    var btn=document.createElement('button');btn.className='btn sm';btn.type='button';btn.textContent='验证凭据并查询用量';
+    var res=document.createElement('span');res.className='mut';res.style.marginLeft='10px';
+    btn.onclick=function(){
+      var qs='Email='+encodeURIComponent(__gv('CF>Email'))+'&GlobalAPIKey='+encodeURIComponent(__gv('CF>GlobalAPIKey'))+'&AccountID='+encodeURIComponent(__gv('CF>AccountID'))+'&APIToken='+encodeURIComponent(__gv('CF>APIToken'));
+      res.textContent='查询中…';
+      fetch('/admin/getCloudflareUsage?'+qs).then(function(r){return r.text();}).then(function(t){
+        var j=null;try{j=JSON.parse(t);}catch(e){}
+        if(j&&typeof j.total==='number'){res.textContent='凭据可用 · 当前用量 '+j.total+' / '+j.max+' 次';}
+        else if(j&&!j.error){res.textContent='凭据可用（已返回用量数据）';}
+        else{res.textContent='查询失败：'+((j&&j.error)||t.slice(0,80)||'无返回');}
+      }).catch(function(e){res.textContent='查询失败：'+e.message;});
+    };
+    div.appendChild(btn);div.appendChild(res);(p.querySelector('.pbody')||p).appendChild(div);
+  });
+}
+['input','change'].forEach(function(ev){$('setGroups').addEventListener(ev,function(){var b=$('setSave');if(b)b.disabled=false;});});
 $('setSave').onclick=function(){
   if(!CFG){toast('配置尚未加载',true);return;}
   INPUTS.forEach(function(it){
@@ -3559,7 +3725,7 @@ $('setSave').onclick=function(){
     setPath(CFG,f.p,v);
   });
   var btn=$('setSave');btn.disabled=true;
-  fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(CFG)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);toast('设置已保存');btn.disabled=false;}).catch(function(e){toast('保存失败：'+e.message,true);btn.disabled=false;});
+  fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(CFG)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);toast('设置已保存');btn.disabled=true;}).catch(function(e){toast('保存失败：'+e.message,true);btn.disabled=false;});
 };
 $('advConfigSave').onclick=function(){
   var obj;try{obj=JSON.parse($('advConfig').value);}catch(e){toast('JSON 格式错误：'+e.message,true);return;}
@@ -3570,27 +3736,28 @@ $('advAddSave').onclick=function(){
   fetch('/admin/ADD.txt',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:$('advAdd').value}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);toast('ADD.txt 已保存');loadRegions();}).catch(function(e){toast('保存失败：'+e.message,true);});
 };
 $('advAddReload').onclick=function(){loadRegions();toast('已重新加载');};
+function fmtTime(t){if(!t)return '';var d=new Date(+t);if(isNaN(d))return '';function p(n){return (n<10?'0':'')+n;}return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());}
 function redact(u){return String(u||'').replace(/token=[^&\\s]+/gi,'token=•••');}
 function loadLogs(){
   getJSON('/admin/log.json?ts='+Date.now()).then(function(rows){
     if(!Array.isArray(rows))rows=[];
     var tb=$('logBody');tb.innerHTML='';
     window.__logRows=rows;var list=rows.slice().reverse();var fv=($('logFilter').value||'').toLowerCase();if(fv)list=list.filter(function(x){return JSON.stringify(x).toLowerCase().indexOf(fv)>=0;});
-    if(!list.length){tb.innerHTML='<tr><td colspan="6" class="mut">暂无记录</td></tr>';return;}
+    if(!list.length){tb.innerHTML='<tr><td colspan="7" class="mut">暂无记录</td></tr>';return;}
     list.forEach(function(x){
       var tr=document.createElement('tr');
-      [x.TYPE||'',x.CC||'',x.IP||'',x.ASN||'',redact(x.URL||''),(x.UA||'').slice(0,60)].forEach(function(v){var td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
+      [fmtTime(x.TIME),x.TYPE||'',x.CC||'',x.IP||'',x.ASN||'',redact(x.URL||''),(x.UA||'').slice(0,60)].forEach(function(v){var td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
       tb.appendChild(tr);
     });
   }).catch(function(e){
-    var tb=$('logBody');tb.innerHTML='';var tr=document.createElement('tr');var td=document.createElement('td');td.colSpan=6;td.className='mut';td.textContent='日志读取失败：'+e.message;tr.appendChild(td);tb.appendChild(tr);
+    var tb=$('logBody');tb.innerHTML='';var tr=document.createElement('tr');var td=document.createElement('td');td.colSpan=7;td.className='mut';td.textContent='日志读取失败：'+e.message;tr.appendChild(td);tb.appendChild(tr);
   });
 }
 $('logRefresh').onclick=function(){loaded.logs=1;loadLogs();};
 $('logFilter').addEventListener('input',function(){if(loaded.logs)loadLogs();});
-var CUR_VER='2.2.3';
+var CUR_VER='2.4.0';
 function cmpVer(a,b){var x=a.split('.').map(Number),y=b.split('.').map(Number);for(var i=0;i<3;i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)?1:-1;}return 0;}
-function checkUpdate(){var st=$('updStat');if(!st)return;st.textContent='检查中…';fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){var m=t.match(/\\[integration ([0-9]+\\.[0-9]+\\.[0-9]+)\\]/);if(!m){st.textContent='无法解析仓库版本';return;}var latest=m[1];var c=cmpVer(latest,CUR_VER);if(c===0)st.textContent='已是最新版';else if(c>0)st.textContent='有新版本 '+latest+' 可用，见更新日志';else st.textContent='本地版本领先于仓库发布（'+latest+'）';}).catch(function(){st.textContent='检查失败，可手动前往仓库查看';});}
+function checkUpdate(){var st=$('updStat');if(!st)return;st.textContent='检查中…';fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){window.__clTxt=t;var m=t.match(/\\[integration ([0-9]+\\.[0-9]+\\.[0-9]+)\\]/);if(!m){st.textContent='无法解析仓库版本';return;}var latest=m[1];var c=cmpVer(latest,CUR_VER);if(c===0)st.textContent='已是最新版';else if(c>0)st.textContent='有新版本 '+latest+' 可用，见更新日志';else st.textContent='本地版本领先于仓库发布（'+latest+'）';}).catch(function(){st.textContent='检查失败，可手动前往仓库查看';});}
 $('updCheck').onclick=checkUpdate;
 function applySimple(){var on=false;try{on=localStorage.getItem('ipf-simple')==='1';}catch(e){}$('sec-settings').classList.toggle('simple',on);$('simpleBtn').textContent='简洁模式：'+(on?'开':'关');}
 $('simpleBtn').onclick=function(){var on=false;try{on=localStorage.getItem('ipf-simple')==='1';localStorage.setItem('ipf-simple',on?'0':'1');}catch(e){}applySimple();};
@@ -3622,6 +3789,142 @@ $('restoreBtn').onclick=function(){
   fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);CFG=obj;buildSubs();buildSettings();if(window.__renderSec)window.__renderSec();toast('已恢复备份的配置');}).catch(function(e){toast('恢复失败：'+e.message,true);});
 };
 refreshBackupBtn();
+function makeCollapsible(){
+  document.querySelectorAll('.panel').forEach(function(p){
+    if(p.dataset.col)return; p.dataset.col='1';
+    var head=p.firstElementChild; if(!head)return;
+    var body=document.createElement('div'); body.className='pbody';
+    [...p.childNodes].forEach(function(n){ if(n!==head) body.appendChild(n); });
+    if(!body.childNodes.length){ [...body.childNodes].forEach(function(n){ p.appendChild(n); }); return; }
+    p.appendChild(body);
+    var btn=document.createElement('button'); btn.className='pchev'; btn.type='button'; btn.textContent='▾'; btn.title='折叠 / 展开';
+    p.appendChild(btn);
+    var sec=p.closest('section'); var key='ipf-col:'+(sec?sec.id:'')+':'+(head.textContent||'').trim().slice(0,24);
+    var closed=false; try{ closed=localStorage.getItem(key)==='1'; }catch(e){}
+    if(closed)p.classList.add('closed');
+    btn.textContent=closed?'▸':'▾';
+    btn.onclick=function(){ var c=p.classList.toggle('closed'); btn.textContent=c?'▸':'▾'; try{ localStorage.setItem(key,c?'1':'0'); }catch(e){} };
+  });
+}
+makeCollapsible();
+// ---------- network module ----------
+var NETSITES=[
+ {name:'字节抖音',region:'国内',url:'https://lf3-zlink-tos.ugurl.cn/obj/zebra-public/resource_lmmizj_1632398893.png'},
+ {name:'Bilibili',region:'国内',url:'https://i0.hdslb.com/bfs/face/member/noface.jpg@24w_24h_1c'},
+ {name:'腾讯微信',region:'国内',url:'https://res.wx.qq.com/a/wx_fed/assets/res/NTI4MWU5.ico'},
+ {name:'阿里淘宝',region:'国内',url:'https://img.alicdn.com/imgextra/i2/O1CN01qnQCrN1VkzAWiU4Hs_!!6000000002692-2-tps-33-33.png'},
+ {name:'GitHub',region:'国际',url:'https://github.github.io/janky/images/bg_hr.png'},
+ {name:'Telegram.DC5',region:'国际',url:'https://flora.web.telegram.org/'},
+ {name:'X.com',region:'国际',url:'https://abs.twimg.com/favicons/twitter.3.ico'},
+ {name:'YouTube',region:'国际',url:'https://www.youtube.com/favicon.ico'}
+];
+function maskIp(ip){ if(!ip)return '—'; if(ip.indexOf(':')>=0){ var seg=ip.split(':'); return seg[0]+':****:****:****'; } var p=ip.split('.'); return p.length===4?(p[0]+'.**.**.'+p[3]):ip; }
+function netSet(kind, ip, loc){
+  var card=document.querySelector('.netcard[data-net="'+kind+'"]'); if(!card)return;
+  var ipEl=card.querySelector('.netip'), locEl=card.querySelector('.netloc');
+  card.dataset.ip=ip||''; card.dataset.show='';
+  ipEl.textContent=ip?maskIp(ip):'检测失败'; locEl.textContent=loc||'未知';
+  ipEl.title='点击卡片显示 / 隐藏真实 IP';
+}
+function netFetch(url, timeoutMs){
+  return new Promise(function(resolve,reject){
+    var ctl=new AbortController(); var tm=setTimeout(function(){ctl.abort();},timeoutMs||6000);
+    fetch(url,{signal:ctl.signal,cache:'no-store'}).then(function(r){clearTimeout(tm);resolve(r);}).catch(function(e){clearTimeout(tm);reject(e);});
+  });
+}
+function runNetwork(){
+  $('netStat').textContent='检测中…';
+  document.querySelectorAll('.netcard').forEach(function(c){ c.querySelector('.netip').textContent='检测中…'; });
+  var done=0; function tick(){ done++; if(done>=4)$('netStat').textContent='出口检测完成 · '+new Date().toLocaleTimeString(); }
+  netFetch('https://api.mir6.com/api/ip_json').then(function(r){return r.json();}).then(function(j){
+    var d=j.data||{}; var loc=[d.country,d.province,d.city,d.isp].filter(Boolean).join(' ');
+    netSet('cn', d.ip, loc); tick();
+  }).catch(function(){ netSet('cn','','检测失败'); tick(); });
+  netFetch('https://api.ipapi.is/').then(function(r){return r.json();}).then(function(j){
+    var loc=[j.country,j.region,j.city].filter(Boolean).join(' '); var org=j.asn?(' · '+j.asn):'';
+    netSet('os', j.ip, (loc+org).trim()); tick();
+  }).catch(function(){ netSet('os','','检测失败'); tick(); });
+  netFetch('/api/ipinfo').then(function(r){return r.json();}).then(function(j){
+    var asn=j.asn?(''+j.asn):''; if(/^\\d+$/.test(asn))asn='AS'+asn;
+    netSet('cf', j.ip, ((j.country_code||'')+(asn?(' · '+asn):'')+(j.colo?(' · '+j.colo):''))); tick();
+  }).catch(function(){ netSet('cf','','检测失败'); tick(); });
+  netFetch(XSRC==='x'?'https://help.x.com/cdn-cgi/trace':'https://chatgpt.com/cdn-cgi/trace').then(function(r){return r.text();}).then(function(t){
+    var kv={}; t.split('\\n').forEach(function(l){ var ix=l.indexOf('='); if(ix>0)kv[l.slice(0,ix)]=l.slice(ix+1); });
+    netSet('x', kv.ip, ((kv.loc||'')+(kv.colo?(' · '+kv.colo):''))); tick();
+  }).catch(function(){ netSet('x','','检测失败（可能被墙或 PROXYIP 未生效）'); tick(); });
+  // latency
+  var grid=$('latGrid'); grid.innerHTML='';
+  NETSITES.forEach(function(site){
+    var card=document.createElement('div'); card.className='latcard';
+    card.innerHTML='<span class="latname"></span><span class="latms">···</span>';
+    card.querySelector('.latname').textContent=site.name;
+    var reg=document.createElement('span'); reg.className='latregion'; reg.textContent=site.region; card.querySelector('.latname').appendChild(reg);
+    grid.appendChild(card);
+    var msEl=card.querySelector('.latms'); var t0=performance.now();
+    netFetch(site.url+(site.url.indexOf('?')>=0?'&':'?')+'_t='+Date.now(), 5000).then(function(){
+      var ms=Math.round(performance.now()-t0); msEl.textContent=ms+'ms';
+      msEl.style.color=ms<150?'#4ade80':(ms<300?'#fbbf24':'#f87171');
+    }).catch(function(){ msEl.textContent='超时'; msEl.style.color='#f87171'; });
+  });
+}
+document.querySelectorAll('.netcard').forEach(function(card){
+  card.addEventListener('click',function(){
+    var ip=card.dataset.ip; if(!ip)return; var el=card.querySelector('.netip');
+    if(card.dataset.show){ card.dataset.show=''; el.textContent=maskIp(ip); } else { card.dataset.show='1'; el.textContent=ip; }
+  });
+});
+$('netRefresh').onclick=runNetwork;
+setTimeout(runNetwork, 800);
+
+$('hostBannerOk').onclick=function(){ $('hostBanner').hidden=true; try{localStorage.setItem('ipf-hostwarn',String(Date.now()));}catch(e){} };
+$('updLogBtn').onclick=function(){
+  var pre=$('updLog');
+  if(pre.style.display!=='none'){ pre.style.display='none'; return; }
+  var fill=function(t){ pre.textContent=(t||'').slice(0,6000); pre.style.display=''; };
+  if(window.__clTxt){ fill(window.__clTxt); }
+  else{ pre.textContent='加载中…'; pre.style.display=''; fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){return r.text();}).then(function(t){window.__clTxt=t;fill(t);}).catch(function(){ pre.textContent='加载失败，可前往项目仓库查看。'; }); }
+};
+// X card source toggle
+var XSRC='x';
+function probeX(){
+  var card=document.querySelector('.netcard[data-net="x"]'); if(!card)return;
+  card.querySelector('.netip').textContent='检测中…';
+  netFetch(XSRC==='x'?'https://help.x.com/cdn-cgi/trace':'https://chatgpt.com/cdn-cgi/trace').then(function(r){return r.text();}).then(function(t){
+    var kv={}; t.split('\\n').forEach(function(l){ var ix=l.indexOf('='); if(ix>0)kv[l.slice(0,ix)]=l.slice(ix+1); });
+    netSet('x', kv.ip, ((kv.loc||'')+(kv.colo?(' · '+kv.colo):'')));
+  }).catch(function(){ netSet('x','','检测失败（可能被墙或 PROXYIP 未生效）'); });
+}
+$('xSrcBtn').addEventListener('click',function(ev){
+  ev.stopPropagation();
+  XSRC = XSRC==='x' ? 'gpt' : 'x';
+  $('xSrcName').textContent = XSRC==='x' ? 'X.com' : 'ChatGPT';
+  $('xSrcBtn').textContent = XSRC==='x' ? '切换 ChatGPT' : '切换 X.com';
+  $('xTip').textContent = '你访问 '+(XSRC==='x'?'X':'ChatGPT')+' 所使用的 IP（由你的 PROXYIP 决定）';
+  probeX();
+});
+// IP detail modal
+function openIpModal(card){
+  var ip=card.dataset.ip; if(!ip){ toast('该卡片暂无可查询的 IP',true); return; }
+  var m=$('ipModal'), body=$('ipModalBody'); m.hidden=false; body.innerHTML='';
+  var load=document.createElement('p'); load.className='mut'; load.textContent='查询中…'; body.appendChild(load);
+  netFetch('https://api.ipapi.is/?ip='+encodeURIComponent(ip), 8000).then(function(r){return r.json();}).then(function(j){
+    body.innerHTML='';
+    var rows=[['IP 地址',j.ip],['国家 / 地区',[j.country,j.region,j.city].filter(Boolean).join(' ')],['运营商',j.company],['ASN',j.asn],['时区',j.timezone],['Bogon（保留地址）',j.is_bogon?'是':'否']];
+    rows.forEach(function(rw){ if(!rw[1])return; var d=document.createElement('div'); d.className='row';
+      var a=document.createElement('span'); a.className='kv'; a.textContent=rw[0];
+      var b=document.createElement('span'); b.textContent=rw[1];
+      d.appendChild(a); d.appendChild(b); body.appendChild(d); });
+    if(!body.childNodes.length){ load.textContent='未查到详细信息'; body.appendChild(load); }
+  }).catch(function(){ body.innerHTML=''; load.textContent='查询失败（回显服务不可用）'; body.appendChild(load); });
+}
+document.querySelectorAll('.netcard').forEach(function(card){
+  var el=card.querySelector('.netip');
+  el.style.cursor='pointer'; el.title='点击查看 IP 详细信息';
+  el.addEventListener('click',function(ev){ ev.stopPropagation(); openIpModal(card); });
+});
+$('ipModalClose').onclick=function(){ $('ipModal').hidden=true; };
+$('ipModal').addEventListener('click',function(ev){ if(ev.target===$('ipModal')) $('ipModal').hidden=true; });
+
 checkUpdate();
 loadOverview();loadConfig();loadRegions();
 })();
