@@ -1,3 +1,24 @@
+## [integration 1.7] - 2026-10-31
+
+### Integrated subscription converter (subscription-chain-converter-cf)
+
+- The chain-proxy subscription converter joins the same deployment as its subscription conversion interface, so all six target formats are covered:
+  - **Clash / Mihomo and sing-box are generated natively in-process** (plain and chained: entry/exit auto-select groups, `dialer-proxy` / `detour` chaining, official rule skeletons) — no external service involved.
+  - **V2Ray / Surge / Loon / Quantumult X** are relayed to an external subconverter you configure via the `EXTERNAL_SUBCONVERTER_URL` Worker variable — the same architecture the standalone converter uses; without it those targets return a clear 501 explanation instead of failing silently.
+- edgetunnel's own `/sub` conversion now prefers the built-in converter for Clash / sing-box: automatic when no `SUBAPI` is configured, forced with `订阅转换配置.内置转换: true`. Set `订阅转换配置.链式入口` to an entry subscription (URL or `|`-separated node links) and converted subscriptions come out chained. When an external `SUBAPI` is configured and built-in is not forced, behavior is unchanged; any built-in failure falls back to the external backend.
+- The converter's own surface is included: page at `/convert`, `POST /shorten` + `/m|s|c/<code>` short links (KV only, no D1/R2 needed), `/api/link/<code>`, direct `/conv`, `/chain` and `/sub?url=` endpoints.
+- Rule files are mirrored **lazily** into the existing KV: generated configs reference `<your-domain>/rules/<dst>`, each file is fetched from its official source on first use, validated and cached; `POST /rules-refresh` (admin) warms the whole mirror, `GET /rules-status` (admin) reports the last refresh.
+- 订阅转换器融入同一部署，成为本项目的订阅转换接口，六种目标格式齐全：Clash/Mihomo 与 sing-box 由内置核心原生生成（含链式：入口/出口优选组 + dialer-proxy/detour），不依赖任何外部服务；V2Ray/Surge/Loon/Quantumult X 经可配置的外部转换接口透传（变量 EXTERNAL_SUBCONVERTER_URL，与原版转换器同一架构），未配置时明确返回 501 说明。edgetunnel 自身 /sub 的转换优先走内置（未配 SUBAPI 时自动启用，或以「订阅转换配置.内置转换: true」强制）；配置「订阅转换配置.链式入口」后，转换结果自动带链。短链（仅用 KV）、/convert 页面、/conv /chain /sub?url= 直出接口一并保留；规则文件按需懒镜像进既有 KV，首次使用时从官方源拉取校验后缓存。
+
+## [integration 1.6] - 2026-10-31
+
+### Integrated proxy checker (CF-Workers-CheckSocks5)
+
+- The proxy availability checker joins the same deployment: page at `/socks5-ui`, APIs under `/socks5/*` (`check`, `resolve`, `resolve-batch`, `locations`, `ip.json`) — SOCKS5 / HTTP / HTTPS / TURN / SSTP single & batch checks with exit-IP details.
+- Upstream ships **without any authentication**; in this integration every checker route is gated by the deployment's own admin login (page redirects to `/login`, APIs return 401), so it cannot be abused as a public probing tool.
+- The whole checker module is wrapped in an IIFE (zero symbol leakage — it embeds a vendored TLS library); its default footer was replaced because the original phoned a third-party visit counter with the deployment's hostname.
+- 代理检测融入同一部署：页面 /socks5-ui、接口 /socks5/*，支持 SOCKS5/HTTP/HTTPS/TURN/SSTP 单条与批量检测和出口信息。原项目无鉴权，整合版全部路由由部署自身的后台登录把关（页面跳登录、接口 401），杜绝被当作公开探测工具。模块整体包在 IIFE 内零符号泄漏；原默认页脚会向第三方统计服务上报部署域名，已替换为中性页脚。
+
 ## [integration 1.5] - 2026-10-31
 
 ### Living pool + its own UI identity

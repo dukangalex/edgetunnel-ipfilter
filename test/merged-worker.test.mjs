@@ -103,7 +103,7 @@ test('订阅经 ipf:// 条目进程内生成 (整合闭环) 且 config.json 只�
             SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3,
         },
         订阅转换配置: {
-            SUBAPI: 'https://subapi.example.invalid', SUBCONFIG: 'https://config.example.invalid/x.ini',
+            SUBAPI: '', SUBCONFIG: 'https://config.example.invalid/x.ini',
             SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false,
             APPEND_TYPE: false, SORT: false, EXPAND: true,
         },
@@ -157,7 +157,7 @@ async function callSubWithAdd(addText) {
             SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3,
         },
         订阅转换配置: {
-            SUBAPI: 'https://subapi.example.invalid', SUBCONFIG: 'https://config.example.invalid/x.ini',
+            SUBAPI: '', SUBCONFIG: 'https://config.example.invalid/x.ini',
             SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false,
             APPEND_TYPE: false, SORT: false, EXPAND: true,
         },
@@ -219,6 +219,161 @@ test('活池: 订阅生成时剔除死节点、选最快、健康档案落盘', 
     } finally {
         delete globalThis.__IPF_TEST_PROBE;
     }
+});
+
+test('代理检测 (CHK): 未登录拦截, 登录后页面/接口可用', async () => {
+    const ua = 'Mozilla/5.0 (Test) AppleWebKit/537.36';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const envC = { ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555' };
+    const cookie = 'auth=' + md5md5(ua + secret + 'test-admin-pass');
+    function reqC(path, { auth = false, method = 'GET', body } = {}) {
+        const headers = { 'User-Agent': ua };
+        if (auth) headers.Cookie = cookie;
+        if (body) headers['Content-Type'] = 'application/json';
+        const r = new Request('https://x.test' + path, { method, headers, body });
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP', asn: 64500, asOrganization: 'Test Org', city: 'Tokyo', region: 'Tokyo', timezone: 'Asia/Tokyo', longitude: '139.7', latitude: '35.7' } });
+        return r;
+    }
+    const ctx = { waitUntil() {} };
+
+    const pageAnon = await worker.fetch(reqC('/socks5-ui'), envC, ctx);
+    assert.equal(pageAnon.status, 302, '未登录打开检测页应跳转登录');
+    assert.ok((pageAnon.headers.get('location') || '').endsWith('/login'));
+
+    const apiAnon = await worker.fetch(reqC('/socks5/check?proxy=socks5://1.2.3.4:1080'), envC, ctx);
+    assert.equal(apiAnon.status, 401, '未登录调用检测接口应 401');
+
+    const page = await worker.fetch(reqC('/socks5-ui', { auth: true }), envC, ctx);
+    assert.equal(page.status, 200);
+    const html = await page.text();
+    assert.ok(html.includes('代理检测功能由 CF-Workers-CheckSocks5 提供'), '页脚应为整合版中性页脚');
+    assert.ok(html.includes("'/socks5/check?proxy='"), '前端检测接口应已改挂 /socks5 前缀');
+    assert.ok(!html.includes('tongji'), '不得包含上游第三方访问统计');
+
+    const ipRes = await worker.fetch(reqC('/socks5/ip.json', { auth: true }), envC, ctx);
+    assert.equal(ipRes.status, 200);
+    const ipJson = JSON.parse(await ipRes.text());
+    assert.ok('colo' in ipJson, 'ip.json 应返回机房信息');
+
+    const batch = await worker.fetch(reqC('/socks5/resolve-batch', { auth: true, method: 'POST', body: JSON.stringify({ targets: ['socks5://1.2.3.4:1080'] }) }), envC, ctx);
+    assert.equal(batch.status, 200);
+    const batchJson = JSON.parse(await batch.text());
+    assert.equal(batchJson.results.length, 1);
+    assert.ok(batchJson.results[0].targets.includes('1.2.3.4:1080'), 'IP 字面量应直接展平为 ip:port');
+});
+
+const CHN_VLESS = (host, name) => `vless://11111111-2222-4333-8444-555555555555@${host}:443?encryption=none&security=tls&sni=${host}&type=ws&host=${host}&path=%2F#${encodeURIComponent(name)}`;
+
+test('订阅转换 (CHN): 页面/直出/链式/短链/规则懒镜像', async () => {
+    const kvStore = {};
+    const env = {
+        UUID: '11111111-2222-4333-8444-555555555555',
+        KV: {
+            async get(k, opts) {
+                const v = kvStore[k];
+                if (v === undefined) return null;
+                if (opts && opts.type === 'arrayBuffer') return v instanceof ArrayBuffer ? v : new TextEncoder().encode(String(v)).buffer;
+                return typeof v === 'string' ? v : null;
+            },
+            async put(k, v) { kvStore[k] = v; },
+        },
+    };
+    const ctx = { waitUntil() {} };
+    const reqCHN = (path, init) => {
+        const r = new Request('https://x.test' + path, init);
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        return r;
+    };
+    const prevFetch = globalThis.fetch;
+    const exitText = [CHN_VLESS('exit1.example.com', '🇯🇵 日本-出口'), CHN_VLESS('exit2.example.com', '🇺🇸 美国-出口')].join('\n');
+    const entryText = [CHN_VLESS('entry1.example.com', '🇭🇰 香港-入口')].join('\n');
+    globalThis.fetch = async (input) => {
+        const u = typeof input === 'string' ? input : input.url;
+        if (u.startsWith('https://subs.test/exit')) return new Response(Buffer.from(exitText, 'utf8').toString('base64'), { status: 200 });
+        if (u.startsWith('https://subs.test/entry')) return new Response(Buffer.from(entryText, 'utf8').toString('base64'), { status: 200 });
+        if (u.includes('raw.githubusercontent.com')) return new Response(new Uint8Array(256).fill(7), { status: 200 });
+        return new Response('not found', { status: 404 });
+    };
+    try {
+        const page = await worker.fetch(reqCHN('/convert'), env, ctx);
+        assert.equal(page.status, 200);
+        const pageText = await page.text();
+        assert.ok(pageText.includes('订阅转换') && pageText.includes('/shorten'), '转换页应完整下发');
+
+        const conv = await worker.fetch(reqCHN('/conv?target=clash&url=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(conv.status, 200);
+        const convText = await conv.text();
+        assert.ok(convText.includes('proxies:') && convText.includes('日本-出口') && convText.includes('美国-出口'), '普通转换应包含全部节点');
+        assert.ok(convText.includes('https://x.test/rules/clash/'), '规则 URL 应指向本部署 /rules/');
+        assert.ok(!convText.includes('__PUBLIC_ORIGIN__'), '骨架占位符必须全部替换');
+
+        const chain = await worker.fetch(reqCHN('/chain?target=clash&entry=' + encodeURIComponent('https://subs.test/entry') + '&exit=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(chain.status, 200);
+        const chainText = await chain.text();
+        assert.ok(chainText.includes('dialer-proxy'), '链式 Clash 应有 dialer-proxy');
+        assert.ok(chainText.includes('⛓ 入口优选') && chainText.includes('⛓ 出口优选'), '链式应有入口/出口优选组');
+        assert.ok(chainText.includes('入口-') && chainText.includes('出口-'), '节点应按入口/出口改名');
+
+        const shorten = await worker.fetch(reqCHN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'singbox', entry: 'https://subs.test/entry', exit: 'https://subs.test/exit' }) }), env, ctx);
+        assert.equal(shorten.status, 200);
+        const shortUrl = await shorten.text();
+        const code = shortUrl.split('/').pop();
+        assert.ok(shortUrl.includes('/s/' + code), '短链应为 /s/<code> 形式: ' + shortUrl);
+
+        const viaShort = await worker.fetch(reqCHN('/s/' + code), env, ctx);
+        assert.equal(viaShort.status, 200);
+        const sb = JSON.parse(await viaShort.text());
+        assert.ok(sb.outbounds.some((o) => o.detour === '⛓ 入口优选'), 'sing-box 链式应有 detour 指向入口优选');
+
+        const viaShortClash = await worker.fetch(reqCHN('/m/' + code), env, ctx);
+        assert.equal(viaShortClash.status, 200);
+        assert.ok((await viaShortClash.text()).includes('dialer-proxy'), '同码换 /m/ 应出 Clash 版');
+
+        const linkInfo = await worker.fetch(reqCHN('/api/link/' + code), env, ctx);
+        assert.equal(linkInfo.status, 200);
+        const rec = JSON.parse(await linkInfo.text());
+        assert.equal(rec.kind, 'chain');
+        assert.equal(rec.entry, 'https://subs.test/entry');
+
+        const shorten2 = await worker.fetch(reqCHN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'clash', entry: 'https://subs.test/entry', exit: 'https://subs.test/exit' }) }), env, ctx);
+        assert.equal(await shorten2.text(), shortUrl.replace('/s/', '/m/'), '同内容换 target 应复用同一短码');
+
+        const rule = await worker.fetch(reqCHN('/rules/clash/private.mrs'), env, ctx);
+        assert.equal(rule.status, 200, '规则首次访问应懒镜像成功');
+        assert.equal(rule.headers.get('content-type'), 'application/octet-stream');
+        assert.ok(kvStore['chn_rule:clash/private.mrs'] instanceof ArrayBuffer, '规则应已写入 KV 镜像');
+        const rule404 = await worker.fetch(reqCHN('/rules/clash/not-a-rule.mrs'), env, ctx);
+        assert.equal(rule404.status, 404, '白名单外规则应 404');
+    } finally {
+        globalThis.fetch = prevFetch;
+    }
+});
+
+test('订阅转换 (CHN): edgetunnel /sub 经内置转换器出 Clash (无外部 SUBAPI)', async () => {
+    const testUuid = '11111111-2222-4333-8444-555555555555';
+    const configFixture = {
+        协议类型: 'vless', 传输协议: 'ws',
+        优选订阅生成: { local: true, 本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 }, SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3 },
+        订阅转换配置: { SUBAPI: '', SUBCONFIG: '', SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false, APPEND_TYPE: false, SORT: false, EXPAND: true },
+        CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
+        反代: { PROXYIP: 'auto', SOCKS5: { 启用: null, 全局: false, 账号: '', 白名单: [] } },
+        TG: { 启用: false, BotToken: null, ChatID: null },
+    };
+    const kvStore = { 'config.json': JSON.stringify(configFixture), 'ADD.txt': 'ipf://JP-US?limit=1' };
+    const env = {
+        ADMIN: 'test-admin-pass', UUID: testUuid,
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const token = md5md5('x.test' + testUuid);
+    const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'clash-verge/2.2.3' } });
+    Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(req, env, { waitUntil() {} });
+    assert.equal(res.status, 200);
+    const body = await res.text();
+    assert.ok(body.includes('proxies:'), '应返回 Clash YAML 而非转换后端异常');
+    assert.ok(body.includes('1.1.1.'), '应包含筛选池展开的 JP 节点');
+    assert.ok(body.includes('2.2.2.'), '应包含筛选池展开的 US 节点');
+    assert.ok(!body.includes('订阅转换后端异常'), '不得出现外部后端异常');
 });
 
 test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理时注入卡片脚本', async () => {
