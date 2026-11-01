@@ -1,3 +1,14 @@
+## [integration 2.2.2] - 2026-11-01
+
+### Console convenience restored to upstream parity
+
+- A field-by-field comparison against the upstream admin found places where the self-built console had quietly simplified the original controls. All fixed-value settings are dropdowns again — transport protocol, ALPN, fingerprint, gRPC mode, Shadowsocks cipher, and the preferred-IP port (random = -1, or a common TLS port). No capability was dropped in the restyle; these are restorations, verified one by one.
+- 对照上游原版逐项核查后，把自研管理台里被简化掉的操作便利全部补回：传输协议、ALPN、指纹、gRPC 模式、Shadowsocks 加密方式、指定端口都改回下拉选择。
+- ECH DNS / SNI are preset pickers with a custom-value escape hatch; the converter's SUBAPI and config URL fields offer the preset lists from this repository's own `data/` files; the reverse-proxy section gains the path-template library (whole template sets applied in one pick). Three settings the form was missing entirely — aggregated subscription, the SOCKS5 account protocol, and the chain entry — are editable now.
+- ECH 改预设下拉加自定义；订阅转换的后端与配置地址可从本仓库数据文件的预设中选；反代加路径模板库整套套用；补回汇聚订阅、SOCKS5 账号协议、链式入口三个设置项。
+- Subscription and node links get QR-code buttons (generated offline in the page with the vendored qrcode-generator library, MIT). The overview adds a security self-check strip, and the log view shows all records.
+- 订阅与节点链接加二维码（页面内离线生成）；概览加安全自检；日志显示全部记录。
+
 ## [integration 2.2.1] - 2026-11-01
 
 ### Privacy: the hostname is masked too

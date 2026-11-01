@@ -170,6 +170,7 @@ This project integrates and builds on the work of others — everything it uses,
 **Libraries & platform / 代码库与平台**
 
 - [js-yaml](https://github.com/nodeca/js-yaml) (MIT) — vendored into the converter core.
+- [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT, Kazuhiko Arase) — vendored into the admin console for offline QR codes.
 - [Leaflet](https://leafletjs.com/) (BSD-2-Clause) and [OpenStreetMap](https://www.openstreetmap.org/) contributors (ODbL) — the checker's map.
 - [Lucide](https://lucide.dev/) icons (ISC) and [Tailwind CSS](https://tailwindcss.com/) (MIT) — icons and utility styles on the filter page, inlined at build time.
 - [Cloudflare Workers](https://workers.cloudflare.com/) — the runtime platform.
