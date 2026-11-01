@@ -1,3 +1,12 @@
+## [integration 2.5.0] - 2026-11-01
+
+### Settings reorganized around tasks; chain gets its own panel
+
+- The settings page no longer mirrors the raw config schema: every group opens with a plain-language summary of what it is for, the reverse-proxy group is split into its two alternative modes plus a templates area, and the converter's external-backend field disables itself while the built-in converter is on.
+- 设置页不再照搬配置结构：每个分组开头有一句人话说明；反代组按两种方式分区、路径模板单列；启用内置转换时，外部 SUBAPI 字段自动禁用。
+- The chain entry moved out of the converter form into a dedicated Chain panel on the subscription page: it draws the entry-to-exit path, shows the current entry state (including an honest self-chain label when the entry is this deployment's own snapshot), and offers replace / refresh-snapshot / clear actions.
+- 链式入口从订阅转换表单里拆出，成为订阅页的独立「链式代理」面板：画清入口到出口的路径，显示当前入口状态（入口是本部署自身快照时会如实标注「自链」），提供更换、刷新快照、清空三个操作。
+
 ## [integration 2.4.0] - 2026-11-01
 
 ### Guidance everywhere and upstream-parity details
