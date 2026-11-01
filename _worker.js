@@ -1222,9 +1222,10 @@ export default {
 							if (!url.searchParams.has('sub') && config_JSON.优选订阅生成.local) { // 本地生成订阅
 								const 完整优选列表 = config_JSON.优选订阅生成.本地IP库.随机IP ? (
 									await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口)
-								)[0] : await (async () => { const ADD文本 = await env.KV.get('ADD.txt'); return ADD文本 ? await IPF_展开订阅条目(await 整理成数组(ADD文本)) : null; })() || (
-									await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口)
-								)[0];
+								)[0] : await (async () => {
+									const ADD文本 = await env.KV.get('ADD.txt');
+									return await IPF_展开订阅条目(ADD文本 ? await 整理成数组(ADD文本) : ['ipf://JP-HK-SG-US?limit=10']);
+								})();
 								const 优选API = [], 优选IP = [], 其他节点 = [];
 								for (const 元素 of 完整优选列表) {
 									if (元素.toLowerCase().startsWith('sub://')) {
@@ -6495,7 +6496,7 @@ async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0", 重�
 		优选订阅生成: {
 			local: true, // true: 基于本地的优选地址  false: 优选订阅生成器
 			本地IP库: {
-				随机IP: true, // 当 随机IP 为true时生效，启用随机IP的数量，否则使用KV内的ADD.txt
+				随机IP: false, // 整合版默认关闭: 订阅优先使用KV内的ADD.txt (支持 ipf:// 条目), 未设置时用内置筛选默认条目; 改回 true 即恢复原版随机IP行为
 				随机数量: 16,
 				指定端口: -1,
 			},
