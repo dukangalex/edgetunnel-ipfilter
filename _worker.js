@@ -898,6 +898,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);outline:none;bo
 .btn.primary{background:var(--grad);color:#fff;border:none;font-weight:600}
 .btn.sm{padding:5px 10px;font-size:12.5px}
 .linkrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#sec-settings.simple .advG{display:none}
 .qrbox{background:#fff;padding:10px;border-radius:10px;width:max-content;max-width:100%}.qrbox svg{width:220px;height:220px;display:block}
 .linkbox{flex:1;min-width:220px;background:var(--s2);border:1px solid var(--hl);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:12.5px;word-break:break-all;color:var(--inkm)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -934,7 +935,7 @@ th{color:var(--inks);font-weight:600}
       <button data-sec="logs">📄 日志</button>
     </nav>
     <div class="railfoot">
-      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.2.2</span></div>
+      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.2.3</span></div>
       <div class="row"><button class="tbtn" id="themeBtn" type="button">切换浅色</button><a class="tbtn" href="/logout">退出登录</a></div>
     </div>
   </aside>
@@ -946,6 +947,7 @@ th{color:var(--inks);font-weight:600}
         <div class="panel"><div class="kv">节点池状态</div><div class="val" id="ovPool">加载中…</div><div class="mut">四模块共用同一活池，订阅生成时逐个实测</div></div>
         <div class="panel"><div class="kv">优选订阅</div><div class="val" id="ovSub">加载中…</div><div class="mut">在「优选生成」里调整地区与数量</div></div>
         <div class="panel"><div class="kv">安全自检</div><div class="val" id="ovSec">—</div></div>
+        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.2.3</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter/blob/main/CHANGELOG" target="_blank" rel="noopener">更新日志</a><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div></div>
         <div class="panel" id="ovUsagePanel" style="display:none"><div class="kv">Cloudflare 用量</div><div class="val" id="ovUsage">—</div><div class="bar"><i id="ovUsageBar" style="width:0%"></i></div></div>
       </div>
       <div class="panel"><h3>服务信息</h3><div class="grid2">
@@ -990,6 +992,7 @@ th{color:var(--inks);font-weight:600}
     </section>
     <section id="sec-settings">
       <h2 class="ptitle">设置</h2>
+      <div class="linkrow" style="margin-bottom:12px"><button class="btn sm" id="simpleBtn" type="button">简洁模式：关</button><span class="mut">简洁模式只显示常用分组（隐藏反代、Telegram 通知、Cloudflare 用量）</span></div>
       <div id="setGroups" style="display:flex;flex-direction:column;gap:16px"></div>
       <div class="savebar"><button class="btn primary" id="setSave" type="button">保存设置</button><span class="mut">保存后立即生效；未在此页列出的字段保持不变（可在「高级」里编辑原始 JSON）。</span></div>
     </section>
@@ -997,10 +1000,11 @@ th{color:var(--inks);font-weight:600}
       <h2 class="ptitle">高级</h2>
       <div class="panel"><h3>配置原始 JSON（config.json）</h3><textarea id="advConfig" rows="18" spellcheck="false"></textarea><div class="linkrow" style="margin-top:10px"><button class="btn primary" id="advConfigSave" type="button">保存 JSON</button><button class="btn" id="advConfigReload" type="button">重新加载</button></div></div>
       <div class="panel"><h3>订阅条目（ADD.txt）</h3><textarea id="advAdd" rows="8" spellcheck="false"></textarea><div class="linkrow" style="margin-top:10px"><button class="btn primary" id="advAddSave" type="button">保存 ADD.txt</button><button class="btn" id="advAddReload" type="button">重新加载</button></div><p class="mut">每行一条：普通节点链接，或 ipf://地区-地区?limit=N 的内置优选条目。</p></div>
+      <div class="panel"><h3>危险区</h3><p class="mut">恢复默认设置：功能设置恢复为本项目的出厂默认（由本部署运行时生成）。UUID、主机、订阅令牌、Telegram 与 Cloudflare 凭据、链式入口会被保留，随机 IP 保持关闭；执行前会自动下载一份当前配置备份，浏览器本机也会留一份，可用「恢复上次备份」撤销。</p><div class="linkrow" style="margin-top:10px"><button class="btn sm" id="resetBtn" type="button" style="border-color:#b91c1c;color:#fca5a5">恢复默认设置</button><button class="btn sm" id="restoreBtn" type="button" style="display:none">恢复上次备份</button></div></div>
     </section>
     <section id="sec-logs">
       <h2 class="ptitle">日志</h2>
-      <div class="panel"><div class="linkrow" style="margin-bottom:10px"><button class="btn sm" id="logRefresh" type="button">刷新</button><span class="mut">订阅与访问记录（订阅 token 已打码）</span></div><div style="overflow:auto"><table><thead><tr><th>类型</th><th>地区</th><th>IP</th><th>ASN</th><th>URL</th><th>UA</th></tr></thead><tbody id="logBody"><tr><td colspan="6" class="mut">加载中…</td></tr></tbody></table></div></div>
+      <div class="panel"><div class="linkrow" style="margin-bottom:10px"><button class="btn sm" id="logRefresh" type="button">刷新</button><input id="logFilter" type="text" placeholder="过滤：类型 / 地区 / IP / URL" style="flex:1;min-width:160px"><span class="mut">订阅与访问记录（订阅 token 已打码）</span></div><div style="overflow:auto"><table><thead><tr><th>类型</th><th>地区</th><th>IP</th><th>ASN</th><th>URL</th><th>UA</th></tr></thead><tbody id="logBody"><tr><td colspan="6" class="mut">加载中…</td></tr></tbody></table></div></div>
     </section>
   </main>
 </div>
@@ -3357,7 +3361,7 @@ function buildSubs(){
   function showQr(text,title){if(!text){toast('链接尚未加载',true);return;}var p=$('qrPanel');if(p.style.display!=='none'&&p.dataset.t===title){p.style.display='none';return;}try{var qr=qrcode(0,'M');qr.addData(text);qr.make();$('qrBox').innerHTML=qr.createSvgTag({cellSize:4,margin:12,scalable:true});}catch(e){toast('二维码生成失败',true);return;}$('qrTitle').textContent=title;p.dataset.t=title;p.style.display='';}
   $('subNodeQr').onclick=function(){showQr(FULL.node,'节点链接二维码');};
   $('subLinkQr').onclick=function(){showQr(FULL.link,'订阅链接二维码');};
-  window.__renderSec=function(){if(!CFG)return;var rows=[];var tok=getPath(CFG,['优选订阅生成','TOKEN']);rows.push([!!tok,'订阅访问令牌已生成']);rows.push([!CFG['跳过证书验证'],'未跳过证书验证']);rows.push([!!CFG['ECH'],'ECH 已启用']);var ce=getPath(CFG,['订阅转换配置','链式入口']);rows.push([!!(ce&&String(ce).length>10),'链式入口已配置']);$('ovSec').innerHTML=rows.map(function(r){return '<div>'+(r[0]?'✓ ':'⚠ ')+r[1]+'</div>';}).join('');};
+  window.__renderSec=function(){if(!CFG)return;var rows=[];var tok=getPath(CFG,['优选订阅生成','TOKEN']);rows.push([!!tok,'订阅访问令牌已生成']);rows.push([!CFG['跳过证书验证'],'未跳过证书验证']);rows.push([!!CFG['ECH'],'ECH 已启用']);rows.push([getPath(CFG,['订阅转换配置','内置转换'])!==false&&!getPath(CFG,['订阅转换配置','SUBAPI']),'订阅转换走内置（数据不出本部署）']);var ce=getPath(CFG,['订阅转换配置','链式入口']);rows.push([!!(ce&&String(ce).length>10),'链式入口已配置']);$('ovSec').innerHTML=rows.map(function(r){return '<div>'+(r[0]?'✓ ':'⚠ ')+r[1]+'</div>';}).join('');};
   bindMask('subLinkMask','subLinkShow','subLinkCopy','link');
 }
 function loadConfig(){
@@ -3489,7 +3493,7 @@ var INPUTS=[];
 function buildSettings(){
   var wrap=$('setGroups');wrap.innerHTML='';INPUTS=[];
   SPEC.forEach(function(grp){
-    var panel=document.createElement('div');panel.className='panel';
+    var panel=document.createElement('div');panel.className='panel';if(['反代','Telegram 通知','Cloudflare 用量查询'].indexOf(grp.g)>=0)panel.className+=' advG';
     var h=document.createElement('h3');h.textContent=grp.g;panel.appendChild(h);
     grp.fields.forEach(function(f){
       var v=getPath(CFG,f.p);
@@ -3520,6 +3524,7 @@ function buildSettings(){
         }
         else{input=document.createElement('input');input.type=f.type==='password'?'password':(f.type==='num'?'number':'text');input.value=v==null?'':String(v);div.appendChild(input);}
       }
+      if(f.p[0]==='gRPCUserAgent'){var ub=document.createElement('button');ub.className='btn sm';ub.type='button';ub.textContent='填入当前浏览器 UA';ub.style.marginTop='6px';ub.onclick=function(){input.value=navigator.userAgent;};div.appendChild(ub);}
       panel.appendChild(div);
       if(f.type!=='preset')INPUTS.push({f:f,el:input});
     });
@@ -3570,7 +3575,7 @@ function loadLogs(){
   getJSON('/admin/log.json?ts='+Date.now()).then(function(rows){
     if(!Array.isArray(rows))rows=[];
     var tb=$('logBody');tb.innerHTML='';
-    var list=rows.slice().reverse();
+    window.__logRows=rows;var list=rows.slice().reverse();var fv=($('logFilter').value||'').toLowerCase();if(fv)list=list.filter(function(x){return JSON.stringify(x).toLowerCase().indexOf(fv)>=0;});
     if(!list.length){tb.innerHTML='<tr><td colspan="6" class="mut">暂无记录</td></tr>';return;}
     list.forEach(function(x){
       var tr=document.createElement('tr');
@@ -3582,6 +3587,42 @@ function loadLogs(){
   });
 }
 $('logRefresh').onclick=function(){loaded.logs=1;loadLogs();};
+$('logFilter').addEventListener('input',function(){if(loaded.logs)loadLogs();});
+var CUR_VER='2.2.3';
+function cmpVer(a,b){var x=a.split('.').map(Number),y=b.split('.').map(Number);for(var i=0;i<3;i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)?1:-1;}return 0;}
+function checkUpdate(){var st=$('updStat');if(!st)return;st.textContent='检查中…';fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){var m=t.match(/\\[integration ([0-9]+\\.[0-9]+\\.[0-9]+)\\]/);if(!m){st.textContent='无法解析仓库版本';return;}var latest=m[1];var c=cmpVer(latest,CUR_VER);if(c===0)st.textContent='已是最新版';else if(c>0)st.textContent='有新版本 '+latest+' 可用，见更新日志';else st.textContent='本地版本领先于仓库发布（'+latest+'）';}).catch(function(){st.textContent='检查失败，可手动前往仓库查看';});}
+$('updCheck').onclick=checkUpdate;
+function applySimple(){var on=false;try{on=localStorage.getItem('ipf-simple')==='1';}catch(e){}$('sec-settings').classList.toggle('simple',on);$('simpleBtn').textContent='简洁模式：'+(on?'开':'关');}
+$('simpleBtn').onclick=function(){var on=false;try{on=localStorage.getItem('ipf-simple')==='1';localStorage.setItem('ipf-simple',on?'0':'1');}catch(e){}applySimple();};
+applySimple();
+function refreshBackupBtn(){var has=false;try{has=!!localStorage.getItem('ipf-cfg-backup');}catch(e){}$('restoreBtn').style.display=has?'':'none';}
+var resetArm=false,resetTimer=null;
+$('resetBtn').onclick=function(){
+  if(!CFG){toast('配置尚未加载',true);return;}
+  if(!resetArm){resetArm=true;$('resetBtn').textContent='确认恢复默认？点此执行（身份与凭据保留）';resetTimer=setTimeout(function(){resetArm=false;$('resetBtn').textContent='恢复默认设置';},6000);return;}
+  clearTimeout(resetTimer);resetArm=false;$('resetBtn').textContent='恢复默认设置';
+  var backup=JSON.stringify(CFG);
+  try{localStorage.setItem('ipf-cfg-backup',backup);}catch(e){}
+  var blob=new Blob([JSON.stringify(CFG,null,2)],{type:'application/json'});var aEl=document.createElement('a');aEl.href=URL.createObjectURL(blob);aEl.download='edgetunnel-config-backup.json';aEl.click();setTimeout(function(){URL.revokeObjectURL(aEl.href);},3000);
+  fetch('/admin/init').then(function(){return getJSON('/admin/config.json?ts='+Date.now());}).then(function(def){
+    var old=JSON.parse(backup);var changed=false;
+    var ce=getPath(old,['订阅转换配置','链式入口']);if(ce){if(!def['订阅转换配置'])def['订阅转换配置']={};def['订阅转换配置']['链式入口']=ce;changed=true;}
+    var rip=getPath(old,['优选订阅生成','本地IP库','随机IP']);if(rip!==undefined&&def['优选订阅生成']&&def['优选订阅生成']['本地IP库']){def['优选订阅生成']['本地IP库']['随机IP']=rip;changed=true;}
+    if(old.TG&&old.TG.BotToken){def.TG=old.TG;changed=true;}
+    if(old.CF){['Email','GlobalAPIKey','AccountID','APIToken','UsageAPI'].forEach(function(k){if(old.CF[k]){if(!def.CF)def.CF={};def.CF[k]=old.CF[k];changed=true;}});}
+    var done=function(){CFG=def;buildSubs();buildSettings();if(window.__renderSec)window.__renderSec();refreshBackupBtn();toast('已恢复默认设置（身份、凭据与链式入口已保留，备份已下载）');};
+    if(changed){fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(def)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);done();}).catch(function(e){toast('保留项回写失败：'+e.message,true);});}
+    else done();
+  }).catch(function(e){toast('重置失败：'+e.message,true);});
+};
+$('restoreBtn').onclick=function(){
+  var bak=null;try{bak=localStorage.getItem('ipf-cfg-backup');}catch(e){}
+  if(!bak){toast('没有可恢复的备份',true);return;}
+  var obj;try{obj=JSON.parse(bak);}catch(e){toast('备份数据损坏',true);return;}
+  fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);CFG=obj;buildSubs();buildSettings();if(window.__renderSec)window.__renderSec();toast('已恢复备份的配置');}).catch(function(e){toast('恢复失败：'+e.message,true);});
+};
+refreshBackupBtn();
+checkUpdate();
 loadOverview();loadConfig();loadRegions();
 })();
 </script>
