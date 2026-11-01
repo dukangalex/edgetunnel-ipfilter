@@ -404,6 +404,61 @@ async function IPF_尝试处理(url) {
         return null;
     }
 }
+
+/**
+ * IPF 订阅桥 (整合核心): 把优选列表中的 ipf:// 条目在进程内展开为筛选结果行,
+ * 让 edgetunnel 的订阅生成直接使用本模块的国家优选数据, 全程不发 HTTP 自调用
+ * (Cloudflare 禁止 Worker 请求自身路由, 走 URL 抓取必然失败)。
+ *
+ * 条目格式: ipf://<地区-地区>?limit=<每地区上限>
+ *   例: ipf://JP-HK-SG-US?limit=10  →  JP/HK/SG/US 各最多 10 条筛选行
+ * 非 ipf:// 条目原样保留; 展开失败时仅跳过该条目, 不影响其余条目与订阅生成。
+ */
+async function IPF_展开订阅条目(entries) {
+    const out = [];
+    for (const entry of entries) {
+        const m = /^ipf:\/\/([A-Za-z,-]+)(?:\?(.*))?$/i.exec(String(entry).trim());
+        if (!m) {
+            out.push(entry);
+            continue;
+        }
+        try {
+            const params = new URLSearchParams(m[2] || '');
+            const limit = IPF_parseLimit(params);
+            const res = await IPF_handleRawRequest(m[1], 'line', limit);
+            if (res && res.status === 200) {
+                const text = await res.text();
+                for (const line of text.split('\n')) {
+                    if (line.trim()) out.push(line.trim());
+                }
+            }
+        } catch {
+            // 展开失败: 跳过该条目, 保证订阅生成不中断
+        }
+    }
+    return out;
+}
+
+/**
+ * KV 配置短时缓存 (edgetunnel 优化): 原版每个请求 (含每次代理连接握手)
+ * 都要读一次 KV 的 config.json。这里在同一 isolate 内缓存原文 30 秒,
+ * 管理后台保存配置时由 IPF_失效配置缓存() 主动失效; 只缓存原文,
+ * 解析与逐请求加工逻辑与原版完全一致, 不改变任何配置语义。
+ */
+const IPF_配置缓存 = { text: null, at: 0 };
+async function IPF_读取配置原文(env) {
+    if (IPF_配置缓存.text !== null && Date.now() - IPF_配置缓存.at < 30000) {
+        return IPF_配置缓存.text;
+    }
+    const text = await env.KV.get('config.json');
+    IPF_配置缓存.text = text;
+    IPF_配置缓存.at = Date.now();
+    return text;
+}
+function IPF_失效配置缓存() {
+    IPF_配置缓存.text = null;
+    IPF_配置缓存.at = 0;
+}
 let IPF_htmlCache = null;
 function IPF_getHtml() {
     if (IPF_htmlCache) return IPF_htmlCache;
@@ -1036,7 +1091,7 @@ export default {
 								if (!newConfig.UUID || !newConfig.HOST) return new Response(JSON.stringify({ error: '配置不完整' }), { status: 400, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
 
 								// 保存到 KV
-								await env.KV.put('config.json', JSON.stringify(newConfig, null, 2));
+								await env.KV.put('config.json', JSON.stringify(newConfig, null, 2)); IPF_失效配置缓存();
 								ctx.waitUntil(请求日志记录(env, request, 访问IP, 'Save_Config', config_JSON));
 								return new Response(JSON.stringify({ success: true, message: '配置已保存' }), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
 							} catch (error) {
@@ -1167,7 +1222,7 @@ export default {
 							if (!url.searchParams.has('sub') && config_JSON.优选订阅生成.local) { // 本地生成订阅
 								const 完整优选列表 = config_JSON.优选订阅生成.本地IP库.随机IP ? (
 									await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口)
-								)[0] : await env.KV.get('ADD.txt') ? await 整理成数组(await env.KV.get('ADD.txt')) : (
+								)[0] : await (async () => { const ADD文本 = await env.KV.get('ADD.txt'); return ADD文本 ? await IPF_展开订阅条目(await 整理成数组(ADD文本)) : null; })() || (
 									await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口)
 								)[0];
 								const 优选API = [], 优选IP = [], 其他节点 = [];
@@ -1268,7 +1323,11 @@ export default {
 						} else { // 订阅转换
 							const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 今日订阅转换后端专属TOKEN + '&cnIspCode=' + 识别运营商(request) + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&list=${config_JSON.订阅转换配置.SUBLIST}&scv=${config_JSON.跳过证书验证}&xudp=${config_JSON.订阅转换配置.XUDP}&udp=${config_JSON.订阅转换配置.UDP}&tls13=${config_JSON.订阅转换配置.TLS13}&append_type=${config_JSON.订阅转换配置.APPEND_TYPE}&sort=${config_JSON.订阅转换配置.SORT}&expand=${config_JSON.订阅转换配置.EXPAND}`;
 							try {
-								const response = await fetch(订阅转换URL, { headers: { 'User-Agent': 'Subconverter for ' + 订阅类型 + ' edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel) Uid/0x' + 本机标识头 + ' Version/' + EDT_版本号 } });
+								let response = null;
+								for (let 尝试 = 0; 尝试 < 2; 尝试++) { // 整合版优化: 转换后端偶发失败自动重试一次
+									try { response = await fetch(订阅转换URL, { headers: { 'User-Agent': 'Subconverter for ' + 订阅类型 + ' edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel) Uid/0x' + 本机标识头 + ' Version/' + EDT_版本号 } }); } catch (fetchError) { if (尝试 === 1) throw fetchError; continue; }
+									if (response.ok || 尝试 === 1) break;
+								}
 								if (response.ok) {
 									订阅内容 = await response.text();
 									if (url.searchParams.has('surge') || ua.includes('surge')) 订阅内容 = Surge订阅配置文件热补丁(订阅内容, url.protocol + '//' + url.host + '/sub?token=' + 订阅TOKEN + '&surge', config_JSON);
@@ -6511,9 +6570,9 @@ async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0", 重�
 	};
 
 	try {
-		let configJSON = await env.KV.get('config.json');
+		let configJSON = await IPF_读取配置原文(env);
 		if (!configJSON || 重置配置 == true) {
-			await env.KV.put('config.json', JSON.stringify(默认配置JSON, null, 2));
+			await env.KV.put('config.json', JSON.stringify(默认配置JSON, null, 2)); IPF_失效配置缓存();
 			config_JSON = 默认配置JSON;
 		} else {
 			config_JSON = JSON.parse(configJSON);
