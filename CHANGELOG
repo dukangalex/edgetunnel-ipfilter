@@ -1,3 +1,10 @@
+## [integration 1.3] - 2026-10-31
+
+### Deployment parity
+
+- The repository is now complete for upstream-style deployment: `img.png` is included, and the README deployment section mirrors edgetunnel's three quick paths (Pages upload / Pages + GitHub / Workers) with the same finishing steps (`ADMIN` variable + KV binding named `KV`) and zero extra configuration for the filter.
+- 仓库部署完整度与上游对齐：补齐 `img.png`，README 部署章节与上游一致的三条快速路径（Pages 上传 / Pages + GitHub / Workers），同样的收尾步骤（`ADMIN` 变量 + 名为 `KV` 的 KV 绑定），筛选功能零额外配置。
+
 ## [integration 1.2] - 2026-10-31
 
 ### Change

@@ -87,24 +87,38 @@ Identical to upstream edgetunnel: set the `ADMIN` variable, open `/admin` to man
 
 ## Deployment / 部署
 
-Still a single `_worker.js` (~5.2 MB raw, ~1.1 MB gzip — same size class as upstream edgetunnel). 仍然是单个 `_worker.js`（约 5.2 MB，gzip 约 1.1 MB，与上游同量级）。
+Deployment is exactly as simple as upstream edgetunnel — the same three ways, the same two finishing steps (`ADMIN` variable + KV binding named `KV`), and **zero extra configuration for the filter**: it works out of the box, and subscriptions use the built-in country filter by default. Still a single `_worker.js` (~5.2 MB raw, ~1.1 MB gzip, same size class as upstream).
+部署和上游 edgetunnel 一样简单：同样的三条路、同样的两个收尾动作（`ADMIN` 变量 + 名为 `KV` 的 KV 绑定），筛选功能**零额外配置**，装好即用、订阅默认走内置国家筛选。仍然是单个 `_worker.js`（约 5.2 MB，gzip 约 1.1 MB，与上游同量级）。
 
-### A. Cloudflare Pages + GitHub (recommended / 推荐)
+### A. Pages upload / Pages 上传部署（recommended 推荐）
 
-1. Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**, select this repository. 控制台里连接本仓库。
-2. Build settings / 构建设置: Production branch `main`, Framework preset `None`, Build command *(empty 留空)*, Build output directory `/`.
-3. **Save and Deploy** — the root `_worker.js` is picked up automatically. 保存部署，根目录 `_worker.js` 自动识别。
-4. Add your variables (e.g. `ADMIN`, optional KV binding) in the Pages project settings; every later push to `main` redeploys automatically. 在 Pages 项目设置里加变量（如 `ADMIN`、可选 KV 绑定）；此后推送 `main` 自动重新部署。
+1. Download this repo's zip: [main.zip](https://github.com/dukangalex/edgetunnel-ipfilter/archive/refs/heads/main.zip). 下载本仓库 zip。
+2. Cloudflare Dashboard → **Workers & Pages** → **Create** → **Pages** → **Upload assets**, name the project, upload the zip, **Deploy site**. 控制台选"上传资产"，取名、传 zip、部署站点。
+3. **Settings → Environment variables**: add `ADMIN` = your admin password (optionally `UUID`). 在设置里加变量 `ADMIN`（管理员密码，可选再加 `UUID`）。
+4. **Settings → Functions → KV namespace bindings**: bind a KV namespace with the variable name **`KV`**. 绑定 KV 命名空间，变量名必须填 `KV`。
+5. Back in **Deployments**, create a new deployment (re-upload the zip) so the variables take effect, then open `https://<your-project>.pages.dev/admin`. 回部署页新建一次部署让变量生效，然后访问 `/admin` 登录。
 
-### B. Workers console (paste) / 控制台粘贴
+### B. Pages + GitHub
 
-Create a Worker, replace its code with the whole `_worker.js`, deploy, and set the same variables. Does not follow repo updates automatically.
-新建 Worker，把代码整体替换为 `_worker.js` 后部署并设置变量。此方式不自动跟随仓库更新。
+1. **Create → Pages → Connect to Git**, select this repository. 连接本仓库。
+2. Build settings / 构建设置: Production branch `main`, Framework preset `None`, Build command *(empty 留空)*, Build output directory `/` — the root `_worker.js` is picked up automatically. 根目录 `_worker.js` 自动识别。
+3. Add the `ADMIN` variable in the same flow, then **Save and Deploy**. 同流程里加 `ADMIN` 变量后保存部署。
+4. Bind the KV namespace as variable **`KV`** (Settings → Functions), retry the deployment, open `/admin`. 绑定名为 `KV` 的 KV 后重试部署，访问 `/admin`。
+5. Every later push to `main` redeploys automatically. 此后推送 `main` 自动重新部署。
 
-### C. Wrangler CLI
+### C. Workers
+
+1. Create a Worker and replace its code with this repo's `_worker.js`, then deploy. 新建 Worker，代码整体替换为 `_worker.js` 后部署。
+2. **Settings → Variables**: add `ADMIN` (and optionally `UUID`). 设置里加变量 `ADMIN`（可选 `UUID`）。
+3. **Settings → Bindings**: add a KV namespace binding named **`KV`**. 加名为 `KV` 的 KV 绑定。
+4. (Optional) **Settings → Domains & Routes**: attach your custom domain, then open `/admin`. （可选）绑定自定义域名后访问 `/admin`。
+
+> Tip: `_worker.js` is ~5 MB; if a dashboard editor ever stalls saving it, use the Pages upload path or Wrangler instead — same result. 小提示：文件约 5 MB，个别时候控制台编辑器保存大文件会卡，用 Pages 上传或 Wrangler 部署效果相同。
+
+### D. Wrangler CLI
 
 ```bash
-npx wrangler deploy
+npx wrangler deploy   # wrangler.toml is included; add the ADMIN variable and KV binding afterwards
 ```
 
 ## Development / 开发
