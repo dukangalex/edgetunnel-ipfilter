@@ -85,3 +85,62 @@ test('edgetunnel 原有路由不被 IPF 劫持', async () => {
         assert.ok(!body.includes('regionGrid'), path + ' 不应返回 IPF 界面');
     }
 });
+
+// --- 整合核心: ipf:// 进程内展开 + 配置缓存 -----------------------------------
+function md5md5(text) {
+    const first = createHash('md5').update(text).digest('hex');
+    return createHash('md5').update(first.slice(7, 27)).digest('hex');
+}
+
+test('订阅经 ipf:// 条目进程内生成 (整合闭环) 且 config.json 只读 KV 一次', async () => {
+    const testUuid = '11111111-2222-4333-8444-555555555555';
+    const configFixture = {
+        协议类型: 'vless', 传输协议: 'ws',
+        优选订阅生成: {
+            local: true,
+            本地IP库: { 随机IP: false, 随机数量: 16, 指定端口: -1 },
+            SUB: null, SUBNAME: 'edgetunnel', SUBUpdateTime: 3,
+        },
+        订阅转换配置: {
+            SUBAPI: 'https://subapi.example.invalid', SUBCONFIG: 'https://config.example.invalid/x.ini',
+            SUBEMOJI: false, SUBLIST: false, UDP: false, XUDP: false, TLS13: false,
+            APPEND_TYPE: false, SORT: false, EXPAND: true,
+        },
+        CF: { Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } },
+        反代: { PROXYIP: 'auto', SOCKS5: { 启用: null, 全局: false, 账号: '', 白名单: [] } },
+        TG: { 启用: false, BotToken: null, ChatID: null },
+    };
+    const getCounts = {};
+    const kvStore = {
+        'config.json': JSON.stringify(configFixture),
+        'ADD.txt': 'ipf://JP-US?limit=1',
+    };
+    const env2 = {
+        ADMIN: 'test-admin-pass', UUID: testUuid,
+        KV: {
+            async get(k) { getCounts[k] = (getCounts[k] || 0) + 1; return kvStore[k] ?? null; },
+            async put(k, v) { kvStore[k] = v; },
+        },
+    };
+    const token = md5md5('x.test' + testUuid);
+    async function callSub() {
+        const req = new Request(`https://x.test/sub?token=${token}`, { headers: { 'User-Agent': 'subconverter' } });
+        Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        const res = await worker.fetch(req, env2, { waitUntil() {} });
+        let body = await res.text();
+        if (!body.startsWith('vless://')) {
+            try { body = Buffer.from(body, 'base64').toString('utf8'); } catch { /* keep raw */ }
+        }
+        return body;
+    }
+    const first = await callSub();
+    const links = first.split('\n').filter(l => l.startsWith('vless://'));
+    assert.equal(links.length, 2, 'JP 与 US 各展开 1 条');
+    assert.ok(links.some(l => l.includes('@1.1.1.')), '含 JP 筛选池地址');
+    assert.ok(links.some(l => l.includes('@2.2.2.')), '含 US 筛选池地址');
+    assert.ok(decodeURIComponent(first).includes('日本'), '节点备注带国家名');
+    const second = await callSub();
+    assert.ok(second.includes('vless://'));
+    assert.equal(getCounts['config.json'], 1, '30 秒内第二次请求应命中配置缓存');
+    assert.equal(getCounts['ADD.txt'], 2, 'ADD.txt 不缓存, 每次订阅都读');
+});

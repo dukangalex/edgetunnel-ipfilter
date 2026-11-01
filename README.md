@@ -19,11 +19,17 @@ Non-profit project. No commercial use. Please comply with local laws and regulat
 
 | Part 组成 | Source 来源 | Notes 说明 |
 | --- | --- | --- |
-| Proxy core 代理主体 | [cmliu/edgetunnel](https://github.com/cmliu/edgetunnel) (via [dukangalex/edgetunnel](https://github.com/dukangalex/edgetunnel), version 2026-10-08) | Untouched upstream code paths; all original routes behave as before. 原有代码路径未改动，原有路由行为不变 |
+| Proxy core 代理主体 | [cmliu/edgetunnel](https://github.com/cmliu/edgetunnel) (via [dukangalex/edgetunnel](https://github.com/dukangalex/edgetunnel), version 2026-10-08) | Original routes and behavior preserved; four surgical patches (below) wire in the filter and optimize hot paths. 原有路由与行为不变；仅有四处外科式补丁（见下）负责接入筛选与优化热点路径 |
 | IP filter module (IPF) 优选 IP 筛选模块 | [dukangalex/Cloudflare-Country-Specific-IP-Filter](https://github.com/dukangalex/Cloudflare-Country-Specific-IP-Filter) (optimized edition) | Inlined into the same `_worker.js` with `IPF_` prefix isolation; if the module ever errors, it steps aside and the proxy keeps working. 以 `IPF_` 前缀隔离内嵌进同一个 `_worker.js`；模块异常时自动放行，绝不影响代理主功能 |
 
 The filter's data layer comes with the optimizations from the standalone project: the upstream list (~16k lines from [zip.cm.edu.kg](https://zip.cm.edu.kg/all.txt)) is parsed once and cached for 5 minutes instead of being fetched on every request, sampling is unbiased, duplicate/invalid entries (`#Unknown` etc.) are filtered out, and the last good dataset is served if the upstream hiccups.
 筛选模块的数据层带有独立版的全部优化：上游列表只解析一次并缓存 5 分钟、随机抽样无偏、重复与无地区条目（`#Unknown` 等）被过滤、上游抖动时降级用上次数据。
+
+Integration & optimization patches on the proxy core / 代理主体的整合与优化补丁（均由 `merge.py` 以锚点补丁形式注入，上游结构变化会让构建直接报错，不会静默产出错版）:
+
+1. **`ipf://` in-process expansion** — subscription generation expands `ipf://` entries in the preferred-IP list through the filter module directly (see below), and the list source is read from KV once instead of twice. 订阅生成在进程内展开优选列表中的 `ipf://` 条目；列表源只读一次 KV（原版读两次）。
+2. **Config cache** — `config.json` is cached as raw text in-isolate for 30 s instead of one KV read per request (proxy handshakes included); admin saves invalidate it immediately. 配置原文在 isolate 内缓存 30 秒，不再每请求（含每次代理握手）读一次 KV；后台保存配置时立即失效。
+3. **Conversion retry** — a failed subscription-conversion backend call is retried once before an error is surfaced. 订阅转换后端偶发失败时自动重试一次再报错。
 
 ## IP filter usage / 筛选器用法
 
@@ -42,8 +48,16 @@ Common parameters / 通用参数: `limit` = max IPs per region (0 = unlimited), 
 
 Formats / 格式: `line` · `cf_line` · `cf_line_short` · `cf_comma_short` — see the standalone filter's README for samples. 格式样例见筛选器仓库 README。
 
-**Wire it into edgetunnel itself / 喂给 edgetunnel 本身**: use this deployment's own filter URLs as the preferred-IP data source — e.g. put `https://<your-domain>/edgetunnel/JP-HK-SG?limit=10` wherever an edgetunnel/CFnew setup asks for a preferred-IP subscription/API address (ADD/ADDAPI-style fields). No third-party service in between any more.
-把本站自己的筛选地址填进优选 IP 数据源即可，例如在需要优选 IP 订阅/API 地址的地方（ADD/ADDAPI 类字段）填 `https://<你的域名>/edgetunnel/JP-HK-SG?limit=10`，中间不再经过任何第三方服务。
+**Feed the filter into edgetunnel's own subscriptions / 让订阅直接吃本模块的筛选结果**: the two halves are wired together inside the process. In the admin panel, set the custom preferred-IP list (KV `ADD.txt`) to an `ipf://` entry and turn OFF random-IP mode in the subscription-generation settings:
+
+在管理后台把自定义优选 IP 列表（KV 的 `ADD.txt`）填成 `ipf://` 条目，并关掉订阅生成的随机 IP 模式：
+
+```text
+ipf://JP-HK-SG-US?limit=10
+```
+
+Every `/sub` generation then expands that entry in-process into fresh country-filtered IPs from the built-in module (regions separated by `-`, `limit` = max per region). No HTTP self-request is involved — Cloudflare forbids a Worker from fetching its own routes, so the older "paste your own filter URL into ADD" approach cannot work from the same deployment; `ipf://` is the supported way. One deployment is fully self-contained: proxy, filter and subscription source in a single `_worker.js`.
+此后每次生成 `/sub` 订阅，都会在进程内把该条目展开为本模块的国家筛选结果（地区用 `-` 连接，`limit` 为单地区上限）。全程不发 HTTP 自调用——Cloudflare 禁止 Worker 请求自身路由，所以"把本站筛选 URL 填进 ADD"这种旧接法在同部署内必然失败，`ipf://` 才是正解。一个部署即自包含：代理、筛选、订阅数据源全在同一个 `_worker.js` 里。
 
 Filter UI preview / 筛选界面预览:
 
