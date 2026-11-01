@@ -15,6 +15,13 @@ Non-profit project. No commercial use. Please comply with local laws and regulat
 
 </div>
 
+## Quick start / 快速开始
+
+1. **Deploy** with any method in the deployment section below, and bind your custom domain. 选下面任意一种方式部署，并绑定自定义域名。
+2. **Log in**: open `https://<your-domain>/admin`. The password is the `UUID` variable you set at deploy time (if you also set an `ADMIN` variable, use that instead). 打开 `https://<你的域名>/admin` 登录，密码是部署时设置的 `UUID` 变量（另设了 `ADMIN` 变量的用 ADMIN）。
+3. **Pick regions**: in the admin panel, open 「优选生成」 and tick the countries/regions you want. 在后台打开「优选生成」，勾选想要的国家/地区。
+4. **Get your subscription**: open 「订阅」, copy the subscription link (or scan the QR code), import it into your client (Clash / sing-box / Shadowrocket …) and update — if nodes show up, you are done. The overview page has a four-step first-run guide. 打开「订阅」复制订阅链接（或扫二维码），导入客户端并更新，能刷出节点即部署成功；后台概览页有四步上手清单。
+
 ## What is merged / 整合了什么
 
 | Part 组成 | Source 来源 | Notes 说明 |

@@ -1,3 +1,12 @@
+## [integration 2.6.0] - 2026-11-01
+
+### Written for first-time deployers
+
+- The overview gains a dismissible four-step first-run guide (pick regions, copy the subscription link, import it into a client, explore the advanced pages later), and the README gains a matching Quick start section.
+- 概览页新增可关闭的四步上手清单（选地区、复制订阅链接、导入客户端、再探索进阶页），README 同步新增「快速开始」一节。
+- The chain panel now speaks in plain deployer terms: the normal case (an external entry from another airport or deployment) comes first, filling in this deployment's own nodes is labelled by its actual effect (the landing does not change), and insider shorthand like the coined term for the probed candidate pool was replaced with plain wording across the console.
+- 链式面板改用普通部署者的话术：外部入口这一常规用法在前，填入本部署自身节点时如实标注其实际效果（落地不变）；全控制台清掉自造黑话（如候选池的简称），换成 plain 说法。
+
 ## [integration 2.5.0] - 2026-11-01
 
 ### Settings reorganized around tasks; chain gets its own panel
