@@ -1,3 +1,11 @@
+## [integration 1.10] - 2026-11-01
+
+### Everything points home
+
+- **The admin page now references only this project**: the version check (`WORKER_VERSION_SOURCE_URL`), the changelog (`CHANGELOG_RAW_URL`) and the Pages package download (`PAGES_ZIP_DOWNLOAD_URL`) were rewritten at serve time to this repository; the footer's social links were already switched in 1.8. The runtime data files the page used to fetch from the upstream author's personal repository — `SUBCONFIG.json`, `SUBAPI.json`, `json/edt-path-config.json`, `json/best-cf-tools.json`, `CF-CIDR.txt` — are vendored under `data/` in this repository and the page fetches them from here. The IP-info lookup the page used to send to the upstream author's API is answered by the deployment itself (`GET /api/ipinfo`, admin-gated, same field shape). The ADD.txt help example for a hosted subscription generator now shows this project's built-in `ipf://` entry instead. The subscription-conversion backend placeholder no longer advertises the upstream public backend.
+- Deliberately **not** rewritten: live third-party services the admin features call (the proxy-IP check service and its CF list endpoints, the public SSTP pool list), the GitHub fetch mirrors (transport only), the proxy core's built-in default reverse-proxy service domain (a functional default, overridable via PROXYIP), and attribution/thanks links. None of them is this deployment's home, backend, or update source anymore.
+- 全部指向本项目：后台的版本检查、更新日志、程序包下载在下发时改指本仓库（页脚已在 1.8 更换）；页面原先从上游作者个人仓库取的五个运行时数据文件（SUBCONFIG、SUBAPI、路径模板、工具清单、CF-CIDR）已收进本仓库 data/ 目录并改从这里取；IP 信息查询改由本部署自建的 /api/ipinfo 回答（登录把关、字段一致）；优选案例里的托管生成器示例换成本项目内置 ipf:// 条目；订阅转换后端占位提示不再出现上游公共后端。未改的只剩：后台功能实际调用的第三方在线服务（PROXYIP 检测与其 CF 列表、SSTP 公开池）、GitHub 拉取镜像（仅传输）、代理核心的默认反代服务域名（功能性默认，可由 PROXYIP 覆盖）与致谢链接——它们都不再是本部署的归属、后端或更新来源。
+
 ## [integration 1.9] - 2026-11-01
 
 ### One whole: the modules now work for each other

@@ -391,7 +391,7 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         if (u.includes('edt-pages.github.io')) {
             // 复刻上游真实页面陷阱: <template> 内容里有一个字面量 </body>,
             // 注入必须落在文档真正的 </body> (最后一个) 之前, 不能进模板。
-            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a></body></html>', {
+            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a><script>const A=\'https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js\';const B=\'https://github.com/cmliu/edgetunnel/archive/refs/heads/main.zip\';const C=\'https://raw.githubusercontent.com/cmliu/edgetunnel/refs/heads/main/CHANGELOG\';const D=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBCONFIG.json\';const E=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBAPI.json\';const F=\'https://raw.githubusercontent.com/cmliu/cmliu/main/json/edt-path-config.json\';const G=\'https://raw.githubusercontent.com/cmliu/cmliu/refs/heads/main/json/best-cf-tools.json\';const H=\'https://raw.githubusercontent.com/cmliu/cmliu/main/CF-CIDR.txt\';const I=`https://api.cmliussss.net/api/ipinfo`;</script><input placeholder="https://SUBAPI.cmliussss.net"><h4>优选订阅生成器</h4> <pre>sub://sub.cmliussss.net#CM优选订阅</pre></body></html>', {
                 status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
             });
         }
@@ -424,6 +424,20 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         assert.ok(html.includes('href="https://t.me/AngelaNexus"'), '页脚 Telegram 应指向本项目频道');
         assert.ok(!html.includes('href="https://github.com/cmliu/edgetunnel"'), '页脚不得再指向上游仓库');
         assert.ok(!html.includes('href="https://t.me/CMLiussss"'), '页脚不得再指向上游频道');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/_worker.js'), '版本检查应指向本项目仓库');
+        assert.ok(html.includes('https://github.com/dukangalex/edgetunnel-ipfilter/archive/refs/heads/main.zip'), '程序包下载应指向本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/refs/heads/main/CHANGELOG'), '更新日志应指向本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBCONFIG.json'), 'SUBCONFIG 数据应收进本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBAPI.json'), 'SUBAPI 列表应收进本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/edt-path-config.json'), '路径模板数据应收进本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/best-cf-tools.json'), '工具清单数据应收进本项目仓库');
+        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/CF-CIDR.txt'), 'CF-CIDR 数据应收进本项目仓库');
+        assert.ok(html.includes('`/api/ipinfo`'), 'IP 信息查询应改走本部署自建接口');
+        assert.ok(html.includes('placeholder="留空 = 使用内置转换（本项目整合）"'), '订阅转换后端占位提示应为内置说明');
+        assert.ok(!html.includes('raw.githubusercontent.com/cmliu'), '页面不得再从上游仓库取任何文件');
+        assert.ok(!html.includes('api.cmliussss.net'), '页面不得再调用上游 IP 信息接口');
+        assert.ok(html.includes('ipf://JP-HK-SG-US?limit=10#内置国家优选'), '优选案例应改为本项目内置条目示例');
+        assert.ok(!html.includes('sub.cmliussss.net'), '页面不得再出现上游优选生成器示例');
         assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
 
         const loginReq = new Request('https://x.test/login', { headers: { 'User-Agent': ua } });
@@ -619,4 +633,28 @@ test('一体化: 转换按国家筛选 (名称判定 + IP 数据集反查 + 未�
     const page = await worker.fetch(pageReq, env, { waitUntil() {} });
     const html = await page.text();
     assert.ok(html.includes('ipf-conv-bar'), '转换页应注入按国家筛选条');
+});
+
+test('本项目指向: /api/ipinfo 由本部署回答 (登录把关, 字段与页面预期一致)', async () => {
+    const ua = 'ipf-test-ua';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const cookie = 'auth=' + md5md5(ua + secret + 'test-admin-pass');
+    const env = { ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555', KV: { async get() { return null; }, async put() {} } };
+    const ctx = { waitUntil() {} };
+    function reqI(auth) {
+        const headers = { 'User-Agent': ua, 'CF-Connecting-IP': '203.0.113.9' };
+        if (auth) headers.Cookie = cookie;
+        const r = new Request('https://x.test/api/ipinfo', { headers });
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP', asn: 64500, asOrganization: 'Test Org' } });
+        return r;
+    }
+    const anon = await worker.fetch(reqI(false), env, ctx);
+    assert.equal(anon.status, 401, '未登录应 401');
+    const res = await worker.fetch(reqI(true), env, ctx);
+    assert.equal(res.status, 200);
+    const data = JSON.parse(await res.text());
+    assert.equal(data.ip, '203.0.113.9');
+    assert.equal(data.country_code, 'JP');
+    assert.equal(data.asn, 'AS64500');
+    assert.equal(data.as_name, 'Test Org');
 });
