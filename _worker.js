@@ -416,6 +416,22 @@ async function IPF_尝试处理(url, env, request, ctx) {
             return IPF_handleRawRequest(pathMatches[2], format, limit, url);
         }
 
+        // 本部署自建的 IP 信息接口 (后台页面原调用上游的 api.cmliussss.net,
+        // 现由本部署按同一字段格式回答; 数据来自请求自身的 cf 信息)。
+        if (cleanPath === '/api/ipinfo') {
+            if (!(await IPF_校验后台登录(request, env))) {
+                return IPF_jsonResponse(JSON.stringify({ success: false, error: 'unauthorized: admin login required' }), 401, { 'Cache-Control': 'no-store' });
+            }
+            const cf = request.cf || {};
+            return IPF_jsonResponse(JSON.stringify({
+                ip: request.headers.get('CF-Connecting-IP') || '',
+                country_code: cf.country || '',
+                asn: cf.asn ? 'AS' + cf.asn : '',
+                as_name: cf.asOrganization || '',
+                colo: cf.colo || '',
+            }), 200, { 'Cache-Control': 'no-store' });
+        }
+
         // ---- Integrated proxy checker (CF-Workers-CheckSocks5) ------------
         // Upstream ships without any auth; here every route is gated by the
         // deployment's own admin login so the checker cannot be abused as a
@@ -743,10 +759,27 @@ async function IPF_注入管理页(res, mode) {
         const ct = (res && res.headers && res.headers.get('content-type')) || '';
         if (!res || !res.ok || ct.indexOf('text/html') === -1) return res;
         html = await res.text();
-        // 页脚联系信息指向本项目 (整合版仓库与作者频道), 不再指向原版上游。
+        // 本项目指向: 页脚联系信息、版本检查、更新日志、程序包下载, 以及
+        // 页面运行时要取的配置/模板数据文件, 全部改指本项目仓库 (数据文件
+        // 已收进仓库 data/ 目录); IP 信息查询改走本部署自建的 /api/ipinfo。
         try {
-            html = html.split('href="https://github.com/cmliu/edgetunnel"').join('href="https://github.com/dukangalex/edgetunnel-ipfilter"');
-            html = html.split('href="https://t.me/CMLiussss"').join('href="https://t.me/AngelaNexus"');
+            const 本项目改写 = [
+                ['href="https://github.com/cmliu/edgetunnel"', 'href="https://github.com/dukangalex/edgetunnel-ipfilter"'],
+                ['href="https://t.me/CMLiussss"', 'href="https://t.me/AngelaNexus"'],
+                ['https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/_worker.js'],
+                ['https://github.com/cmliu/edgetunnel/archive/refs/heads/main.zip', 'https://github.com/dukangalex/edgetunnel-ipfilter/archive/refs/heads/main.zip'],
+                ['https://raw.githubusercontent.com/cmliu/edgetunnel/refs/heads/main/CHANGELOG', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/refs/heads/main/CHANGELOG'],
+                ['https://raw.githubusercontent.com/cmliu/cmliu/main/SUBCONFIG.json', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBCONFIG.json'],
+                ['https://raw.githubusercontent.com/cmliu/cmliu/main/SUBAPI.json', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBAPI.json'],
+                ['https://raw.githubusercontent.com/cmliu/cmliu/main/json/edt-path-config.json', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/edt-path-config.json'],
+                ['https://raw.githubusercontent.com/cmliu/cmliu/refs/heads/main/json/best-cf-tools.json', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/best-cf-tools.json'],
+                ['https://raw.githubusercontent.com/cmliu/cmliu/main/CF-CIDR.txt', 'https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/CF-CIDR.txt'],
+                ['https://api.cmliussss.net/api/ipinfo', '/api/ipinfo'],
+                ['placeholder="https://SUBAPI.cmliussss.net"', 'placeholder="留空 = 使用内置转换（本项目整合）"'],
+                ['sub://sub.cmliussss.net#CM优选订阅', 'ipf://JP-HK-SG-US?limit=10#内置国家优选'],
+                ['<h4>优选订阅生成器</h4>', '<h4>内置国家优选（本项目整合）</h4>'],
+            ];
+            for (const [from, to] of 本项目改写) html = html.split(from).join(to);
         } catch (e) { /* keep the original html */ }
         if ((mode !== 'login' && html.indexOf('id="customIPs"') === -1) || html.indexOf('</body>') === -1) {
             const passHeaders = new Headers(res.headers);
