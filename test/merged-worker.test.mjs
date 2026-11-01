@@ -633,6 +633,9 @@ test('一体化: 转换按国家筛选 (名称判定 + IP 数据集反查 + 未�
     const page = await worker.fetch(pageReq, env, { waitUntil() {} });
     const html = await page.text();
     assert.ok(html.includes('ipf-conv-bar'), '转换页应注入按国家筛选条');
+    assert.ok(html.includes('ipf-contact-footer'), '转换页应带页脚联系方式');
+    assert.ok(html.includes('github.com/dukangalex/edgetunnel-ipfilter'), '页脚应含项目仓库链接');
+    assert.ok(html.includes('t.me/AngelaNexus'), '页脚应含交流频道链接');
 });
 
 test('本项目指向: /api/ipinfo 由本部署回答 (登录把关, 字段与页面预期一致)', async () => {

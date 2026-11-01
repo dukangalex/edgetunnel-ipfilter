@@ -1,3 +1,10 @@
+## [integration 1.11] - 2026-11-01
+
+### Contact information on every product surface
+
+- Standing rule set by the project owner (2026-11-01): every shipped product surface must carry contact information — the project repository and the official channel — so users can find the source and report problems. First catch-up under the rule: the `/convert` page previously contained no links at all; its injected page script now appends a contact footer （项目仓库 GitHub · 交流频道 Telegram) pointing at the same destinations as the admin footer (1.8). A regression test asserts both links are present in the served page.
+- 成品必带联系方式（项目定版）：/convert 页此前零链接，现由注入脚本在页脚补齐联系方式——项目仓库与官方频道，与后台页脚（1.8）同一指向；回归测试已断言两条链接存在于下发页面中。
+
 ## [integration 1.10] - 2026-11-01
 
 ### Everything points home
