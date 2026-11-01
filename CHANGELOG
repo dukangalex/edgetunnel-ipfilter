@@ -1,3 +1,12 @@
+## [integration 2.1] - 2026-11-01
+
+### One visual identity, clearly this project's own
+
+- The project's own design language (see DESIGN.md: near-black teal canvas, four-step surfaces, hairline borders, one teal→blue accent) now covers **every page** — admin, login, the IP filter, the proxy checker and the converter — and is on by default (`?design=0` opts out). The upstream orange brand gradient is gone everywhere, including the login emblem and embedded tool views; light mode maps the same hierarchy. Side-by-side with upstream, the pages are unmistakably different products.
+- The filter page no longer loads anything from a CDN: its styles are precompiled and inlined at build time, icons are inline SVG, fonts use system stacks. The checker page draws country flags as emoji (no third-party flag-image service) and uses system font stacks too. The admin page's data fetches no longer route through third-party GitHub mirror domains, its preferred-IP API example points at the deployment's own `/ips` endpoint, and the embedded optimizer view is titled by function.
+- The README credits section now lists everything the project integrates, embeds or calls — source projects, the admin-page project, the IP dataset, VPNGate, the proxy-check service, UsagePanel, ACL4SSR, the rule-set providers (MetaCubeX, SagerNet) and the vendored libraries (js-yaml, Leaflet/OpenStreetMap, Lucide, Tailwind CSS).
+- 全站视觉统一为本项目设计语言并与上游明显区分（橙色品牌渐变全量清零、浅色模式同映射、设计层默认开启）；筛选页零 CDN（样式预编译内嵌、图标内联、系统字体），检测页国旗改 emoji、字体本地化；后台数据路径改直连、示例改指本部署 /ips 接口；README 鸣谢按「引用必致谢」补齐全部来源。
+
 ## [integration 2.0] - 2026-11-01
 
 ### All six formats are native now — zero external dependencies

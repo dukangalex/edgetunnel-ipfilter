@@ -77,6 +77,19 @@ test('/ips-ui 筛选界面可访问', async () => {
     const { status, body } = await call('https://x.test/ips-ui');
     assert.equal(status, 200);
     assert.ok(body.includes('regionGrid'));
+    assert.ok(!body.includes('cdn.tailwindcss.com') && !body.includes('unpkg.com') && !body.includes('fonts.googleapis.com'), '筛选页不得再依赖任何 CDN');
+    assert.ok(body.includes('Tailwind CSS v3.4'), '筛选页应内嵌预编译样式');
+    assert.ok(!body.includes('666OS/ClashMac/raw'), '筛选页不得外链第三方装饰图');
+    assert.ok(body.includes('特别鸣谢') && body.includes('ClashMac'), '筛选页页脚致谢应完整');
+    assert.ok(body.includes('数据来源：Cloudflare 优选 IP 数据集'), '筛选页应标明数据来源');
+    assert.ok(body.includes('viewBox="0 0 24 24"'), '图标应已内联为 SVG');
+});
+
+test('设计令牌: 转换页使用本项目视觉令牌', async () => {
+    const { status, body } = await call('https://x.test/convert');
+    assert.equal(status, 200);
+    assert.ok(body.includes('#060809'), '转换页应使用本项目画布色');
+    assert.ok(!body.includes('#0a84ff'), '转换页不得残留旧强调蓝');
 });
 
 test('edgetunnel 原有路由不被 IPF 劫持', async () => {
@@ -249,6 +262,9 @@ test('代理检测 (CHK): 未登录拦截, 登录后页面/接口可用', async 
     assert.ok(html.includes('代理检测功能由 CF-Workers-CheckSocks5 提供'), '页脚应为整合版中性页脚');
     assert.ok(html.includes("'/socks5/check?proxy='"), '前端检测接口应已改挂 /socks5 前缀');
     assert.ok(!html.includes('tongji'), '不得包含上游第三方访问统计');
+    assert.ok(!html.includes('ipdata.co'), '国旗图不得再外呼第三方服务');
+    assert.ok(html.includes('data:image/svg+xml'), '国旗应改为内联 emoji SVG');
+    assert.ok(!html.includes('fonts.googleapis.com'), '检测页不得再依赖 Google Fonts');
 
     const ipRes = await worker.fetch(reqC('/socks5/ip.json', { auth: true }), envC, ctx);
     assert.equal(ipRes.status, 200);
@@ -382,6 +398,8 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
     assert.ok(b64, '应内嵌 base64 注入脚本');
     const code = Buffer.from(b64[1], 'base64').toString('utf8');
     assert.ok(code.includes('customIPSection') && code.includes('ipf://'), '脚本应包含卡片锚点与 ipf 逻辑');
+    assert.ok(code.includes('ipf_design_off'), '设计层应为默认开启、可退出');
+    assert.ok(code.includes('--accent-a:#14b8a6'), '设计层应接管页面品牌变量');
     assert.doesNotThrow(() => new Function(code), '注入脚本应为合法 JS');
     assert.equal((src.match(/IPF_注入管理页\(await fetch/g) || []).length, 2, '管理页与登录页各接入一处注入');
 
@@ -391,7 +409,7 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         if (u.includes('edt-pages.github.io')) {
             // 复刻上游真实页面陷阱: <template> 内容里有一个字面量 </body>,
             // 注入必须落在文档真正的 </body> (最后一个) 之前, 不能进模板。
-            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a><script>const A=\'https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js\';const B=\'https://github.com/cmliu/edgetunnel/archive/refs/heads/main.zip\';const C=\'https://raw.githubusercontent.com/cmliu/edgetunnel/refs/heads/main/CHANGELOG\';const D=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBCONFIG.json\';const E=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBAPI.json\';const F=\'https://raw.githubusercontent.com/cmliu/cmliu/main/json/edt-path-config.json\';const G=\'https://raw.githubusercontent.com/cmliu/cmliu/refs/heads/main/json/best-cf-tools.json\';const H=\'https://raw.githubusercontent.com/cmliu/cmliu/main/CF-CIDR.txt\';const I=`https://api.cmliussss.net/api/ipinfo`;</script><input placeholder="https://SUBAPI.cmliussss.net"><h4>优选订阅生成器</h4> <pre>sub://sub.cmliussss.net#CM优选订阅</pre></body></html>', {
+            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a><script>const A=\'https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js\';const B=\'https://github.com/cmliu/edgetunnel/archive/refs/heads/main.zip\';const C=\'https://raw.githubusercontent.com/cmliu/edgetunnel/refs/heads/main/CHANGELOG\';const D=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBCONFIG.json\';const E=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBAPI.json\';const F=\'https://raw.githubusercontent.com/cmliu/cmliu/main/json/edt-path-config.json\';const G=\'https://raw.githubusercontent.com/cmliu/cmliu/refs/heads/main/json/best-cf-tools.json\';const H=\'https://raw.githubusercontent.com/cmliu/cmliu/main/CF-CIDR.txt\';const I=`https://api.cmliussss.net/api/ipinfo`;const J=\'https://github.cmliussss.com/raw.githubusercontent.com/x\';</script><style>:root{--accent-grad:linear-gradient(135deg,#faab41,#f6821f)}</style><title>BestCF</title><div class="boot-loading-brand">BestCF</div><h1>BestCF</h1><pre>https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt#优选IP_API</pre><input placeholder="https://SUBAPI.cmliussss.net"><h4>优选订阅生成器</h4> <pre>sub://sub.cmliussss.net#CM优选订阅</pre></body></html>', {
                 status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
             });
         }
@@ -438,6 +456,14 @@ test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理
         assert.ok(!html.includes('api.cmliussss.net'), '页面不得再调用上游 IP 信息接口');
         assert.ok(html.includes('ipf://JP-HK-SG-US?limit=10#内置国家优选'), '优选案例应改为本项目内置条目示例');
         assert.ok(!html.includes('sub.cmliussss.net'), '页面不得再出现上游优选生成器示例');
+        assert.ok(html.includes('https://raw.githubusercontent.com/x'), 'GitHub 镜像应改直连');
+        assert.ok(!html.includes('github.cmliussss.com'), '页面不得再经上游镜像域名');
+        assert.ok(!html.includes('#faab41') && !html.includes('#f6821f'), '上游品牌橙应全量换色');
+        assert.ok(html.includes('#14b8a6') && html.includes('#2563eb'), '品牌色应为本项目青蓝');
+        assert.ok(html.includes('<title>在线优选</title>') && !html.includes('<title>BestCF</title>'), '内嵌工具页标题应去品牌名');
+        assert.ok(html.includes('<div class="boot-loading-brand">在线优选</div>') && html.includes('<h1>在线优选</h1>'), '内嵌工具页可见品牌字样应用功能名');
+        assert.ok(html.includes('https://你的部署域名/ips/JP#优选IP_API'), '优选 IP API 示例应指本部署自带接口');
+        assert.ok(!html.includes('WorkerVless2sub'), '示例不得再指上游仓库');
         assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
 
         const loginReq = new Request('https://x.test/login', { headers: { 'User-Agent': ua } });

@@ -142,6 +142,36 @@ The merge is reproducible: the IPF module is the standalone filter's optimized `
 
 ## Credits / 鸣谢
 
-- [cmliu/edgetunnel](https://github.com/cmliu/edgetunnel) — the proxy core. License: GPL-2.0 (see [LICENSE](LICENSE), retained from upstream).
-- [dukangalex/Cloudflare-Country-Specific-IP-Filter](https://github.com/dukangalex/Cloudflare-Country-Specific-IP-Filter) — the IP filter, itself crediting CM大佬 (edgetunnel), Joey大佬 (cfnew) and 6佬 (ClashMac).
+This project integrates and builds on the work of others — everything it uses, embeds or calls is listed here. 本项目集成并受益于以下项目、数据与服务，凡引用到的都在这里列明。
+
+**Source projects / 来源项目**
+
+- [cmliu/edgetunnel](https://github.com/cmliu/edgetunnel) — the proxy core. License: GPL-2.0 (see [LICENSE](LICENSE), retained from upstream). 代理主体。
+- [dukangalex/Cloudflare-Country-Specific-IP-Filter](https://github.com/dukangalex/Cloudflare-Country-Specific-IP-Filter) — the country IP filter, itself crediting CM大佬 ([cmliu/edgetunnel](https://github.com/cmliu/edgetunnel)), Joey大佬 ([byJoey/cfnew](https://github.com/byJoey/cfnew)) and 6佬 ([666OS/ClashMac](https://github.com/666OS/ClashMac)). 国家优选筛选。
+- [dukangalex/CF-Workers-CheckSocks5](https://github.com/dukangalex/CF-Workers-CheckSocks5) — the SOCKS5 proxy checker, itself built on [ToiCF/CF-Workers-HTTPS](https://github.com/ToiCF/CF-Workers-HTTPS), [ToiCF/CF-Workers-TURN](https://github.com/ToiCF/CF-Workers-TURN) and [ToiCF/CF-Workers-SoftEther](https://github.com/ToiCF/CF-Workers-SoftEther), and using [iplocate.io](https://www.iplocate.io/) for IP geolocation. 代理检测。
+- [dukangalex/subscription-chain-converter-cf](https://github.com/dukangalex/subscription-chain-converter-cf) — the subscription converter. 订阅转换。
+
+**Admin UI / 后台页面**
+
+- [EDT-Pages](https://edt-pages.github.io/) — the admin and login pages are served from the EDT-Pages project and restyled at serve time (project branding, links and data sources are rewritten to this project). 后台与登录页面本体来自 EDT-Pages，本部署在下发时改写其品牌、链接与数据指向。
+
+**Data & services / 数据与服务**
+
+- The Cloudflare preferred-IP dataset served via zip.cm.edu.kg (maintained by cmliu) — the candidate pool for the IP filter. 优选 IP 数据集（筛选模块的候选池来源）。
+- [VPNGate](https://www.vpngate.net/) (University of Tsukuba) — the optional free SSTP node pool offered in the admin page, via sub.cmliussss.net. 后台可选的免费 SSTP 节点池。
+- The proxy-IP check service at api.check.proxyip.cmliussss.net — used by the admin page's reverse-proxy check. 后台反代检测所用服务。
+- [cmliu/CF-Workers-UsagePanel](https://github.com/cmliu/CF-Workers-UsagePanel) — the optional companion that provides a Cloudflare UsageAPI address for the admin usage panel. 后台用量面板的可选配套。
+- [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) — remote config templates referenced by edgetunnel's flow when a deployer configures an external subconverter backend. 外部转换后端流程引用的远程配置模板。
+
+**Rules / 规则集**
+
+- [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat), [SagerNet/sing-geosite](https://github.com/SagerNet/sing-geosite) and [SagerNet/sing-geoip](https://github.com/SagerNet/sing-geoip) — the rule files mirrored under `/rules/`. 规则镜像的来源。
+
+**Libraries & platform / 代码库与平台**
+
+- [js-yaml](https://github.com/nodeca/js-yaml) (MIT) — vendored into the converter core.
+- [Leaflet](https://leafletjs.com/) (BSD-2-Clause) and [OpenStreetMap](https://www.openstreetmap.org/) contributors (ODbL) — the checker's map.
+- [Lucide](https://lucide.dev/) icons (ISC) and [Tailwind CSS](https://tailwindcss.com/) (MIT) — icons and utility styles on the filter page, inlined at build time.
+- [Cloudflare Workers](https://workers.cloudflare.com/) — the runtime platform.
+
 - Open source; forks are welcome, please keep the credits. 已开源，支持二创，二创请保留鸣谢链接。
