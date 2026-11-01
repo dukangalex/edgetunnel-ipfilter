@@ -924,6 +924,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--teal);outline:none;bo
 .mbox .kv{color:var(--sub);font-size:12px}
 .mbox .row{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-top:1px solid var(--line)}
 .netsw{margin-left:8px;padding:1px 8px;font-size:11px}
+.fdiv{margin:14px 0 2px;font-size:12px;color:var(--sub);border-top:1px dashed var(--line);padding-top:10px}
 .qrbox{background:#fff;padding:10px;border-radius:10px;width:max-content;max-width:100%}.qrbox svg{width:220px;height:220px;display:block}
 .linkbox{flex:1;min-width:220px;background:var(--s2);border:1px solid var(--hl);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:12.5px;word-break:break-all;color:var(--inkm)}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
@@ -960,7 +961,7 @@ th{color:var(--inks);font-weight:600}
       <button data-sec="logs">📄 日志</button>
     </nav>
     <div class="railfoot">
-      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.4.0</span></div>
+      <div class="row"><span>整合版</span><span class="mono" id="verTag">2.5.0</span></div>
       <div class="row"><button class="tbtn" id="themeBtn" type="button">切换浅色</button><a class="tbtn" href="/logout">退出登录</a></div>
     </div>
   </aside>
@@ -974,7 +975,7 @@ th{color:var(--inks);font-weight:600}
         <div class="panel"><div class="kv">节点池状态</div><div class="val" id="ovPool">加载中…</div><div class="mut">四模块共用同一活池，订阅生成时逐个实测</div></div>
         <div class="panel"><div class="kv">优选订阅</div><div class="val" id="ovSub">加载中…</div><div class="mut">在「优选生成」里调整地区与数量</div></div>
         <div class="panel"><div class="kv">安全自检</div><div class="val" id="ovSec">—</div></div>
-        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.4.0</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><button class="btn sm" id="updLogBtn" type="button">查看更新日志</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div><pre id="updLog" class="mono" style="display:none;white-space:pre-wrap;max-height:320px;overflow:auto;margin-top:10px;font-size:12px;line-height:1.6"></pre></div>
+        <div class="panel"><div class="kv">版本与更新</div><div class="val">当前版本 <span class="mono">2.5.0</span> · <span id="updStat">尚未检查</span></div><div class="linkrow" style="margin-top:8px"><button class="btn sm" id="updCheck" type="button">检查更新</button><button class="btn sm" id="updLogBtn" type="button">查看更新日志</button><a class="btn sm" href="https://github.com/dukangalex/edgetunnel-ipfilter" target="_blank" rel="noopener">项目仓库</a></div><pre id="updLog" class="mono" style="display:none;white-space:pre-wrap;max-height:320px;overflow:auto;margin-top:10px;font-size:12px;line-height:1.6"></pre></div>
         <div class="panel" id="ovUsagePanel" style="display:none"><div class="kv">Cloudflare 用量</div><div class="val" id="ovUsage">—</div><div class="bar"><i id="ovUsageBar" style="width:0%"></i></div></div>
       </div>
       <div class="panel"><h3>服务信息</h3><div class="grid2">
@@ -1008,6 +1009,12 @@ th{color:var(--inks);font-weight:600}
 <div class="srow"><div class="slabel">Loon</div><div class="linkrow"><div class="linkbox" id="subLoonMask">—</div><button class="btn sm" id="subLoonShow" type="button">显示</button><button class="btn sm" id="subLoonCopy" type="button">复制</button><button class="btn sm" id="subLoonQr" type="button">二维码</button></div></div>
 <div class="srow"><div class="slabel">Quantumult X</div><div class="linkrow"><div class="linkbox" id="subQuanxMask">—</div><button class="btn sm" id="subQuanxShow" type="button">显示</button><button class="btn sm" id="subQuanxCopy" type="button">复制</button><button class="btn sm" id="subQuanxQr" type="button">二维码</button></div></div>
 <p class="mut">分格式链接在链接上带格式标记，不依赖客户端 UA。注意 Surge 本身不支持 VLESS 协议：当前节点为 VLESS 时，Surge 链接会返回一段说明文字（协议限制，不是故障）。</p><p class="mut">关于令牌：订阅链接里的 token 由「主机名 + UUID」计算生成，更换 UUID 后 token 随之变化、旧链接立即失效。UUID 在「概览」页可见末四位，完整值只在部署变量中修改。</p></div>
+<div class="panel"><h3>链式代理</h3>
+<p class="mut">链路长这样：你的设备 → 入口节点（第一跳）→ 出口节点（落地）→ 目标站。出口固定为本部署的节点（自动，不用配）；入口在下面配。没有合适的外部入口就留空，那就是单跳直连。</p>
+<div class="grid2"><div><div class="kv">入口状态</div><div class="val" id="chnStat">—</div></div><div><div class="kv">出口</div><div class="val">本部署节点（自动）</div></div></div>
+<div class="linkrow" style="margin-top:10px"><button class="btn sm" id="chnEditBtn" type="button">更换入口</button><button class="btn sm" id="chnRefreshBtn" type="button">刷新为本部署节点快照</button><button class="btn sm warn" id="chnClearBtn" type="button">清空入口（恢复单跳）</button></div>
+<div id="chnEdit" style="display:none;margin-top:10px"><textarea id="chnTxt" rows="5" placeholder="一行一个节点链接，或多条用 | 分隔；也可以填一个订阅地址"></textarea><div class="linkrow" style="margin-top:8px"><button class="btn primary sm" id="chnSaveBtn" type="button">保存入口</button><span class="mut" id="chnMsg"></span></div><p class="mut">把别的机场或部署的节点作入口填这里。注意：填本部署自己的节点就是「自链」——落地 IP 不变、只是多绕一跳，一般不建议。</p></div>
+</div>
       <div class="panel"><h3>路径</h3><div class="grid2"><div><div class="kv">节点路径</div><div class="val mono" id="subPath">—</div></div><div><div class="kv">完整节点路径</div><div class="val mono" id="subFullPath">—</div></div></div></div>
       <div class="panel" id="qrPanel" style="display:none"><h3 id="qrTitle">二维码</h3><div id="qrBox" class="qrbox"></div><p class="mut">用客户端扫码导入。二维码内容含凭据，请勿截图外发。</p></div>
     </section>
@@ -3438,7 +3445,7 @@ function loadConfig(){
     var u=getPath(CFG,['CF','Usage']);
     if(u&&typeof u.total==='number'&&typeof u.max==='number'&&u.max>0){$('ovUsagePanel').style.display='';$('ovUsage').textContent=u.total+' / '+u.max+' 次请求';$('ovUsageBar').style.width=Math.min(100,Math.round(u.total/u.max*100))+'%';}
     try{var hb=$('hostBanner');if(hb&&CFG.HOSTS&&CFG.HOSTS.indexOf(location.hostname)<0&&(Date.now()-(+localStorage.getItem('ipf-hostwarn')||0)>86400000)){hb.hidden=false;$('hostBannerTxt').textContent='当前访问域名 '+location.hostname+' 不在主机列表中：通过这个域名拉取的订阅不会把它用作节点域名。如需使用，请到「设置 → 基础 → 主机列表」添加并保存。';}}catch(e){}
-    buildSubs();buildSettings();if(window.__renderSec)window.__renderSec();
+    buildSubs();buildSettings();if(window.__renderChain)window.__renderChain();if(window.__renderSec)window.__renderSec();
     $('advConfig').value=JSON.stringify(CFG,null,2);
   }).catch(function(e){toast('配置读取失败：'+e.message,true);});
 }
@@ -3522,14 +3529,16 @@ var SPEC=[
   {p:['订阅转换配置','APPEND_TYPE'],label:'节点名追加类型',type:'bool'},
   {p:['订阅转换配置','SORT'],label:'节点排序',type:'bool'},
   {p:['订阅转换配置','EXPAND'],label:'展开规则',type:'bool'},
-  {p:['订阅转换配置','链式入口'],label:'链式入口（节点链接快照，| 分隔；由月度维护自动刷新）',type:'area',emptyNull:true}
  ]},
  {g:'反代',fields:[
+  {divider:'方式一 · PROXYIP（访问 CF 自家站点时的官方跳板）'},
   {p:['反代','PROXYIP'],label:'全局 PROXYIP',type:'text'},
+  {divider:'方式二 · SOCKS5 代理（用你自己的代理做跳板）'},
   {p:['反代','SOCKS5','全局'],label:'SOCKS5 全局启用',type:'bool'},
   {p:['反代','SOCKS5','账号'],label:'SOCKS5 账号（host:port 或 user:pass@host:port）',type:'text'},
   {p:['反代','SOCKS5','启用'],label:'SOCKS5 账号协议（决定用哪套路径模板）',type:'select',opts:['','socks5','http','https','turn','sstp'],optLabels:{'':'默认（socks5）'},emptyNull:true},
   {p:['反代','SOCKS5','白名单'],label:'SOCKS5 白名单（每行一个）',type:'list'},
+  {divider:'路径模板（高级，一般不用动）'},
   {p:['反代','路径模板','PROXYIP'],label:'路径模板 · PROXYIP',type:'text'},
   {p:['反代','路径模板','SOCKS5','全局'],label:'路径模板 · SOCKS5 全局',type:'text'},
   {p:['反代','路径模板','SOCKS5','标准'],label:'路径模板 · SOCKS5 标准',type:'text'},
@@ -3621,8 +3630,11 @@ function buildSettings(){
   var wrap=$('setGroups');wrap.innerHTML='';INPUTS=[];
   SPEC.forEach(function(grp){
     var panel=document.createElement('div');panel.className='panel';if(['反代','Telegram 通知','Cloudflare 用量查询'].indexOf(grp.g)>=0)panel.className+=' advG';
-    var h=document.createElement('h3');h.textContent=grp.g;panel.appendChild(h);
+    var h=document.createElement('h3');h.textContent=({'反代':'反代（访问 CF 站点）'})[grp.g]||grp.g;panel.appendChild(h);
+    var GINTRO={'基础':'节点长什么样、客户端怎么连进来。不懂的项保持默认，改错会导致订阅不可用。','Shadowsocks':'仅当协议类型选 Shadowsocks 时生效。','ECH':'加密握手里的域名信息，解决域名被针对性阻断、节点集体 -1 的问题；开启后记得更新订阅。','优选订阅生成':'订阅里优选节点的生成方式。地区选择在「优选生成」页；这里管数量、命名与汇聚。','订阅转换':'把节点转成各客户端格式时用什么后端、什么规则。链式代理已拆到「订阅」页的链式代理面板。','反代':'访问 Cloudflare 自家站点（ChatGPT、X 等）时需要一个跳板，两种方式按你的资源二选一。','Telegram 通知':'有人登录后台、拉取订阅时给你发消息。','Cloudflare 用量查询':'概览页的用量进度从这里取数；两组凭据填一组即可。'};
+    if(GINTRO[grp.g]){var gi=document.createElement('p');gi.className='fhint';gi.style.margin='0 0 10px';gi.textContent=GINTRO[grp.g];panel.appendChild(gi);}
     grp.fields.forEach(function(f){
+      if(f.divider){var dv=document.createElement('div');dv.className='fdiv';dv.textContent=f.divider;panel.appendChild(dv);return;}
       var v=getPath(CFG,f.p);
       var div=document.createElement('div');div.className='f';
       var input;
@@ -3691,6 +3703,14 @@ function __postSettings(){
     };
     dns.el.addEventListener('change',link); dns.el2.addEventListener('input',link);
   }
+  // converter mode linkage: built-in on -> external SUBAPI row disabled
+  var bi=null, sa=null;
+  INPUTS.forEach(function(it){var k=it.f.p.join('>');if(k==='订阅转换配置>内置转换')bi=it;if(k==='订阅转换配置>SUBAPI')sa=it;});
+  if(bi&&sa){
+    var row=sa.el.closest('.f');
+    var syncSA=function(){ var on=bi.el.checked; if(row){row.style.opacity=on?'.45':'';} sa.el.disabled=on; };
+    bi.el.addEventListener('change',syncSA); syncSA();
+  }
   // CF verify row
   var panels=document.querySelectorAll('#setGroups .panel');
   panels.forEach(function(p){var h=p.querySelector('h3');if(!h||h.textContent!=='Cloudflare 用量查询')return;
@@ -3755,7 +3775,7 @@ function loadLogs(){
 }
 $('logRefresh').onclick=function(){loaded.logs=1;loadLogs();};
 $('logFilter').addEventListener('input',function(){if(loaded.logs)loadLogs();});
-var CUR_VER='2.4.0';
+var CUR_VER='2.5.0';
 function cmpVer(a,b){var x=a.split('.').map(Number),y=b.split('.').map(Number);for(var i=0;i<3;i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)>(y[i]||0)?1:-1;}return 0;}
 function checkUpdate(){var st=$('updStat');if(!st)return;st.textContent='检查中…';fetch('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/CHANGELOG?ts='+Date.now()).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(function(t){window.__clTxt=t;var m=t.match(/\\[integration ([0-9]+\\.[0-9]+\\.[0-9]+)\\]/);if(!m){st.textContent='无法解析仓库版本';return;}var latest=m[1];var c=cmpVer(latest,CUR_VER);if(c===0)st.textContent='已是最新版';else if(c>0)st.textContent='有新版本 '+latest+' 可用，见更新日志';else st.textContent='本地版本领先于仓库发布（'+latest+'）';}).catch(function(){st.textContent='检查失败，可手动前往仓库查看';});}
 $('updCheck').onclick=checkUpdate;
@@ -3924,6 +3944,42 @@ document.querySelectorAll('.netcard').forEach(function(card){
 });
 $('ipModalClose').onclick=function(){ $('ipModal').hidden=true; };
 $('ipModal').addEventListener('click',function(ev){ if(ev.target===$('ipModal')) $('ipModal').hidden=true; });
+
+// ---------- chain panel ----------
+function __chainVal(){ var v=getPath(CFG,['订阅转换配置','链式入口']); return v==null?'':String(v); }
+window.__renderChain=function(){
+  var st=$('chnStat'); if(!st)return; var v=__chainVal();
+  if(!v){ st.textContent='未配置（单跳直连）'; }
+  else{
+    var links=v.split('|').map(function(x){return x.trim();}).filter(Boolean);
+    var own = CFG.UUID && v.indexOf(CFG.UUID)>=0;
+    st.textContent=(own?'本部署节点快照（自链）':'自定义入口')+' · '+links.length+' 条';
+  }
+  var tx=$('chnTxt'); if(tx) tx.value=v;
+};
+function __saveChain(val,msg){
+  setPath(CFG,['订阅转换配置','链式入口'], val?val:null);
+  return fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(CFG)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status); toast(msg); window.__renderChain(); }).catch(function(e){ toast('保存失败：'+e.message,true); });
+}
+$('chnEditBtn').onclick=function(){ var e=$('chnEdit'); e.style.display=e.style.display==='none'?'':'none'; };
+$('chnSaveBtn').onclick=function(){ __saveChain($('chnTxt').value.trim(),'链式入口已保存'); };
+$('chnRefreshBtn').onclick=function(){
+  var link=FULL.link; if(!link){ toast('订阅链接未就绪',true); return; }
+  $('chnMsg').textContent='正在拉取本部署节点…';
+  fetch(link+'&t='+Date.now()).then(function(r){return r.text();}).then(function(t){
+    var links=t.split(/\\r?\\n/).map(function(x){return x.trim();}).filter(function(x){return x.indexOf('://')>0;});
+    if(!links.length)throw new Error('没有拉到节点');
+    $('chnEdit').style.display=''; $('chnTxt').value=links.join('|');
+    $('chnMsg').textContent='已生成快照 '+links.length+' 条，点「保存入口」生效（自链，一般不建议）';
+  }).catch(function(e){ $('chnMsg').textContent='刷新失败：'+e.message; });
+};
+var __chnArm=false;
+$('chnClearBtn').onclick=function(){
+  var b=$('chnClearBtn');
+  if(!__chnArm){ __chnArm=true; b.textContent='确认清空？'; setTimeout(function(){__chnArm=false;b.textContent='清空入口（恢复单跳）';},3000); return; }
+  __chnArm=false; b.textContent='清空入口（恢复单跳）';
+  __saveChain('','已清空入口，恢复单跳直连');
+};
 
 checkUpdate();
 loadOverview();loadConfig();loadRegions();
