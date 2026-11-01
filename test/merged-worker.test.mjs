@@ -93,7 +93,7 @@ test('设计令牌: 转换页使用本项目视觉令牌', async () => {
 });
 
 test('edgetunnel 原有路由不被 IPF 劫持', async () => {
-    for (const path of ['/version', '/login', '/', '/admin']) {
+    for (const path of ['/version', '/login', '/']) {
         const { status, body } = await call('https://x.test' + path);
         assert.equal(status, 200, path);
         assert.ok(!body.includes('regionGrid'), path + ' 不应返回 IPF 界面');
@@ -392,89 +392,63 @@ test('订阅转换 (CHN): edgetunnel /sub 经内置转换器出 Clash (无外部
     assert.ok(!body.includes('订阅转换后端异常'), '不得出现外部后端异常');
 });
 
-test('管理页内置入口: 注入脚本载荷完整且可解析, /admin 代理时注入卡片脚本', async () => {
+test('自研管理台 (2.2): 页面自带零代理, 登录流与鉴权完整', async () => {
     const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
-    const b64 = src.match(/const IPF_管理页脚本_B64 = '([A-Za-z0-9+/=]+)'/);
-    assert.ok(b64, '应内嵌 base64 注入脚本');
-    const code = Buffer.from(b64[1], 'base64').toString('utf8');
-    assert.ok(code.includes('customIPSection') && code.includes('ipf://'), '脚本应包含卡片锚点与 ipf 逻辑');
-    assert.ok(code.includes('ipf_design_off'), '设计层应为默认开启、可退出');
-    assert.ok(code.includes('--accent-a:#14b8a6'), '设计层应接管页面品牌变量');
-    assert.doesNotThrow(() => new Function(code), '注入脚本应为合法 JS');
-    assert.equal((src.match(/IPF_注入管理页\(await fetch/g) || []).length, 2, '管理页与登录页各接入一处注入');
+    assert.ok(!src.includes('fetch(Pages静态页面'), '不得再从 edt-pages 抓取任何页面');
+    assert.ok(!src.includes('__IPF_ADMIN_B64__') && !src.includes('IPF_注入管理页'), '旧注入机制应已移除');
+    assert.ok(src.includes('管理台 · edgetunnel-ipfilter'), '应内嵌自研管理台页面');
+    assert.ok(src.includes('登录 · edgetunnel-ipfilter'), '应内嵌自研登录页');
 
-    const realFetch = globalThis.fetch;
-    globalThis.fetch = async (input, init) => {
-        const u = typeof input === 'string' ? input : input.url;
-        if (u.includes('edt-pages.github.io')) {
-            // 复刻上游真实页面陷阱: <template> 内容里有一个字面量 </body>,
-            // 注入必须落在文档真正的 </body> (最后一个) 之前, 不能进模板。
-            return new Response('<html><body><template><div></body></div></template><div id="customIPSection"><textarea id="customIPs"></textarea></div><a href="https://github.com/cmliu/edgetunnel" target="_blank" rel="noopener" class="social-link" title="GitHub">GH</a><a href="https://t.me/CMLiussss" target="_blank" rel="noopener" class="social-link" title="Telegram">TG</a><script>const A=\'https://raw.githubusercontent.com/cmliu/edgetunnel/main/_worker.js\';const B=\'https://github.com/cmliu/edgetunnel/archive/refs/heads/main.zip\';const C=\'https://raw.githubusercontent.com/cmliu/edgetunnel/refs/heads/main/CHANGELOG\';const D=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBCONFIG.json\';const E=\'https://raw.githubusercontent.com/cmliu/cmliu/main/SUBAPI.json\';const F=\'https://raw.githubusercontent.com/cmliu/cmliu/main/json/edt-path-config.json\';const G=\'https://raw.githubusercontent.com/cmliu/cmliu/refs/heads/main/json/best-cf-tools.json\';const H=\'https://raw.githubusercontent.com/cmliu/cmliu/main/CF-CIDR.txt\';const I=`https://api.cmliussss.net/api/ipinfo`;const J=\'https://github.cmliussss.com/raw.githubusercontent.com/x\';</script><style>:root{--accent-grad:linear-gradient(135deg,#faab41,#f6821f)}</style><title>BestCF</title><div class="boot-loading-brand">BestCF</div><h1>BestCF</h1><pre>https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt#优选IP_API</pre><input placeholder="https://SUBAPI.cmliussss.net"><h4>优选订阅生成器</h4> <pre>sub://sub.cmliussss.net#CM优选订阅</pre></body></html>', {
-                status: 200, headers: { 'Content-Type': 'text/html;charset=utf-8' },
-            });
-        }
-        return realFetch(input, init);
+    const ua = 'ipf-test-ua';
+    const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
+    const cookie = md5md5(ua + secret + 'test-admin-pass');
+    const kvStore = {};
+    const envA = {
+        ADMIN: 'test-admin-pass', UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
     };
-    try {
-        const ua = 'ipf-test-ua';
-        const secret = '勿动此默认密钥，有需求请自行通过添加变量KEY进行修改';
-        const cookie = md5md5(ua + secret + 'test-admin-pass');
-        const kvStore = {};
-        const envA = {
-            ADMIN: 'test-admin-pass',
-            KV: {
-                async get(k) { return kvStore[k] ?? null; },
-                async put(k, v) { kvStore[k] = v; },
-            },
-        };
-        const req = new Request('https://x.test/admin', { headers: { 'User-Agent': ua, Cookie: 'auth=' + cookie } });
+    async function callA(url, opts = {}) {
+        const headers = { 'User-Agent': ua };
+        if (opts.cookie) headers.Cookie = 'auth=' + cookie;
+        const req = new Request(url, { headers, method: opts.method || 'GET', body: opts.body });
         Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP' } });
-        const res = await worker.fetch(req, envA, { waitUntil() {} });
-        assert.equal(res.status, 200);
-        const html = await res.text();
-        assert.ok(html.includes('id="customIPs"'), '原始管理页内容应保留');
-        assert.ok(html.includes('ipf-admin-card'), '应注入内置入口脚本');
-        assert.ok(html.includes('内置国家优选'), '注入脚本应含卡片文案');
-        assert.ok(html.indexOf('ipf-admin-card') > html.indexOf('</template>'), '注入脚本不得落进 <template> 内容');
-        assert.ok(html.includes('ipf-tools-card'), '注入脚本应含整合工具卡');
-        assert.ok(html.includes('ipfConvHint'), '注入脚本应含订阅转换内置提示');
-        assert.ok(html.includes('href="https://github.com/dukangalex/edgetunnel-ipfilter"'), '页脚 GitHub 应指向本项目仓库');
-        assert.ok(html.includes('href="https://t.me/AngelaNexus"'), '页脚 Telegram 应指向本项目频道');
-        assert.ok(!html.includes('href="https://github.com/cmliu/edgetunnel"'), '页脚不得再指向上游仓库');
-        assert.ok(!html.includes('href="https://t.me/CMLiussss"'), '页脚不得再指向上游频道');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/_worker.js'), '版本检查应指向本项目仓库');
-        assert.ok(html.includes('https://github.com/dukangalex/edgetunnel-ipfilter/archive/refs/heads/main.zip'), '程序包下载应指向本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/refs/heads/main/CHANGELOG'), '更新日志应指向本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBCONFIG.json'), 'SUBCONFIG 数据应收进本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/SUBAPI.json'), 'SUBAPI 列表应收进本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/edt-path-config.json'), '路径模板数据应收进本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/best-cf-tools.json'), '工具清单数据应收进本项目仓库');
-        assert.ok(html.includes('https://raw.githubusercontent.com/dukangalex/edgetunnel-ipfilter/main/data/CF-CIDR.txt'), 'CF-CIDR 数据应收进本项目仓库');
-        assert.ok(html.includes('`/api/ipinfo`'), 'IP 信息查询应改走本部署自建接口');
-        assert.ok(html.includes('placeholder="留空 = 使用内置转换（本项目整合）"'), '订阅转换后端占位提示应为内置说明');
-        assert.ok(!html.includes('raw.githubusercontent.com/cmliu'), '页面不得再从上游仓库取任何文件');
-        assert.ok(!html.includes('api.cmliussss.net'), '页面不得再调用上游 IP 信息接口');
-        assert.ok(html.includes('ipf://JP-HK-SG-US?limit=10#内置国家优选'), '优选案例应改为本项目内置条目示例');
-        assert.ok(!html.includes('sub.cmliussss.net'), '页面不得再出现上游优选生成器示例');
-        assert.ok(html.includes('https://raw.githubusercontent.com/x'), 'GitHub 镜像应改直连');
-        assert.ok(!html.includes('github.cmliussss.com'), '页面不得再经上游镜像域名');
-        assert.ok(!html.includes('#faab41') && !html.includes('#f6821f'), '上游品牌橙应全量换色');
-        assert.ok(html.includes('#14b8a6') && html.includes('#2563eb'), '品牌色应为本项目青蓝');
-        assert.ok(html.includes('<title>在线优选</title>') && !html.includes('<title>BestCF</title>'), '内嵌工具页标题应去品牌名');
-        assert.ok(html.includes('<div class="boot-loading-brand">在线优选</div>') && html.includes('<h1>在线优选</h1>'), '内嵌工具页可见品牌字样应用功能名');
-        assert.ok(html.includes('https://你的部署域名/ips/JP#优选IP_API'), '优选 IP API 示例应指本部署自带接口');
-        assert.ok(!html.includes('WorkerVless2sub'), '示例不得再指上游仓库');
-        assert.equal(res.headers.get('cache-control'), 'no-store, no-cache, must-revalidate', '管理页外壳应禁止缓存');
-
-        const loginReq = new Request('https://x.test/login', { headers: { 'User-Agent': ua } });
-        Object.defineProperty(loginReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
-        const loginRes = await worker.fetch(loginReq, envA, { waitUntil() {} });
-        const loginHtml = await loginRes.text();
-        assert.ok(loginHtml.includes('ipf-badge'), '登录页应注入品牌徽章脚本');
-        assert.ok(loginHtml.includes('ipf-theme'), '登录页应注入品牌主题');
-    } finally {
-        globalThis.fetch = realFetch;
+        return worker.fetch(req, envA, { waitUntil() {} });
     }
+    // 未登录: /admin -> 302 /login
+    let res = await callA('https://x.test/admin');
+    assert.equal(res.status, 302, '/admin 未登录应跳转');
+    assert.equal(res.headers.get('location'), 'https://x.test/login');
+    // 未登录: /login -> 自研登录页
+    res = await callA('https://x.test/login');
+    assert.equal(res.status, 200);
+    let body = await res.text();
+    assert.ok(body.includes('管理台登录') && body.includes('edgetunnel-ipfilter'), '登录页应为自研页面');
+    assert.ok(body.includes('github.com/dukangalex/edgetunnel-ipfilter'), '登录页应带本项目联系方式');
+    assert.ok(!body.includes('edt-pages'), '登录页不得出现上游页面来源');
+    // 已登录: /login -> 302 /admin; /admin -> 自研管理台
+    res = await callA('https://x.test/login', { cookie: true });
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.get('location'), 'https://x.test/admin');
+    res = await callA('https://x.test/admin', { cookie: true });
+    assert.equal(res.status, 200);
+    body = await res.text();
+    assert.ok(body.includes('管理台 · edgetunnel-ipfilter'), '/admin 应返回自研管理台');
+    assert.ok(body.includes('优选生成') && body.includes('整合工具') && body.includes('sec-settings') && body.includes('sec-logs'), '管理台应含各功能区');
+    assert.ok(!body.includes('edt-pages'), '管理台不得出现上游页面来源');
+    assert.equal(res.headers.get('cache-control'), 'no-store');
+    // POST /login 正确密码 -> success + auth cookie (与校验同式)
+    res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'test-admin-pass' }) });
+    const j = await res.json();
+    assert.equal(j.success, true, '正确密码应登录成功');
+    assert.ok((res.headers.get('set-cookie') || '').includes('auth=' + cookie), '登录应下发 auth cookie');
+    // POST /login 错误密码 -> 回到自研登录页, 不下发成功标记
+    res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'wrong-pass' }) });
+    body = await res.text();
+    assert.ok(!body.includes('"success":true') && body.includes('管理台登录'), '错误密码应回到自研登录页');
+    // /logout -> 302 且清除 cookie
+    res = await callA('https://x.test/logout', { cookie: true });
+    assert.equal(res.status, 302);
+    assert.ok((res.headers.get('set-cookie') || '').includes('Max-Age=0'), '退出应清除 cookie');
 });
 
 test('整合版默认: SUBAPI 留空走内置转换 (源码默认 + 新装配置)', async () => {

@@ -1,3 +1,12 @@
+## [integration 2.2] - 2026-11-01
+
+### The admin is ours now — pages replaced, not re-skinned
+
+- The admin console and login page are **this project's own pages**, served by the deployment itself: a left-rail console (Overview / Subscription / Region Filter / Tools / Settings / Advanced / Logs) and a split-wall login page. The upstream page proxy — and the theme-injection layer that re-skinned it — are gone entirely; no user-facing page is fetched from any external page service (the not-configured notice pages are self-served too). Login, logout, config editing (form + raw JSON), region editing, ADD.txt editing and the log view all run against the same admin APIs as before.
+- The three tool pages got **structural** layouts of their own, not new colors: the IP filter is now a two-pane workbench (a scrollable region rail beside the results pane), the proxy checker a single-column workspace with its summary as a top strip and the ambient layers removed, the converter a two-column form with the short-link restore card as a right rail.
+- Subscription and node links in the console are masked by default; the overview shows only the last four characters of the UUID.
+- 管理台与登录页改为本项目自研页面、由部署自身下发（左侧栏七区管理台 + 分栏品牌墙登录页），上游页面代理与注入换肤层整体移除，无任何用户可见页面再从外部页面服务抓取（未配置提示页也自带）；登录、退出、配置编辑（表单 + 原始 JSON）、地区编辑、ADD.txt 编辑与日志查看沿用原有后台接口。三个工具页做骨架级重排：筛选页双栏工作台（可滚动地区栏 + 结果区）、检测页单列工作区加顶部状态条并去除氛围层、转换页双列表单加恢复右轨。订阅与节点链接默认打码，概览中的 UUID 只显示末四位。
+
 ## [integration 2.1] - 2026-11-01
 
 ### One visual identity, clearly this project's own

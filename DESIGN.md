@@ -183,7 +183,7 @@ One voice from display to caption: weight 600 headings with slight negative trac
 ## Layout
 
 - 4px base unit; spacing tokens from 4 to 48px. Card padding 24px (16px on narrow screens).
-- Admin content max width follows the host page; tool pages (`/ips-ui`, `/socks5-ui`, `/convert`) center a 1080px column.
+- The admin console is self-built (2.2): a 236px left rail (brand block, section nav, version + theme + logout) beside the content column, max width 1460px. Tool pages (`/ips-ui`, `/socks5-ui`, `/convert`) use workbench layouts up to 1400px wide, each with its own skeleton (see Page Patterns); below 920px every layout collapses to a single column.
 - Sections separate by surface lift and hairlines, not by large empty gaps. Vertical rhythm inside a card: 16px between blocks.
 
 ## Elevation & Depth
@@ -237,10 +237,10 @@ The 🌏 badge and wordmark `edgetunnel-ipfilter` carry the brand gradient. The 
 
 ## Page Patterns
 
-- **Admin console**: the host page's own layout, re-skinned by the token layer (canvas, surfaces, inputs, buttons, modals). Injected integration cards use the card spec exactly — same radius, padding, title style, and button styles as host cards, so the page reads as one product.
-- **Login**: centered panel (surface-1, 16px radius) on canvas; primary button is the gradient CTA; nothing else on the page competes with it.
-- **Tool pages** (`/ips-ui`, `/socks5-ui`, `/convert`): a headline row (display type + one-line description in ink-subtle), then panels in a single column. Results render in the same panel language as the admin console.
-- **Light mode**: the admin host page offers a light theme; the token layer maps the same hierarchy onto light surfaces (white canvas, gray hairlines, same accent). Dark remains the canonical, fully-specified theme; a light surface must never invert the accent or the semantic colors.
+- **Admin console** (self-built since 2.2; no upstream page is proxied or re-skinned anymore): left-rail layout on the dotted canvas. Seven sections — Overview (stat cards + service info), Subscription (links masked by default with show/copy), Region Filter (chip editor writing the `ipf://` entry), Tools, Settings (schema-driven form over the full config), Advanced (raw config.json + ADD.txt editors), Logs (token-redacted table). Section titles carry a teal left bar; panels are flat surface-1 with hairline borders.
+- **Login**: split wall — a deep-teal gradient brand wall (globe mark, wordmark, tagline) on the left, a flat login card on the dotted canvas on the right. The card also carries the project's contact links (repo + channel). On narrow screens the wall stacks above the card.
+- **Tool pages**: each has its own workbench skeleton, deliberately unlike the others and unlike any upstream layout. `/ips-ui`: two panes — a 380px region rail (regions as a scrollable two-column row list) beside the results pane. `/socks5-ui`: ambient layers removed; slim header, a three-across status strip (former side column) above a single-column workspace. `/convert`: two columns — the main form on the left, the short-link restore card as a right rail.
+- **Light mode**: the console ships its own light mapping of the same tokens (canvas #f4f7f7, white surfaces), persisted per browser; the login page follows `prefers-color-scheme`. Dark remains the canonical, fully-specified theme; a light surface must never invert the accent or the semantic colors.
 
 ## Do's and Don'ts
 
