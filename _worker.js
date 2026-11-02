@@ -13964,16 +13964,6 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 						</div>
 					</div>
 
-										<div class="form-group">
-						<label for="chainEntry">链式入口</label>
-						<textarea id="chainEntry" rows="3" placeholder="入口节点链接，多个用 | 分隔；留空表示不启用链式代理" oninput="markModified('convert')"></textarea>
-					</div>
-					<div style="font-size:12px;opacity:.75;line-height:1.6;margin:-6px 0 10px">启用后，本部署转换出的订阅先经入口节点、再由本部署节点落地。填入本部署自己的节点不会改变落地，只是多绕一圈，一般留空或填外部入口。修改后点本模块下方的「保存」生效。当前：<span id="chainEntryStat">读取中…</span></div>
-					<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
-						<button type="button" class="btn" id="chainFillOwn">填入本部署节点</button>
-						<button type="button" class="btn" id="chainClearBtn">清空</button>
-						<span style="font-size:12px;opacity:.75">把任意订阅转成链式订阅：<a href="/convert" target="_blank" rel="noopener">订阅链式转换</a>；检测节点与代理可用性：<a href="/socks5-ui" target="_blank" rel="noopener">代理检测</a>。</span>
-					</div>
 					<div class="module-footer">
 						<div class="btn-group">
 							<button type="button" class="btn btn-secondary" onclick="cancelEdit('convert')" disabled
@@ -24532,8 +24522,6 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				currentConfig.订阅转换配置.EXPAND = document.getElementById('expand').checked;
 			}
 
-			const chainEntryEl = document.getElementById('chainEntry');
-			if (chainEntryEl) currentConfig.订阅转换配置.链式入口 = chainEntryEl.value.trim() || null;
 			await saveConfigToServer('convert');
 		}
 
@@ -33126,7 +33114,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 	</script>
 
 <script>
-// ---- edgetunnel-ipfilter fused fields: region mode + chain entry ----
+// ---- edgetunnel-ipfilter fused field: region mode ----
 var IPF_POPULAR_REGIONS = ['JP','HK','SG','US','TW','KR'];
 function readRegionCodes(){
   var codes=[];
@@ -33159,44 +33147,11 @@ function composeRegionADD(){
   var rest=ed? ed.value.split(/\\r?\\n/).filter(function(x){ return x.trim() && x.trim().indexOf('ipf://')!==0; }) : [];
   return [line].concat(rest).join('\\n')+'\\n';
 }
-function ipfRenderChainStat(cfg){
-  var st=document.getElementById('chainEntryStat'); if(!st) return;
-  var v=cfg && cfg['订阅转换配置'] && cfg['订阅转换配置']['链式入口'];
-  if(!v){ st.textContent='未启用（单跳直连）'; return; }
-  var links=String(v).split('|').filter(function(x){ return x.trim(); });
-  var own=cfg.UUID && String(v).indexOf(cfg.UUID)>=0;
-  st.textContent=(own?'本部署自己的节点（落地不变）':'外部入口')+' · '+links.length+' 条';
-}
 document.addEventListener('DOMContentLoaded', function(){
   fetch('/admin/config.json?_t='+Date.now()).then(function(r){ return r.json(); }).then(function(cfg){
-    var ta=document.getElementById('chainEntry');
-    if(ta){ ta.value=(cfg['订阅转换配置'] && cfg['订阅转换配置']['链式入口']) || ''; }
-    ipfRenderChainStat(cfg);
     var sel=cfg['优选订阅生成'] && cfg['优选订阅生成']['本地IP库'] && cfg['优选订阅生成']['本地IP库']['地区筛选'];
     if(sel) __fillRegionUI(sel);
-    var fill=document.getElementById('chainFillOwn');
-    if(fill) fill.onclick=function(){
-      var tok=cfg['优选订阅生成'] && cfg['优选订阅生成'].TOKEN;
-      if(!tok){ if(window.showToast) showToast('订阅 TOKEN 未就绪','error'); return; }
-      fill.textContent='拉取中…';
-      fetch(location.origin+'/sub?token='+tok+'&t='+Date.now()).then(function(r){ return r.text(); }).then(function(t){
-        var links=t.split(/\\r?\\n/).map(function(x){ return x.trim(); }).filter(function(x){ return x.indexOf('://')>0; });
-        fill.textContent='填入本部署节点';
-        if(!links.length){ if(window.showToast) showToast('没有拉到节点','error'); return; }
-        ta.value=links.join('|');
-        if(typeof markModified==='function') markModified('convert');
-        document.getElementById('chainEntryStat').textContent='已填入本部署节点 '+links.length+' 条（未保存，点保存生效）';
-      }).catch(function(){ fill.textContent='填入本部署节点'; if(window.showToast) showToast('拉取本部署节点失败','error'); });
-    };
-    var clr=document.getElementById('chainClearBtn');
-    if(clr) clr.onclick=function(){
-      ta.value='';
-      if(typeof markModified==='function') markModified('convert');
-      document.getElementById('chainEntryStat').textContent='已清空（未保存，点保存生效）';
-    };
-  }).catch(function(){
-    var st=document.getElementById('chainEntryStat'); if(st) st.textContent='读取失败';
-  });
+  }).catch(function(){});
 });
 </script>
 
