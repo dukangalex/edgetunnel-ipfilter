@@ -399,6 +399,7 @@ test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整
     assert.ok(src.includes('preferredSubscriptionModule'), '应内嵌上游 UI 管理页');
     assert.ok(src.includes('id="regionSection"') && src.includes('value="region"') && src.includes('__ipfRegionDone'), '地区筛选应是优选模块自己的模式且呈现不拦用户切换');
     assert.ok(src.includes('testBuiltinSubAPI') && src.includes('validURL === undefined'), '内置转换(默认)应可实测验证, 且验证后可确认切回默认');
+    assert.ok(src.includes('header-tools') && src.includes('href="/convert"') && src.includes('href="/ips-ui"') && src.includes('href="/socks5-ui"'), '页眉应有整合工具入口(转换/地区优选/SOCKS5 检测)');
     assert.ok(src.includes('...currentConfig.订阅转换配置'), '转换模块保存应保留其不认识的配置键');
     assert.ok(!src.includes('id="chainEntry"'), '链式入口字段已按用户要求取消, 不应再出现');
     assert.ok(!src.includes('ipfChainModule') && !src.includes('ipfToolsModule') && !src.includes('ipfRegionBlock') && !src.includes('本项目功能'), '不得再有运行时注入的独立模块与外来标签');
