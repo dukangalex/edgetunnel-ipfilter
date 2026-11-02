@@ -13055,6 +13055,12 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				<div class="header-title">
 					<h1 id="pageTitle">加载中...</h1>
 				</div>
+				<nav class="header-tools" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center">
+					<span style="opacity:.65;font-size:13px">🧰 整合工具</span>
+					<a href="/convert" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">订阅转换</a>
+					<a href="/ips-ui" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">地区优选</a>
+					<a href="/socks5-ui" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">SOCKS5 检测</a>
+				</nav>
 				<div class="header-buttons">
 					<button type="button" class="btn btn-mode-toggle" id="modeToggleBtn" onclick="toggleUserMode()">🐣
 						我是小白！我想简单点！</button>
@@ -27985,6 +27991,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			document.getElementById('subAPIStatus').textContent = '';
 			document.getElementById('subAPIConfirmBtn').disabled = true;
 			document.getElementById('subAPIConfirmBtn').style.opacity = '0.5';
+			delete document.getElementById('subAPIConfirmBtn').dataset.validURL;
 			document.getElementById('subAPIModal').classList.add('show');
 
 			// 加载 SUBAPI 列表
@@ -28551,6 +28558,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		async function testSubAPI() {
 			let input;
 			const selectEl = document.getElementById('subAPISelect');
+			const selOpt = selectEl.options[selectEl.selectedIndex];
+			if (selectEl.value === '' && selOpt && selOpt.textContent.indexOf('内置转换') === 0) { return testBuiltinSubAPI(); }
 
 			if (selectEl.value === 'custom' || !selectEl.value) {
 				// 如果是自定义或未选择，从输入框获取
@@ -28635,7 +28644,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		function confirmSubAPI() {
 			const validURL = document.getElementById('subAPIConfirmBtn').dataset.validURL;
-			if (!validURL) return;
+			if (validURL === undefined) return;
 
 			document.getElementById('subAPI').value = validURL;
 			markModified('convert');
@@ -33139,6 +33148,32 @@ function __fillRegionUI(sel){
   });
   var ex=document.getElementById('regionExtra'); if(ex) ex.value=extra.join(',');
   var lim=document.getElementById('regionLimit'); if(lim && sel.数量 !== undefined && sel.数量 !== null) lim.value=sel.数量;
+}
+async function testBuiltinSubAPI(){
+  var statusEl=document.getElementById('subAPIStatus');
+  var confirmBtn=document.getElementById('subAPIConfirmBtn');
+  var sample='vless://00000000-0000-4000-8000-000000000000@example.com:443?encryption=none&security=tls&sni=example.com#IPF-builtin-check';
+  statusEl.style.display='block'; statusEl.style.color='#fff';
+  statusEl.style.background='linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%)';
+  statusEl.textContent='⏳ 检测中...（用示例节点实测内置转换）';
+  try{
+    var r=await fetch('/conv?target=clash&url='+encodeURIComponent(sample));
+    var t=await r.text();
+    if(r.status===200 && t.indexOf('proxies')>=0){
+      statusEl.style.background='linear-gradient(135deg, #10b981 0, #059669 100%)';
+      statusEl.textContent='✅ 内置转换可用（已实测转换示例节点）';
+      confirmBtn.disabled=false; confirmBtn.style.opacity='1';
+      confirmBtn.dataset.validURL='';
+    }else{
+      statusEl.style.background='linear-gradient(135deg, #ef4444 0, #dc2626 100%)';
+      statusEl.textContent='❌ 内置转换实测失败 (HTTP '+r.status+')';
+      confirmBtn.disabled=true; confirmBtn.style.opacity='0.5';
+    }
+  }catch(e){
+    statusEl.style.background='linear-gradient(135deg, #ef4444 0, #dc2626 100%)';
+    statusEl.textContent='❌ 检测失败: '+e.message;
+    confirmBtn.disabled=true; confirmBtn.style.opacity='0.5';
+  }
 }
 function composeRegionADD(){
   var sel=readRegionSel();
