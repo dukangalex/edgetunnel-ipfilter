@@ -1,3 +1,17 @@
+## [integration 3.1.13] - 2026-11-02
+
+### Filter page: what it does, and how, up front
+
+- The region filter page opens with a headline strip stating its job (pick Cloudflare preferred IPs by country/region, ready to import) and a three-step guide: select region cards → nodes extract automatically → copy all or use the API link. The results header also prompts the first step instead of an English "waiting" string.
+- 地区筛选页顶部加功能横幅：一句话说清用途（按国家/地区挑 Cloudflare 优选 IP、生成可直接导入的节点列表），加三步指引（点选地区卡片 → 自动提取 → 复制全部或用 API 地址）；结果区标题也改为中文第一步提示，不再是英文 WAITING。
+
+## [integration 3.1.12] - 2026-11-02
+
+### Filter page: format buttons side by side
+
+- The two extract-format buttons above the results now sit side by side (their two-column layout no longer depends on a runtime-generated utility class).
+- 结果区上方的两个格式按钮改回并排（双列布局不再依赖运行时生成的工具类）。
+
 ## [integration 3.1.11] - 2026-11-02
 
 ### Filter page: horizontal layout, results follow selection
