@@ -1,3 +1,10 @@
+## [integration 3.1.20] - 2026-11-02
+
+### Region groups: automatic selection by default
+
+- In plain conversions, each country/region select group now lists its "<region>-自动选择" url-test group first, so a region group defaults to automatic fastest-node selection instead of pinning its first node. Manual node choice stays one tap away in the same group.
+- 国家/地区选择组的默认项改为本地区的「<地区>-自动选择」测速组（排在成员列表第一位），默认自动选最快节点；手动指定节点仍在同组内可选。
+
 ## [integration 3.1.19] - 2026-11-02
 
 ### Plain conversion: no chain marks, automatic region groups
