@@ -1,3 +1,10 @@
+## [integration 3.1.18] - 2026-11-02
+
+### Convert page: one centered column
+
+- The restore-short-link card no longer floats in a side column next to the form (which left the rest of the right side empty and the page lopsided). The page is a single centered column now, and the restore card is a slim strip under the title: label, input and button on one line.
+- 转换页改回单一居中列：恢复短链卡片不再悬在表单右侧（右侧其余空间全空、画面失衡），改为标题下方一条细横条，标题、输入框、按钮一行排齐。
+
 ## [integration 3.1.17] - 2026-11-02
 
 ### Proxy checker page: what it does, and how, up front
