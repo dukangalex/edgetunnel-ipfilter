@@ -1,3 +1,11 @@
+## [integration 3.1.21] - 2026-11-02
+
+### Region groups first; converter upgraded to the full HiClash script design
+
+- Country/region groups now rank at the very front of the proxy-group list (their auto groups are hidden, so the region selectors lead the page), ahead of the exit tier and the default group.
+- The bundled converter's plain mode now follows the HiClash mihomoScript design in full: node-name normalization and info-node filtering, region groups plus rate / home-broadband groups where the node names carry those marks, region selectors offered inside the service groups, and script test parameters for the auto groups.
+- 国家/地区组改排到分组列表最前（自动组隐藏，地区选择组领头）。内置转换器普通模式升级为完整移植 HiClash 脚本设计：节点名标准化与信息节点过滤、地区组之外按名称标记生成倍率/家宽组、地区组进入各分流组、自动组采用脚本测速参数。
+
 ## [integration 3.1.20] - 2026-11-02
 
 ### Region groups: automatic selection by default
