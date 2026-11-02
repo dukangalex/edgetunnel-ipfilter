@@ -1,4 +1,4 @@
-﻿/* edgetunnel-ipfilter integration 3.1.19 */
+﻿/* edgetunnel-ipfilter integration 3.1.20 */
 const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -21079,7 +21079,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "整合版 3.1.19";
+				versionValue.textContent = "整合版 3.1.20";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21342,7 +21342,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = 30119;
+			const currentVersionNumber = 30120;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21420,7 +21420,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
 			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
-			currentVersionValueEl.textContent = '整合版 3.1.19';
+			currentVersionValueEl.textContent = '整合版 3.1.20';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -45924,15 +45924,52 @@ const REGION_RES = REGION_DEFS.map(([name, , src]) => [name, new RegExp(src, "i"
 // strongExcludeFilter).
 const STRONG_INFO =
   /剩余|已用|距离下次|下次重置|套餐|到期|过期|官网|官址|客服|订阅|工单|邮箱|网址|流量\s*[:：]|traffic\s*[:：]|\bexpire\b|\bhttps?:\/\/|t\.me\//iu;
+// Traditional → Simplified folding for region matching only (names
+// themselves are never rewritten), ported from the same script's
+// traditionalToSimplified map: airport names often use Traditional
+// forms （台灣、美國、韓國） while the region regexes are Simplified.
+const TRAD2SIMP = {
+  "灣": "湾", "國": "国", "臺": "台", "東": "东", "島": "岛",
+  "亞": "亚", "倫": "伦", "蘭": "兰", "馬": "马", "賓": "宾",
+  "紐": "纽", "約": "约", "達": "达", "磯": "矶", "聖": "圣",
+  "門": "门", "韓": "韩", "羅": "罗", "蘇": "苏", "聯": "联",
+  "愛": "爱", "爾": "尔", "烏": "乌", "薩": "萨", "華": "华",
+  "頓": "顿", "維": "维", "緬": "缅", "廣": "广",
+};
+const TRAD_RE = new RegExp(`[${Object.keys(TRAD2SIMP).join("")}]`, "g");
+function foldTrad(text) {
+  return String(text).replace(TRAD_RE, (ch) => TRAD2SIMP[ch]);
+}
+// Region assignment follows the script's getMatchedRegions: when a
+// name matches several regions, only the longest match(es) win, so a
+// node lands in exactly one region (ties keep all longest). Strong
+// info names never prove a region and join no region group at all.
 function regionPlan(names) {
+  const byRegion = new Map();
   const matched = new Set();
+  for (const n of names) {
+    if (STRONG_INFO.test(n)) continue;
+    const text = foldTrad(n);
+    let best = -1;
+    const hits = [];
+    for (const [rname, re] of REGION_RES) {
+      const m = text.match(re);
+      if (m) {
+        hits.push([rname, m[0].length]);
+        if (m[0].length > best) best = m[0].length;
+      }
+    }
+    for (const [rname, len] of hits) {
+      if (len !== best) continue;
+      if (!byRegion.has(rname)) byRegion.set(rname, []);
+      byRegion.get(rname).push(n);
+      matched.add(n);
+    }
+  }
   const regions = [];
-  for (const [rname, re] of REGION_RES) {
-    const members = names.filter(
-      (n) => !STRONG_INFO.test(n) && re.test(n));
-    if (members.length) {
-      regions.push({ name: rname, members });
-      for (const m of members) matched.add(m);
+  for (const [rname] of REGION_RES) {
+    if (byRegion.has(rname)) {
+      regions.push({ name: rname, members: byRegion.get(rname) });
     }
   }
   const other = names.filter((n) => !matched.has(n) && !STRONG_INFO.test(n));
@@ -47752,7 +47789,7 @@ async function buildConfig(target, items, origin) {
       });
       sbPairs.push({
         type: "selector", tag: rname,
-        outbounds: [...members, autoTag],
+        outbounds: [autoTag, ...members],
         interrupt_exist_connections: false,
       });
       sbSelectTags.push(rname);
@@ -47815,7 +47852,7 @@ async function buildConfig(target, items, origin) {
       name: rname, type: "select", interval: 600, timeout: 3000,
       url: "https://www.apple.com/library/test/success.html",
       lazy: true, "max-failed-times": 3, "empty-fallback": "REJECT",
-      proxies: [...members, autoName],
+      proxies: [autoName, ...members],
     });
     regionSelectNames.push(rname);
   };
