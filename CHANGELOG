@@ -1,3 +1,10 @@
+## [integration 3.1.6] - 2026-11-02
+
+### Log redaction
+
+- Request URLs written to the operation log (and mirrored into Telegram log notifications) are redacted first: the values of `token`, `url`, `entry` and `exit` query parameters are replaced with `***`, so subscription tokens and source-subscription URLs never land in stored logs in plaintext. Log type, IP, region, ASN, UA and time are unchanged.
+- 写入操作日志（并同步到 Telegram 日志通知）的请求 URL 先脱敏：`token`、`url`、`entry`、`exit` 参数值一律替换为 `***`，订阅 token 与源订阅地址不再以明文落进日志。日志的类型、IP、地区、ASN、UA、时间保持不变。
+
 ## [integration 3.1.5] - 2026-11-02
 
 ### Integrated tools in the header
