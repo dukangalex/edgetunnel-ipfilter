@@ -1,4 +1,5 @@
-﻿const Version = '2026-10-08 22:23:27';
+﻿/* edgetunnel-ipfilter integration 3.1.7 */
+const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
 const Pages静态页面 = 'https://edt-pages.github.io', EDT_版本号 = Number(String(Version).replace(/\D+/g, ''));
@@ -13074,9 +13075,9 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 <style>.header{flex-wrap:wrap}</style>
 				<nav class="header-tools" style="order:3;flex:0 0 100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-top:14px">
 					<span style="opacity:.65;font-size:13px">🧰 整合工具</span>
-					<a href="/convert" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">订阅转换</a>
-					<a href="/ips-ui" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">地区优选</a>
-					<a href="/socks5-ui" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">SOCKS5 检测</a>
+					<a class="btn btn-mode-toggle" href="/convert" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap">订阅转换</a>
+					<a class="btn btn-mode-toggle" href="/ips-ui" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap">地区优选</a>
+					<a class="btn btn-mode-toggle" href="/socks5-ui" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap">SOCKS5 检测</a>
 				</nav>
 				<div class="header-buttons">
 					<button type="button" class="btn btn-mode-toggle" id="modeToggleBtn" onclick="toggleUserMode()">🐣
@@ -21075,7 +21076,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "v2.1." + shortText;
+				versionValue.textContent = "整合版 3.1.7";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21324,8 +21325,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				const workerText = await fetchWithAutoMirror(WORKER_VERSION_SOURCE_URL + '?_t=' + Date.now(), 'Worker 主程序');
 				cachedWorkerVersionRawText = workerText;
 
-				const versionMatch = workerText.match(/^\\s*const\\s+Version\\s*=\\s*['"]([^'"]+)['"]\\s*;?/m);
-				const latestVersion = versionMatch ? parseVersionNumber(versionMatch[1]) : 0;
+				const versionMatch = workerText.match(/edgetunnel-ipfilter integration (\\d+)\\.(\\d+)\\.(\\d+)/);
+				const latestVersion = versionMatch ? (Number(versionMatch[1]) * 10000 + Number(versionMatch[2]) * 100 + Number(versionMatch[3])) : 0;
 				cachedLatestOnlineVersion = latestVersion;
 				console.log(\`[Version] 在线最新版本识别: raw="\${versionMatch ? versionMatch[1] : ''}", parsed=\${latestVersion}\`);
 				return latestVersion;
@@ -21337,7 +21338,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = parseVersionNumber(currentVersion);
+			const currentVersionNumber = 30107;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21414,8 +21415,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersionFullText = cachedCurrentVersionFullText || String(versionValue.textContent || '').replace(/^v2\\.1\\./, '');
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
-			latestVersionValueEl.textContent = \`v2.1.\${latestVersion}\`;
-			currentVersionValueEl.textContent = \`v2.1.\${currentVersionFullText || currentVersion || 0}\`;
+			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
+			currentVersionValueEl.textContent = '整合版 3.1.7';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -54383,12 +54384,9 @@ async function 请求日志记录(env, request, 访问IP, 请求类型 = "Get_SU
 			try {
 				日志数组 = JSON.parse(现有日志);
 				if (!Array.isArray(日志数组)) { 日志数组 = [日志内容] }
-				else if (请求类型 !== "Get_SUB") {
+				else {
 					const 三十分钟前时间戳 = 当前时间.getTime() - 30 * 60 * 1000;
-					if (日志数组.some(log => log.TYPE !== "Get_SUB" && log.IP === 访问IP && log.URL === 日志内容.URL && log.UA === (request.headers.get('User-Agent') || 'Unknown') && log.TIME >= 三十分钟前时间戳)) return;
-					日志数组.push(日志内容);
-					while (JSON.stringify(日志数组, null, 2).length > KV容量限制 * 1024 * 1024 && 日志数组.length > 0) 日志数组.shift();
-				} else {
+					if (日志数组.some(log => log.TYPE === 请求类型 && log.IP === 访问IP && log.URL === 日志内容.URL && log.UA === (request.headers.get('User-Agent') || 'Unknown') && log.TIME >= 三十分钟前时间戳)) return;
 					日志数组.push(日志内容);
 					while (JSON.stringify(日志数组, null, 2).length > KV容量限制 * 1024 * 1024 && 日志数组.length > 0) 日志数组.shift();
 				}
