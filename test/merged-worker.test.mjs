@@ -392,12 +392,14 @@ test('订阅转换 (CHN): edgetunnel /sub 经内置转换器出 Clash (无外部
     assert.ok(!body.includes('订阅转换后端异常'), '不得出现外部后端异常');
 });
 
-test('上游 UI 管理台 (3.0): 页面自带零代理, 登录流与鉴权完整, 自有模块已融合', async () => {
+test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整, 能力已融为页面自身形态', async () => {
     const src = readFileSync(new URL('../_worker.js', import.meta.url), 'utf8');
     assert.ok(!src.includes('fetch(Pages静态页面'), '不得再从 edt-pages 抓取任何页面');
     assert.ok(!src.includes('__IPF_ADMIN_B64__') && !src.includes('IPF_注入管理页'), '旧注入机制应已移除');
     assert.ok(src.includes('preferredSubscriptionModule'), '应内嵌上游 UI 管理页');
-    assert.ok(src.includes('ipfChainModule') && src.includes('edgetunnel-ipfilter added modules'), '应融合自有模块脚本');
+    assert.ok(src.includes('id="regionSection"') && src.includes('value="region"'), '地区筛选应是优选模块自己的模式');
+    assert.ok(src.includes('id="chainEntry"') && src.includes('...currentConfig.订阅转换配置'), '链式入口应是转换模块自己的字段且保存不丢键');
+    assert.ok(!src.includes('ipfChainModule') && !src.includes('ipfToolsModule') && !src.includes('ipfRegionBlock') && !src.includes('本项目功能'), '不得再有运行时注入的独立模块与外来标签');
     assert.ok(src.includes('登录设置页面'), '应内嵌上游 UI 登录页');
 
     const ua = 'ipf-test-ua';
@@ -433,7 +435,7 @@ test('上游 UI 管理台 (3.0): 页面自带零代理, 登录流与鉴权完整
     assert.equal(res.status, 200);
     body = await res.text();
     assert.ok(body.includes('preferredSubscriptionModule'), '/admin 应返回上游 UI 管理页');
-    assert.ok(body.includes('优选订阅生成') && body.includes('ipfChainModule') && body.includes('ipfToolsModule'), '管理台应含上游模块与自有融合模块');
+    assert.ok(body.includes('优选订阅生成') && body.includes('regionSection') && body.includes('chainEntry') && !body.includes('ipfChainModule'), '管理台应含上游模块与已融合的地区模式/链式字段');
     assert.equal(res.headers.get('cache-control'), 'no-store');
     // POST /login 正确密码 -> success + auth cookie (与校验同式)
     res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'test-admin-pass' }) });
@@ -468,6 +470,7 @@ test('整合版默认: SUBAPI 留空走内置转换 (源码默认 + 新装配置
     assert.equal(res.status, 200);
     const cfg = JSON.parse(await res.text());
     assert.equal(cfg.订阅转换配置.SUBAPI, '', '新装默认 SUBAPI 应为空');
+    assert.ok(src.includes("地区筛选: { 地区: 'JP-HK-SG-US', 数量: 10 }"), '种子配置应带地区筛选默认值 (运行时断言见 fresh-defaults.test.mjs)');
 });
 
 function surgeEnv(extra) {

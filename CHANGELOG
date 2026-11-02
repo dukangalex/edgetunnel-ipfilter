@@ -1,3 +1,14 @@
+## [integration 3.1.0] - 2026-11-02
+
+### Fused, not spliced: additions become the base features' own forms
+
+- The runtime-injected modules are gone. Region filtering is now a fourth mode of the preferred-subscription module itself — alongside generator / random / custom — rendered in the module's own controls, saved through the module's own Save button, and persisted in the config (`优选订阅生成.本地IP库.地区筛选`). Fresh installs start in this mode (JP-HK-SG-US, up to 10 nodes per region).
+- 运行时注入的模块全部退役。按地区筛选成为优选订阅生成模块自身的第四种模式（与生成器/随机/自定义并列），用模块自己的控件呈现、走模块自己的保存通道、存进配置（优选订阅生成.本地IP库.地区筛选）；新部署开箱即在此模式（JP-HK-SG-US、每地区最多 10 个）。
+- The chain entry is now a plain field inside the subscription-conversion module, saved by that module's own Save button. The module's save also no longer discards config keys it does not know — it used to rebuild the object and silently drop the chain entry and the built-in-converter flag.
+- 链式入口成为订阅转换模块里的一个普通字段，由该模块自己的「保存」落盘；同时修复该模块保存时会重建配置对象、把链式入口与内置转换标记等不认识的键悄悄丢弃的问题。
+- On a fresh install, the admin's preferred-IP list now reports the filter entry the subscription actually uses, instead of a random-IP list; the built-in converter is labelled as the default conversion, with external backends kept as an alternative.
+- 新部署下，后台优选列表如实显示订阅实际使用的筛选条目，不再显示一串随机 IP；内置转换标注为默认转换方式，外部后端保留为备选。
+
 ## [integration 3.0.0] - 2026-11-01
 
 ### Admin UI returns to the upstream layout, with this project's features fused in
