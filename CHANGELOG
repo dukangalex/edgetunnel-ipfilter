@@ -1,3 +1,10 @@
+## [integration 3.1.17] - 2026-11-02
+
+### Proxy checker page: what it does, and how, up front
+
+- The /socks5-ui checker page opens with a headline strip stating its job (paste a proxy, learn whether it works and where it exits) and a three-step guide, plus a pointer to the one-click check for this deployment's configured SOCKS5 reverse proxy.
+- SOCKS5 检测页顶部加功能横幅：一句话说清用途（粘贴代理即知能不能用、出口在哪里），三步指引（粘贴代理 → 开始检测 → 看有效状态与出口），并提示本部署已配置的反代可用顶部按钮一键检测。
+
 ## [integration 3.1.16] - 2026-11-02
 
 ### Convert page: centered hero title
