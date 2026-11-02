@@ -1,3 +1,10 @@
+## [integration 3.1.4] - 2026-11-02
+
+### Built-in conversion backend: verifiable, and selectable again
+
+- The subscription-backend dialog treated the built-in entry (empty address) as "no address entered", so it could never pass the availability check — and once an external backend had been confirmed, there was no way back to the built-in default. The built-in entry now runs a real probe (it converts a sample node through the integrated converter) and can be confirmed like any other backend.
+- 订阅转换后端弹窗此前把内置转换（地址为空）当成"未输入地址"，永远过不了可用性验证——选过外部后端后也就再切不回默认。现在内置项会做真实实测（用示例节点跑一遍内置转换），验证通过后可像其它后端一样确认切回。
+
 ## [integration 3.1.3] - 2026-11-02
 
 ### Chain entry field removed from the conversion module
