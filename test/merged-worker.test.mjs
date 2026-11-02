@@ -406,6 +406,7 @@ test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整
     const cl = fsMod.readFileSync(new URL('../CHANGELOG', import.meta.url), 'utf8');
     const topV = cl.match(/## \[integration (\d+\.\d+\.\d+)\]/)[1];
     assert.ok(src.includes('整合版 ' + topV) && src.includes('edgetunnel-ipfilter integration ' + topV), '版本徽章与更新检查应使用本项目整合版号 (与 CHANGELOG 顶部一致), 不跟随上游版本号');
+    assert.ok(src.includes('id="regionAddSelect"') && src.includes('get_regions'), '地区筛选应有全量国家/地区下拉');
     assert.ok(src.includes('...currentConfig.订阅转换配置'), '转换模块保存应保留其不认识的配置键');
     assert.ok(!src.includes('id="chainEntry"'), '链式入口字段已按用户要求取消, 不应再出现');
     assert.ok(!src.includes('ipfChainModule') && !src.includes('ipfToolsModule') && !src.includes('ipfRegionBlock') && !src.includes('本项目功能'), '不得再有运行时注入的独立模块与外来标签');

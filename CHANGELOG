@@ -1,3 +1,10 @@
+## [integration 3.1.8] - 2026-11-02
+
+### Region picker: full country list
+
+- The region filter gains a dropdown listing every available country/region (names included); picking one appends it to the extra-regions field, so nobody has to memorize or type region codes. The free-text field stays for manual edits.
+- 地区筛选新增「全部国家/地区」下拉（带中文名），点选即追加到其它地区框，不用再背代码手打；自由输入框保留，可手动改。
+
 ## [integration 3.1.7] - 2026-11-02
 
 ### Own version identity; quieter logs
