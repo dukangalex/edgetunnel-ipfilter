@@ -1,3 +1,17 @@
+## [integration 3.1.15] - 2026-11-02
+
+### Filter page workbench: actually fit the frame
+
+- Fix for 3.1.14: the two panes rendered side by side but sized to their content (the picker ran past the bottom of the screen and the page scrolled). The workbench grid now stretches both panes to equal height inside the viewport; the region list scrolls inside its own pane and the result box fills its pane.
+- 修正 3.1.14：双栏虽已并排，但高度按内容撑开（左栏溢出屏幕、页面要滚动）。现工作台网格把两栏拉齐到同一高度并锁在视口内；地区列表在左栏内部滚动，结果框填满右栏。
+
+## [integration 3.1.14] - 2026-11-02
+
+### Filter page: two-pane workbench, both panes in one frame
+
+- The region filter page is a left/right workbench again, done right this time: region picker on the left, results on the right, both fully visible in the same viewport with no page scrolling (each pane scrolls internally only if it must). Picking regions on the left updates the results on the right in place. Narrow screens stack vertically as before.
+- 地区筛选页改为左右双栏同框工作台：左边选地区、右边看结果，两部分在同一屏内完整可见、页面本身不滚动（内容超高时只在栏内滚动）；左侧点选，右侧结果当场更新。窄屏仍自动堆叠为单列。
+
 ## [integration 3.1.13] - 2026-11-02
 
 ### Filter page: what it does, and how, up front
