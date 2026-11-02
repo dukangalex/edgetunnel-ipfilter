@@ -21325,7 +21325,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				const workerText = await fetchWithAutoMirror(WORKER_VERSION_SOURCE_URL + '?_t=' + Date.now(), 'Worker 主程序');
 				cachedWorkerVersionRawText = workerText;
 
-				const versionMatch = workerText.match(/edgetunnel-ipfilter integration (\\d+)\\.(\\d+)\\.(\\d+)/);
+				let versionMatch = null;
+			try { const clText = await fetchWithAutoMirror(CHANGELOG_RAW_URL + '?_t=' + Date.now(), '更新日志'); versionMatch = clText.match(/## \\[integration (\\d+)\\.(\\d+)\\.(\\d+)\\]/); } catch (e) { /* unknown */ }
 				const latestVersion = versionMatch ? (Number(versionMatch[1]) * 10000 + Number(versionMatch[2]) * 100 + Number(versionMatch[3])) : 0;
 				cachedLatestOnlineVersion = latestVersion;
 				console.log(\`[Version] 在线最新版本识别: raw="\${versionMatch ? versionMatch[1] : ''}", parsed=\${latestVersion}\`);
