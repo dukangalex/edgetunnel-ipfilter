@@ -1,3 +1,11 @@
+## [integration 3.1.19] - 2026-11-02
+
+### Plain conversion: no chain marks, automatic region groups
+
+- Plain (non-chain) conversions no longer carry chain branding: the exit tier group is renamed from "⛓ 出口优选" to "出口优选" (it was identical to a chain exit group despite no dialer-proxy anywhere). Chain conversions keep the ⛓ names.
+- Automatic country/region groups now follow the HiClash mihomoScript design (211 region definitions): every region that actually has nodes gets a "<region>-自动选择" url-test group plus a "<region>" select group holding the nodes and its auto group; unmatched nodes collect into "其他节点"; airport notice nodes (remaining traffic / expiry etc.) never prove a region. Region groups lead the 默认代理 group.
+- 普通转换不再带链式标记：出口层组名由「⛓ 出口优选」改为「出口优选」（链式转换保持不变）。新增按 HiClash 脚本设计的自动国家/地区组（211 个地区定义）：有节点的地区生成「<地区>-自动选择」测速组 +「<地区>」选择组，未匹配节点归「其他节点」，机场公告类节点不算地区证据；地区组排在默认代理最前。
+
 ## [integration 3.1.18] - 2026-11-02
 
 ### Convert page: one centered column
