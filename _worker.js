@@ -379,6 +379,22 @@ async function IPF_MD5MD5(text) {
 // auth = MD5MD5(UA + KEY secret + admin password), with the password
 // resolved from env through the same fallback chain the upstream
 // handler uses.
+// Log redaction (privacy): subscription tokens and source-subscription
+// URLs ride in request URLs (/sub?token=..., /sub?url=..., /chain?...).
+// They must never land in the stored log or in TG log notifications in
+// plaintext. Mask the values of sensitive query params, keep names and
+// all other params so the log stays useful.
+function IPF_脱敏日志URL(raw) {
+    try {
+        const u = new URL(raw);
+        const SENS = ['token', 'url', 'entry', 'exit'];
+        for (const k of [...u.searchParams.keys()]) {
+            if (SENS.includes(k.toLowerCase())) u.searchParams.set(k, '***');
+        }
+        return u.toString();
+    } catch (e) { return raw; }
+}
+
 async function IPF_校验后台登录(request, env) {
     try {
         if (!request || !env) return false;
@@ -54330,7 +54346,7 @@ function Surge订阅配置文件热补丁(content, url, config_JSON) {
 async function 请求日志记录(env, request, 访问IP, 请求类型 = "Get_SUB", config_JSON, 是否写入KV日志 = true) {
 	try {
 		const 当前时间 = new Date();
-		const 日志内容 = { TYPE: 请求类型, IP: 访问IP, ASN: `AS${request.cf.asn || '0'} ${request.cf.asOrganization || 'Unknown'}`, CC: `${request.cf.country || 'N/A'} ${request.cf.city || 'N/A'}`, URL: request.url, UA: request.headers.get('User-Agent') || 'Unknown', TIME: 当前时间.getTime() };
+		const 日志内容 = { TYPE: 请求类型, IP: 访问IP, ASN: `AS${request.cf.asn || '0'} ${request.cf.asOrganization || 'Unknown'}`, CC: `${request.cf.country || 'N/A'} ${request.cf.city || 'N/A'}`, URL: IPF_脱敏日志URL(request.url), UA: request.headers.get('User-Agent') || 'Unknown', TIME: 当前时间.getTime() };
 		if (config_JSON.TG.启用) {
 			try {
 				const TG_TXT = await env.KV.get('tg.json');
@@ -54369,7 +54385,7 @@ async function 请求日志记录(env, request, 访问IP, 请求类型 = "Get_SU
 				if (!Array.isArray(日志数组)) { 日志数组 = [日志内容] }
 				else if (请求类型 !== "Get_SUB") {
 					const 三十分钟前时间戳 = 当前时间.getTime() - 30 * 60 * 1000;
-					if (日志数组.some(log => log.TYPE !== "Get_SUB" && log.IP === 访问IP && log.URL === request.url && log.UA === (request.headers.get('User-Agent') || 'Unknown') && log.TIME >= 三十分钟前时间戳)) return;
+					if (日志数组.some(log => log.TYPE !== "Get_SUB" && log.IP === 访问IP && log.URL === 日志内容.URL && log.UA === (request.headers.get('User-Agent') || 'Unknown') && log.TIME >= 三十分钟前时间戳)) return;
 					日志数组.push(日志内容);
 					while (JSON.stringify(日志数组, null, 2).length > KV容量限制 * 1024 * 1024 && 日志数组.length > 0) 日志数组.shift();
 				} else {
