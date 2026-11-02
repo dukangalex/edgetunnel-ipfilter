@@ -1,3 +1,10 @@
+## [integration 3.1.16] - 2026-11-02
+
+### Convert page: centered hero title
+
+- The /convert page title is now a centered hero: an eyebrow badge, a large gradient title and the subtitle centered under it, with a gradient accent bar — matching the page's teal-to-blue button gradient.
+- /convert 页标题改居中主视觉：上方小徽标、大号渐变标题、副标题居中，下方一条渐变 accent 线，与页面按钮的青蓝渐变统一。
+
 ## [integration 3.1.15] - 2026-11-02
 
 ### Filter page workbench: actually fit the frame
