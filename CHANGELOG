@@ -1,3 +1,10 @@
+## [integration 3.1.11] - 2026-11-02
+
+### Filter page: horizontal layout, results follow selection
+
+- The region filter tool page (/ips-ui) lays its region cards out in a full-width horizontal wrap instead of a narrow scrolling column, with results below. Selecting or clearing regions now extracts automatically (default format: edgetunnel) — no separate button hunt; the two format buttons sit directly above the results and re-run in their format when clicked.
+- 地区筛选工具页（/ips-ui）地区卡片改全宽横排（不再是窄列滚动），结果区在下方。选中/取消地区后自动提取（默认 edgetunnel 格式），不用再找按钮；两个格式按钮移到结果区正上方，点击即切换格式重新提取。
+
 ## [integration 3.1.10] - 2026-11-02
 
 ### Convert page: region filter moves into the form
