@@ -1,4 +1,4 @@
-﻿/* edgetunnel-ipfilter integration 3.1.13 */
+﻿/* edgetunnel-ipfilter integration 3.1.15 */
 const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -21079,7 +21079,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "整合版 3.1.13";
+				versionValue.textContent = "整合版 3.1.15";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21342,7 +21342,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = 30113;
+			const currentVersionNumber = 30115;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21420,7 +21420,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
 			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
-			currentVersionValueEl.textContent = '整合版 3.1.13';
+			currentVersionValueEl.textContent = '整合版 3.1.15';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -48711,15 +48711,22 @@ video {
             to { transform: translateY(-20px); opacity: 0; }
         }
     
-/* edgetunnel-ipfilter 结构层 (2.2): 双栏工作台 — 左地区栏 + 右结果区, 扁平卡片 */
-main{max-width:1400px !important;display:grid !important;grid-template-columns:minmax(0,1fr) !important;gap:18px !important;align-items:start}
+/* edgetunnel-ipfilter 结构层 (3.1.14): 左右双栏同框工作台 — 左选地区 + 右看结果, 一屏内同时可见 */
+main{max-width:1500px !important;display:grid !important;grid-template-columns:minmax(0,1fr) !important;gap:18px !important;align-items:start}
 main > div{border-radius:10px !important;box-shadow:none !important}
 main [class*="rounded-t-"]{border-top-left-radius:10px !important;border-top-right-radius:10px !important}
-#regionGrid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr)) !important;gap:6px !important;max-height:none;overflow:visible;padding-right:0}
+#regionGrid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr)) !important;gap:6px !important;padding-right:0}
 .region-card{flex-direction:row !important;justify-content:flex-start !important;align-items:center !important;gap:9px !important;padding:7px 10px !important;border-radius:8px !important;text-align:left !important}
 main > div:first-child .flex.gap-3{flex-wrap:wrap}
 nav{border-bottom:1px solid #1f2a2f}
-@media (max-width:920px){main{grid-template-columns:minmax(0,1fr) !important}#regionGrid{max-height:none}}
+@media (min-width:921px){
+main{grid-template-columns:minmax(0,5fr) minmax(0,7fr) !important;grid-template-rows:auto minmax(0,1fr);align-items:stretch !important;height:calc(100vh - 148px);min-height:500px}
+main > div:first-child{grid-column:1 / -1}
+main > div:nth-child(2), main > div:nth-child(3){min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#regionGrid{flex:1;min-height:0;overflow-y:auto;align-content:start;grid-template-columns:repeat(auto-fill,minmax(98px,1fr)) !important}
+#out{flex:1;height:auto !important;min-height:0;resize:none}
+}
+@media (max-width:920px){#regionGrid{max-height:none;overflow:visible}}
 </style>
 </head>
 <body class="light min-h-screen pb-10" onclick="closeAllDropdowns(event)">
@@ -48760,7 +48767,7 @@ class="group h-12 flex items-center rounded-2xl bg-white dark:bg-slate-800 borde
             <div class="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
                 <span class="px-3 py-1.5 rounded-full font-bold" style="background:rgba(20,184,166,.18);border:1px solid rgba(20,184,166,.55)">① 点选下方地区卡片（可多选）</span>
                 <span class="opacity-50">→</span>
-                <span class="px-3 py-1.5 rounded-full font-bold" style="background:rgba(20,184,166,.18);border:1px solid rgba(20,184,166,.55)">② 节点自动提取到下方结果区</span>
+                <span class="px-3 py-1.5 rounded-full font-bold" style="background:rgba(20,184,166,.18);border:1px solid rgba(20,184,166,.55)">② 节点自动提取到右侧结果区</span>
                 <span class="opacity-50">→</span>
                 <span class="px-3 py-1.5 rounded-full font-bold" style="background:rgba(20,184,166,.18);border:1px solid rgba(20,184,166,.55)">③ 点「复制全部」或用「API 地址」接入</span>
             </div>
@@ -48810,7 +48817,7 @@ class="group h-12 flex items-center rounded-2xl bg-white dark:bg-slate-800 borde
               <button onclick="autoRun('cf_comma_short')" class="btn-matrix h-16 text-lg font-bold flex items-center justify-center gap-3 cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="m7 11 2-2-2-2"/><path d="M11 13h4"/><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg><span>CFnew</span></button>
               <button onclick="autoRun('cf_line_short')" class="btn-racing h-16 text-xl flex items-center justify-center gap-3 cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg><span>edgetunnel</span></button>
             </div></div>
-            <textarea id="out" readonly class="w-full h-48 md:h-64 p-6 bg-transparent fira text-[13px] leading-relaxed outline-none resize-y text-slate-700 dark:text-slate-300 custom-scrollbar" placeholder="在上方选择地区后将自动提取，结果显示在这里..."></textarea>
+            <textarea id="out" readonly class="w-full h-48 md:h-64 p-6 bg-transparent fira text-[13px] leading-relaxed outline-none resize-y text-slate-700 dark:text-slate-300 custom-scrollbar" placeholder="在左侧选择地区后将自动提取，结果显示在这里..."></textarea>
         </div>
     </main>
     <footer class="mt-12 py-8 border-t border-slate-200 dark:border-slate-800">
