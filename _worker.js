@@ -13055,7 +13055,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				<div class="header-title">
 					<h1 id="pageTitle">加载中...</h1>
 				</div>
-				<nav class="header-tools" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center">
+<style>.header{flex-wrap:wrap}</style>
+				<nav class="header-tools" style="order:3;flex:0 0 100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-top:14px">
 					<span style="opacity:.65;font-size:13px">🧰 整合工具</span>
 					<a href="/convert" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">订阅转换</a>
 					<a href="/ips-ui" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.35);color:inherit;font-size:13px;text-decoration:none;white-space:nowrap">地区优选</a>
