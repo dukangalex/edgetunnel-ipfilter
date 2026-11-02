@@ -406,7 +406,7 @@ test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整
     const cl = fsMod.readFileSync(new URL('../CHANGELOG', import.meta.url), 'utf8');
     const topV = cl.match(/## \[integration (\d+\.\d+\.\d+)\]/)[1];
     assert.ok(src.includes('整合版 ' + topV) && src.includes('edgetunnel-ipfilter integration ' + topV), '版本徽章与更新检查应使用本项目整合版号 (与 CHANGELOG 顶部一致), 不跟随上游版本号');
-    assert.ok(src.includes('id="regionAddSelect"') && src.includes('get_regions'), '地区筛选应有全量国家/地区下拉');
+    assert.ok(src.includes('id="regionAddChips"') && src.includes('get_regions'), '地区筛选应有全量国家/地区下拉');
     assert.ok(src.includes('...currentConfig.订阅转换配置'), '转换模块保存应保留其不认识的配置键');
     assert.ok(!src.includes('id="chainEntry"'), '链式入口字段已按用户要求取消, 不应再出现');
     assert.ok(!src.includes('ipfChainModule') && !src.includes('ipfToolsModule') && !src.includes('ipfRegionBlock') && !src.includes('本项目功能'), '不得再有运行时注入的独立模块与外来标签');
@@ -703,10 +703,36 @@ test('一体化: 转换按国家筛选 (名称判定 + IP 数据集反查 + 未�
     Object.defineProperty(pageReq, 'cf', { value: { colo: 'NRT', country: 'JP' } });
     const page = await worker.fetch(pageReq, env, { waitUntil() {} });
     const html = await page.text();
-    assert.ok(html.includes('ipf-conv-bar'), '转换页应注入按国家筛选条');
+    assert.ok(!html.includes('ipf-conv-bar'), '转换页不应再有外挂筛选条');
+    assert.ok(html.includes('rgChips') && html.includes('只保留这些地区的节点'), '地区筛选应融进普通转换表单自身');
     assert.ok(html.includes('ipf-contact-footer'), '转换页应带页脚联系方式');
     assert.ok(html.includes('github.com/dukangalex/edgetunnel-ipfilter'), '页脚应含项目仓库链接');
     assert.ok(html.includes('t.me/AngelaNexus'), '页脚应含交流频道链接');
+});
+
+test('一体化: 短链携带地区筛选 (创建存记录, 取用时过滤)', async () => {
+    const kvStore = {};
+    const env = {
+        UUID: '11111111-2222-4333-8444-555555555555',
+        KV: { async get(k) { return kvStore[k] ?? null; }, async put(k, v) { kvStore[k] = v; } },
+    };
+    const items = [
+        CHN_VLESS('1.1.1.2', '🇺🇸 美国节点'),
+        CHN_VLESS('2.2.2.1', '🇯🇵 日本节点'),
+    ].join('|');
+    const mk = new Request('https://x.test/shorten', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ target: 'clash', url: items, regions: 'JP' }) });
+    Object.defineProperty(mk, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const mkRes = await worker.fetch(mk, env, { waitUntil() {} });
+    assert.equal(mkRes.status, 200);
+    const link = (await mkRes.text()).trim();
+    const code = link.split('/').pop();
+    const get = new Request('https://x.test/m/' + code);
+    Object.defineProperty(get, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+    const res = await worker.fetch(get, env, { waitUntil() {} });
+    assert.equal(res.status, 200);
+    const body = await res.text();
+    assert.ok(body.includes('2.2.2.1'), '短链取用应保留 JP 节点');
+    assert.ok(!body.includes('1.1.1.2'), '短链取用应筛掉 US 节点');
 });
 
 test('本项目指向: /api/ipinfo 由本部署回答 (登录把关, 字段与页面预期一致)', async () => {

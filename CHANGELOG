@@ -1,3 +1,19 @@
+## [integration 3.1.10] - 2026-11-02
+
+### Convert page: region filter moves into the form
+
+- Removed the separate "filter by country" strip that sat on top of the /convert page — it duplicated the converter below it and left people guessing which one to use. Region filtering now lives inside the plain-conversion form itself: a row of region chips (optional; nothing selected = keep everything), honored by the generated short links and restored with them.
+- 撤掉转换页顶部外挂的「按国家筛选转换」条——它与下方转换器重复、让人不知道用哪个。地区筛选融进普通转换表单自身：一排地区点选（可选，不选 = 全部保留），生成的短链会带上筛选、恢复短链时一并还原。
+
+## [integration 3.1.9] - 2026-11-02
+
+### Region chips + filter-page selection highlight
+
+- The extra-regions dropdown becomes a horizontal wrap of toggle chips (code + name): click to add, click again to remove; selected chips stay highlighted and stay in sync with the text field.
+- 其他地区改为横排点选条（代码+中文名）：点一下添加、再点取消，选中的持续高亮，并与输入框双向同步。
+- The region filter tool page (/ips-ui): selected region cards now actually highlight (teal border, tint and a check mark) — the active style was losing the cascade to the dark-theme overrides.
+- 地区筛选工具页（/ips-ui）：地区卡片选中后真正高亮（青色边框、底色和对勾）——此前选中样式被深色主题覆盖规则压住，点了看不出变化。
+
 ## [integration 3.1.8] - 2026-11-02
 
 ### Region picker: full country list
