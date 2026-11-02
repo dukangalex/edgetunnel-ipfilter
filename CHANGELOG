@@ -1,3 +1,10 @@
+## [integration 3.1.2] - 2026-11-02
+
+### Mode presentation no longer overrides the user
+
+- With a saved region selection, the preferred-subscription module presented region mode on every mode recalculation — including when the user explicitly picked Custom, which snapped straight back to region mode and made Custom unreachable. The saved-state presentation now happens once at load; afterwards the mode selector is entirely the user's.
+- 修复优选模式被锁死的问题：存有地区筛选时，模块在每次重算时都强制呈现地区模式，用户手动选「自定义订阅」会被立刻弹回，自定义模式实际不可达。现在仅在页面打开时按已存状态呈现一次，之后模式完全由用户切换。
+
 ## [integration 3.1.1] - 2026-11-02
 
 ### Chain field layout fix
