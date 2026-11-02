@@ -13299,6 +13299,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 							<option value="generator">优选订阅生成器（抄作业，直接使用大佬优选好的结果）</option>
 							<option value="random">随机优选（根据订阅时的网络自动下发对应网络的官方优选）</option>
 							<option value="custom">自定义订阅（支持汇聚订阅）</option>
+							<option value="region">按地区筛选（从优选 IP 池按地区实时生成）</option>
 						</select>
 					</div>
 
@@ -13308,6 +13309,26 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 							onchange="markModified('sub')" oninput="if(this.value>99){this.value=99;}">
 					</div>
 
+										<div id="regionSection" class="form-group hidden-section">
+						<label>按地区筛选</label>
+						<div class="input-wrapper" style="display:flex;flex-direction:column;align-items:stretch">
+							<div style="display:flex;flex-wrap:wrap;gap:8px 20px" id="regionChecks">
+								<div class="checkbox-group"><input type="checkbox" id="rg_JP" value="JP" onchange="markModified('sub')"><label for="rg_JP" class="checkbox-label">🇯🇵 日本</label></div>
+								<div class="checkbox-group"><input type="checkbox" id="rg_HK" value="HK" onchange="markModified('sub')"><label for="rg_HK" class="checkbox-label">🇭🇰 香港</label></div>
+								<div class="checkbox-group"><input type="checkbox" id="rg_SG" value="SG" onchange="markModified('sub')"><label for="rg_SG" class="checkbox-label">🇸🇬 新加坡</label></div>
+								<div class="checkbox-group"><input type="checkbox" id="rg_US" value="US" onchange="markModified('sub')"><label for="rg_US" class="checkbox-label">🇺🇸 美国</label></div>
+								<div class="checkbox-group"><input type="checkbox" id="rg_TW" value="TW" onchange="markModified('sub')"><label for="rg_TW" class="checkbox-label">🇹🇼 台湾</label></div>
+								<div class="checkbox-group"><input type="checkbox" id="rg_KR" value="KR" onchange="markModified('sub')"><label for="rg_KR" class="checkbox-label">🇰🇷 韩国</label></div>
+							</div>
+							<input type="text" id="regionExtra" placeholder="其它地区代码，逗号分隔（如 DE,GB,FR）" style="margin-top:10px;width:100%;box-sizing:border-box" oninput="markModified('sub')">
+							<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:nowrap">
+								<span style="white-space:nowrap">每地区最多</span>
+								<input type="number" id="regionLimit" min="0" max="50" value="10" style="width:84px" oninput="markModified('sub')">
+								<span style="white-space:nowrap">个节点（0 表示不限）</span>
+							</div>
+							<p style="font-size:12px;opacity:.75;margin:8px 0 0;line-height:1.6">生成订阅时从优选 IP 池按所选地区实时挑可用节点。全部地区与 IP 明细见 <a href="/ips-ui" target="_blank" rel="noopener">优选 IP 地区筛选</a>。</p>
+						</div>
+					</div>
 					<div id="portSection" class="form-group hidden-section">
 						<label for="specifiedPort">指定优选端口</label>
 						<select id="specifiedPort" onchange="markModified('sub')">
@@ -13943,6 +13964,18 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 						</div>
 					</div>
 
+										<div class="form-group">
+						<label for="chainEntry">链式入口</label>
+						<div class="input-wrapper">
+							<textarea id="chainEntry" rows="3" placeholder="入口节点链接，多个用 | 分隔；留空表示不启用链式代理" oninput="markModified('convert')"></textarea>
+							<p style="font-size:12px;opacity:.75;margin:6px 0;line-height:1.6">启用后，本部署转换出的订阅先经入口节点、再由本部署节点落地。填入本部署自己的节点不会改变落地，只是多绕一圈，一般留空或填外部入口。修改后点本模块下方的「保存」生效。当前：<span id="chainEntryStat">读取中…</span></p>
+							<div style="display:flex;gap:8px;flex-wrap:wrap">
+								<button type="button" class="btn" id="chainFillOwn">填入本部署节点</button>
+								<button type="button" class="btn" id="chainClearBtn">清空</button>
+							</div>
+							<p style="font-size:12px;opacity:.75;margin:8px 0 0;line-height:1.6">把任意订阅转成链式订阅：<a href="/convert" target="_blank" rel="noopener">订阅链式转换</a>；检测节点与代理可用性：<a href="/socks5-ui" target="_blank" rel="noopener">代理检测</a>。</p>
+						</div>
+					</div>
 					<div class="module-footer">
 						<div class="btn-group">
 							<button type="button" class="btn btn-secondary" onclick="cancelEdit('convert')" disabled
@@ -14260,7 +14293,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			<button type="button" class="modal-close" onclick="closeSubAPIModal()">×</button>
 			<h2 class="subapi-modal-title">⚙️ 订阅转换后端</h2>
 			<div class="form-group subapi-form-group">
-				<label>订阅转换后端</label>
+				<label>订阅转换</label>
 				<select id="subAPISelect" onchange="handleSubAPISelectChange()">
 					<option value="">-- 加载中，请稍候 --</option>
 				</select>
@@ -22637,12 +22670,18 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		function updateIPMode() {
-			const mode = document.getElementById('ipMode').value;
+			let mode = document.getElementById('ipMode').value;
+			if (mode === 'custom' && typeof currentConfig !== 'undefined' && currentConfig.优选订阅生成?.本地IP库?.地区筛选) {
+				mode = 'region';
+				document.getElementById('ipMode').value = 'region';
+				if (typeof __fillRegionUI === 'function') __fillRegionUI(currentConfig.优选订阅生成.本地IP库.地区筛选);
+			}
 
 			const sections = {
 				'random': document.getElementById('randomIPSection'),
 				'custom': document.getElementById('customIPSection'),
-				'generator': document.getElementById('generatorSection')
+				'generator': document.getElementById('generatorSection'),
+				'region': document.getElementById('regionSection')
 			};
 
 			Object.keys(sections).forEach(key => {
@@ -24051,9 +24090,13 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				}
 			}
 
+			if (mode === 'region' && !readRegionCodes().length) {
+				showToast('请至少选择一个地区', 'error');
+				return;
+			}
 			const updates = {
 				local: mode !== 'generator',
-				本地IP库: { 随机IP: mode === 'random', 随机数量: parseInt(document.getElementById('randomCount').value) || 16 },
+				本地IP库: { 地区筛选: mode === 'region' ? readRegionSel() : null, 随机IP: mode === 'random', 随机数量: parseInt(document.getElementById('randomCount').value) || 16 },
 				SUB: mode === 'generator' ? document.getElementById('generatorURL').value : null,
 				SUBNAME: currentConfig.优选订阅生成.SUBNAME,
 				SUBUpdateTime: currentConfig.优选订阅生成.SUBUpdateTime,
@@ -24077,6 +24120,14 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				}
 			}
 
+			if (mode === 'region') {
+				try {
+					await fetch('/admin/ADD.txt', { method: 'POST', body: composeRegionADD() });
+				} catch (error) {
+					showToast('保存地区筛选失败', 'error');
+					return;
+				}
+			}
 			await saveConfigToServer('sub');
 		}
 
@@ -24455,6 +24506,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const hasSORT = currentConfig.订阅转换配置?.SORT !== undefined;
 			const hasEXPAND = currentConfig.订阅转换配置?.EXPAND !== undefined;
 			currentConfig.订阅转换配置 = {
+				...currentConfig.订阅转换配置,
 				SUBAPI: document.getElementById('subAPI').value,
 				SUBCONFIG: document.getElementById('subConfig').value,
 				SUBEMOJI: document.getElementById('emoji').checked
@@ -24481,6 +24533,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				currentConfig.订阅转换配置.EXPAND = document.getElementById('expand').checked;
 			}
 
+			const chainEntryEl = document.getElementById('chainEntry');
+			if (chainEntryEl) currentConfig.订阅转换配置.链式入口 = chainEntryEl.value.trim() || null;
 			await saveConfigToServer('convert');
 		}
 
@@ -33073,141 +33127,78 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 	</script>
 
 <script>
-// ================= edgetunnel-ipfilter added modules =================
-(function(){
-function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
-function toast(msg, ok){ try{ if(window.showToast){ showToast(msg, ok===false?'error':'success'); return; } }catch(e){} console.log('[ipf]', msg); }
-function el(html){ var d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
-function getCfg(){ return fetch('/admin/config.json?_t='+Date.now()).then(function(r){return r.json();}); }
-function saveCfg(cfg){ return fetch('/admin/config.json',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)}); }
-
-function chainModule(){
-  var m=el('<div class="module" id="ipfChainModule"></div>');
-  m.innerHTML='<div class="module-title non-collapsible">🔗 链式代理 <span style="font-size:12px;color:#888">（本项目功能）</span></div>'
-   +'<div style="padding:12px 16px">'
-   +'<p style="margin:0 0 10px;color:#666;font-size:13px;line-height:1.7">让流量多绕一站：你的设备 → 入口节点（第一跳）→ 出口节点（真正落地）→ 目标站。出口就是你这个部署的节点（自动，不用配）；入口通常填另一个机场或另一套部署的订阅/节点。留空 = 单跳直连。</p>'
-   +'<div style="margin-bottom:10px;font-size:13px">入口状态：<b id="ipfChnStat">读取中…</b></div>'
-   +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
-   +'<button type="button" class="btn" id="ipfChnEdit">更换入口</button>'
-   +'<button type="button" class="btn" id="ipfChnFill">填入本部署自己的节点</button>'
-   +'<button type="button" class="btn" id="ipfChnClear">清空入口（恢复单跳）</button></div>'
-   +'<div id="ipfChnBox" style="display:none">'
-   +'<textarea id="ipfChnTxt" rows="4" style="width:100%" placeholder="粘贴订阅地址，或一行一个节点链接（多条可用 | 分隔）"></textarea>'
-   +'<div style="margin-top:8px"><button type="button" class="btn btn-primary" id="ipfChnSave">保存入口</button> <span id="ipfChnMsg" style="color:#888;font-size:12px"></span></div>'
-   +'<p style="color:#888;font-size:12px;line-height:1.6">注意：入口填你这个部署自己的节点，落地不会变、只是多绕一圈，一般不用这么填。</p>'
-   +'</div></div>';
-  var CFG=null;
-  function render(){
-    var v = CFG && CFG['订阅转换配置'] && CFG['订阅转换配置']['链式入口'];
-    var st=m.querySelector('#ipfChnStat'), tx=m.querySelector('#ipfChnTxt');
-    if(!v){ st.textContent='未配置（单跳直连）'; }
-    else{ var links=String(v).split('|').filter(function(x){return x.trim();});
-      var own = CFG.UUID && String(v).indexOf(CFG.UUID)>=0;
-      st.textContent=(own?'本部署自己的节点（落地不变）':'外部入口')+' · '+links.length+' 条'; }
-    if(tx) tx.value=v||'';
-  }
-  function load(){ getCfg().then(function(c){ CFG=c; render(); }).catch(function(){ m.querySelector('#ipfChnStat').textContent='读取失败'; }); }
-  function saveChain(val,msg){
-    if(!CFG){ toast('配置尚未加载', false); return; }
-    if(!CFG['订阅转换配置']) CFG['订阅转换配置']={};
-    CFG['订阅转换配置']['链式入口']= val? val: null;
-    saveCfg(CFG).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); toast(msg); render(); }).catch(function(e){ toast('保存失败：'+e.message, false); });
-  }
-  m.querySelector('#ipfChnEdit').onclick=function(){ var b=m.querySelector('#ipfChnBox'); b.style.display=b.style.display==='none'?'':'none'; };
-  m.querySelector('#ipfChnSave').onclick=function(){ saveChain(m.querySelector('#ipfChnTxt').value.trim(),'链式入口已保存'); };
-  m.querySelector('#ipfChnFill').onclick=function(){
-    var tok = CFG && CFG['优选订阅生成'] && CFG['优选订阅生成'].TOKEN;
-    if(!tok){ toast('订阅 TOKEN 未就绪', false); return; }
-    var msg=m.querySelector('#ipfChnMsg'); m.querySelector('#ipfChnBox').style.display='';
-    msg.textContent='正在拉取本部署节点…';
-    fetch(location.origin+'/sub?token='+tok+'&t='+Date.now()).then(function(r){return r.text();}).then(function(t){
-      var links=t.split(/\\r?\\n/).map(function(x){return x.trim();}).filter(function(x){return x.indexOf('://')>0;});
-      if(!links.length) throw new Error('没有拉到节点');
-      m.querySelector('#ipfChnTxt').value=links.join('|');
-      msg.textContent='已填入本部署节点 '+links.length+' 条，点「保存入口」生效（落地不变，一般不用）';
-    }).catch(function(e){ msg.textContent='拉取失败：'+e.message; });
-  };
-  var arm=false, clr=m.querySelector('#ipfChnClear');
-  clr.onclick=function(){
-    if(!arm){ arm=true; clr.textContent='确认清空？'; setTimeout(function(){ arm=false; clr.textContent='清空入口（恢复单跳）'; },3000); return; }
-    arm=false; clr.textContent='清空入口（恢复单跳）'; saveChain('','已清空入口，恢复单跳直连');
-  };
-  load();
-  return m;
+// ---- edgetunnel-ipfilter fused fields: region mode + chain entry ----
+var IPF_POPULAR_REGIONS = ['JP','HK','SG','US','TW','KR'];
+function readRegionCodes(){
+  var codes=[];
+  document.querySelectorAll('#regionChecks input[type=checkbox]:checked').forEach(function(cb){ codes.push(cb.value); });
+  var extraEl=document.getElementById('regionExtra');
+  var extra=(extraEl?extraEl.value:'').split(/[,\\s]+/).map(function(x){ return x.trim().toUpperCase(); }).filter(Boolean);
+  extra.forEach(function(c){ if(codes.indexOf(c)<0) codes.push(c); });
+  return codes;
 }
-
-function regionBlock(){
-  var wrap=el('<div class="form-group" id="ipfRegionBlock"></div>');
-  var POPS=['JP','HK','SG','US','TW','KR'];
-  wrap.innerHTML='<div class="label-with-hint"><label>按地区生成优选（本项目）</label></div>'
-   +'<p style="margin:4px 0 8px;color:#666;font-size:12px;line-height:1.6">勾选地区即可，系统按地区从优选 IP 池里实时挑选可用节点写入订阅，不用再手工收集地址。写入后与下面的自定义优选共用同一个列表（ipf:// 开头的那一行）。</p>'
-   +'<div id="ipfRegionChecks" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'
-   + POPS.map(function(c){ return '<label style="font-size:13px"><input type="checkbox" value="'+c+'"> '+c+'</label>'; }).join('')
-   +'</div>'
-   +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-   +'<input id="ipfRegionExtra" type="text" placeholder="其它地区代码（逗号分隔，如 DE,GB）" style="flex:1;min-width:180px">'
-   +'<span style="font-size:13px">每区 <input id="ipfRegionLimit" type="number" value="10" min="0" style="width:64px"> 个</span>'
-   +'<button type="button" class="btn btn-primary" id="ipfRegionApply">写入并应用</button>'
-   +'<span id="ipfRegionMsg" style="color:#888;font-size:12px"></span></div>';
-  wrap.querySelector('#ipfRegionApply').onclick=function(){
-    var codes=POPS.filter(function(c){ return wrap.querySelector('input[value="'+c+'"]').checked; });
-    var extra=wrap.querySelector('#ipfRegionExtra').value.split(',').map(function(x){return x.trim().toUpperCase();}).filter(Boolean);
-    codes=codes.concat(extra.filter(function(c){ return codes.indexOf(c)<0; }));
-    var msg=wrap.querySelector('#ipfRegionMsg');
-    if(!codes.length){ msg.textContent='先勾选至少一个地区'; return; }
-    var limit=parseInt(wrap.querySelector('#ipfRegionLimit').value,10); if(isNaN(limit)||limit<0) limit=10;
-    var line='ipf://'+codes.join('-')+(limit>0?('?limit='+limit):'');
-    msg.textContent='写入中…';
-    fetch('/admin/ADD.txt?_t='+Date.now()).then(function(r){return r.text();}).then(function(t){
-      var rest=t.split(/\\r?\\n/).filter(function(x){ return x.trim() && x.trim().indexOf('ipf://')!==0; });
-      var body=[line].concat(rest).join('\\n')+'\\n';
-      return fetch('/admin/ADD.txt',{method:'POST',body:body});
-    }).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status);
-      msg.textContent='已写入：'+line+'（重新拉取订阅生效）'; toast('地区优选已写入');
-    }).catch(function(e){ msg.textContent='写入失败：'+e.message; });
-  };
-  return wrap;
+function readRegionSel(){
+  var lim=parseInt(document.getElementById('regionLimit').value,10);
+  if(isNaN(lim)||lim<0) lim=10;
+  return { 地区: readRegionCodes().join('-'), 数量: lim };
 }
-
-function toolsModule(){
-  var m=el('<div class="module" id="ipfToolsModule"></div>');
-  m.innerHTML='<div class="module-title non-collapsible">🧰 整合工具 <span style="font-size:12px;color:#888">（本项目功能）</span></div>'
-   +'<div style="padding:12px 16px;font-size:13px;line-height:2">'
-   +'<div>🌏 <a href="/ips-ui" target="_blank" rel="noopener">优选 IP 地区筛选</a> — 按国家/地区浏览优选 IP 并生成链接</div>'
-   +'<div>🧪 <a href="/socks5-ui" target="_blank" rel="noopener">代理检测</a> — 检测 SOCKS5 代理与本部署节点的可用性</div>'
-   +'<div>🔗 <a href="/convert" target="_blank" rel="noopener">订阅链式转换</a> — 把任意订阅转成链式（入口 → 出口）订阅</div>'
-   +'<div style="margin-top:8px;color:#666">安全自检：<span id="ipfSecList">读取中…</span></div>'
-   +'</div>';
-  getCfg().then(function(c){
-    var out=[];
-    var conv=c['订阅转换配置']||{};
-    out.push((conv['SUBAPI']? '外部转换后端' : '✅ 内置转换') );
-    var gen=c['优选订阅生成']||{};
-    out.push(gen['本地IP库'] && gen['本地IP库']['随机IP'] ? '⚠️ 随机 IP 开启中' : '✅ 随机 IP 已关');
-    out.push(conv['链式入口'] ? '🔗 链式入口已配置' : '单跳模式');
-    out.push(c.TG && c.TG['启用'] ? '✅ TG 通知已开' : 'TG 通知未开');
-    m.querySelector('#ipfSecList').textContent=out.join(' · ');
-  }).catch(function(){ m.querySelector('#ipfSecList').textContent='读取失败'; });
-  return m;
+function __fillRegionUI(sel){
+  if(!sel) return;
+  var codes=String(sel.地区||'').split(/[-,]+/).map(function(x){ return x.trim().toUpperCase(); }).filter(Boolean);
+  var extra=[];
+  codes.forEach(function(c){
+    var cb=document.getElementById('rg_'+c);
+    if(cb && IPF_POPULAR_REGIONS.indexOf(c)>=0) cb.checked=true; else if(c) extra.push(c);
+  });
+  var ex=document.getElementById('regionExtra'); if(ex) ex.value=extra.join(',');
+  var lim=document.getElementById('regionLimit'); if(lim && sel.数量 !== undefined && sel.数量 !== null) lim.value=sel.数量;
 }
-
-ready(function(){
-  try{
-    var conv=document.getElementById('saveConvertBtn');
-    var host = conv ? (conv.closest('.module')||conv.parentElement) : null;
-    var chain=chainModule();
-    if(host && host.parentNode) host.parentNode.insertBefore(chain, host.nextSibling); else document.body.appendChild(chain);
-  }catch(e){ console.warn('ipf chain module failed', e); }
-  try{
-    var cip=document.getElementById('customIPSection');
-    if(cip && cip.parentNode) cip.parentNode.insertBefore(regionBlock(), cip);
-  }catch(e){ console.warn('ipf region block failed', e); }
-  try{
-    var any=document.querySelector('.module');
-    if(any && any.parentNode) any.parentNode.appendChild(toolsModule());
-  }catch(e){ console.warn('ipf tools module failed', e); }
+function composeRegionADD(){
+  var sel=readRegionSel();
+  var line='ipf://'+sel.地区+(sel.数量>0?('?limit='+sel.数量):'');
+  var ed=document.getElementById('customIPs');
+  var rest=ed? ed.value.split(/\\r?\\n/).filter(function(x){ return x.trim() && x.trim().indexOf('ipf://')!==0; }) : [];
+  return [line].concat(rest).join('\\n')+'\\n';
+}
+function ipfRenderChainStat(cfg){
+  var st=document.getElementById('chainEntryStat'); if(!st) return;
+  var v=cfg && cfg['订阅转换配置'] && cfg['订阅转换配置']['链式入口'];
+  if(!v){ st.textContent='未启用（单跳直连）'; return; }
+  var links=String(v).split('|').filter(function(x){ return x.trim(); });
+  var own=cfg.UUID && String(v).indexOf(cfg.UUID)>=0;
+  st.textContent=(own?'本部署自己的节点（落地不变）':'外部入口')+' · '+links.length+' 条';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  fetch('/admin/config.json?_t='+Date.now()).then(function(r){ return r.json(); }).then(function(cfg){
+    var ta=document.getElementById('chainEntry');
+    if(ta){ ta.value=(cfg['订阅转换配置'] && cfg['订阅转换配置']['链式入口']) || ''; }
+    ipfRenderChainStat(cfg);
+    var sel=cfg['优选订阅生成'] && cfg['优选订阅生成']['本地IP库'] && cfg['优选订阅生成']['本地IP库']['地区筛选'];
+    if(sel) __fillRegionUI(sel);
+    var fill=document.getElementById('chainFillOwn');
+    if(fill) fill.onclick=function(){
+      var tok=cfg['优选订阅生成'] && cfg['优选订阅生成'].TOKEN;
+      if(!tok){ if(window.showToast) showToast('订阅 TOKEN 未就绪','error'); return; }
+      fill.textContent='拉取中…';
+      fetch(location.origin+'/sub?token='+tok+'&t='+Date.now()).then(function(r){ return r.text(); }).then(function(t){
+        var links=t.split(/\\r?\\n/).map(function(x){ return x.trim(); }).filter(function(x){ return x.indexOf('://')>0; });
+        fill.textContent='填入本部署节点';
+        if(!links.length){ if(window.showToast) showToast('没有拉到节点','error'); return; }
+        ta.value=links.join('|');
+        if(typeof markModified==='function') markModified('convert');
+        document.getElementById('chainEntryStat').textContent='已填入本部署节点 '+links.length+' 条（未保存，点保存生效）';
+      }).catch(function(){ fill.textContent='填入本部署节点'; if(window.showToast) showToast('拉取本部署节点失败','error'); });
+    };
+    var clr=document.getElementById('chainClearBtn');
+    if(clr) clr.onclick=function(){
+      ta.value='';
+      if(typeof markModified==='function') markModified('convert');
+      document.getElementById('chainEntryStat').textContent='已清空（未保存，点保存生效）';
+    };
+  }).catch(function(){
+    var st=document.getElementById('chainEntryStat'); if(st) st.textContent='读取失败';
+  });
 });
-})();
 </script>
 
 </body>
@@ -49296,7 +49287,7 @@ export default {
 						return new Response(JSON.stringify(config_JSON, null, 2), { status: 200, headers: { 'Content-Type': 'application/json' } });
 					} else if (区分大小写访问路径 === 'admin/ADD.txt') {// 处理 admin/ADD.txt 请求，返回本地优选IP
 						let 本地优选IP = await env.KV.get('ADD.txt') || 'null';
-						if (本地优选IP == 'null') 本地优选IP = (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[1];
+						if (本地优选IP == 'null') { const 地区筛选默认 = config_JSON.优选订阅生成?.本地IP库?.地区筛选; 本地优选IP = (地区筛选默认 && 地区筛选默认.地区) ? ('ipf://' + 地区筛选默认.地区 + (地区筛选默认.数量 > 0 ? '?limit=' + 地区筛选默认.数量 : '')) : (await 生成随机IP(request, config_JSON.优选订阅生成.本地IP库.随机数量, config_JSON.优选订阅生成.本地IP库.指定端口))[1]; }
 						return new Response(本地优选IP, { status: 200, headers: { 'Content-Type': 'text/plain;charset=utf-8', 'asn': request.cf.asn } });
 					} else if (访问路径 === 'admin/cf.json') {// CF配置文件
 						return new Response(JSON.stringify(request.cf, null, 2), { status: 200, headers: { 'Content-Type': 'application/json;charset=utf-8' } });
@@ -54640,6 +54631,7 @@ async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0", 重�
 				随机IP: false, // 整合版默认关闭: 订阅优先使用KV内的ADD.txt (支持 ipf:// 条目), 未设置时用内置筛选默认条目; 改回 true 即恢复原版随机IP行为
 				随机数量: 16,
 				指定端口: -1,
+				地区筛选: { 地区: 'JP-HK-SG-US', 数量: 10 },
 			},
 			SUB: null,
 			SUBNAME: "edge" + "tunnel",
