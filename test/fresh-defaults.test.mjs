@@ -66,3 +66,24 @@ test('全新部署: 种子带地区筛选, ADD 报告筛选条目, /sub 直接�
     assert.ok(decoded.includes('@2.2.2.1'), '/sub 应包含 US 筛选节点');
     assert.ok(!decoded.includes('@4.4.4.1'), '/sub 不应包含未选地区 (DE) 节点');
 });
+
+test('日志: Get_SUB 30 分钟去重 + URL 脱敏落盘', async () => {
+    const waits = [];
+    const ctx = { waitUntil(p) { waits.push(p); } };
+    async function callUA(url, uaX) {
+        const ck = 'auth=' + md5md5(uaX + secret + 'test-admin-pass');
+        const req = new Request(url, { headers: { 'User-Agent': uaX, Cookie: ck } });
+        Object.defineProperty(req, 'cf', { value: { colo: 'NRT', country: 'JP', asn: 12345, city: 'Tokyo' } });
+        return worker.fetch(req, env, ctx);
+    }
+    const cfg = JSON.parse(await (await callUA('https://x.test/admin/config.json', ua)).text());
+    const sub = 'https://x.test/sub?token=' + cfg.优选订阅生成.TOKEN;
+    await callUA(sub, 'dedupe-ua-1'); await Promise.all(waits.splice(0));
+    await callUA(sub, 'dedupe-ua-1'); await Promise.all(waits.splice(0));
+    await callUA(sub, 'dedupe-ua-2'); await Promise.all(waits.splice(0));
+    const logs = JSON.parse(kvStore['log.json'] || '[]');
+    const mine = logs.filter(e => e.TYPE === 'Get_SUB' && String(e.UA).startsWith('dedupe-ua-'));
+    assert.equal(mine.filter(e => e.UA === 'dedupe-ua-1').length, 1, '同一 UA 30 分钟内重复获取只应记一条');
+    assert.equal(mine.filter(e => e.UA === 'dedupe-ua-2').length, 1, '新 UA 应立即记一条');
+    assert.ok(mine.every(e => e.URL.includes('token=***') && !e.URL.includes(cfg.优选订阅生成.TOKEN)), '落盘 URL 必须脱敏且不含明文 token');
+});

@@ -1,3 +1,12 @@
+## [integration 3.1.7] - 2026-11-02
+
+### Own version identity; quieter logs
+
+- The version badge, the update check and the version dialog now use this project's own integration version (e.g. 整合版 3.1.7) instead of the upstream core's timestamp version — the admin no longer tracks upstream releases. (The core version number still exists internally where upstream feature gating depends on it.)
+- 版本徽章、更新检查与版本弹窗改用本项目自己的整合版号（如 整合版 3.1.7），不再显示上游内核的时间戳版本号、不跟随上游更新。（内核版本号仅在上游功能门控依赖处内部保留。）
+- Subscription fetches now get the same 30-minute log de-duplication as every other event type, cutting KV write volume without hiding new visitors (Telegram notifications are unchanged).
+- 「获取订阅」日志与其它类型一样做 30 分钟去重，大幅减少 KV 写入；新访客仍会立即记录，Telegram 通知不变。
+
 ## [integration 3.1.6] - 2026-11-02
 
 ### Log redaction
