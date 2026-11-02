@@ -397,8 +397,9 @@ test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整
     assert.ok(!src.includes('fetch(Pages静态页面'), '不得再从 edt-pages 抓取任何页面');
     assert.ok(!src.includes('__IPF_ADMIN_B64__') && !src.includes('IPF_注入管理页'), '旧注入机制应已移除');
     assert.ok(src.includes('preferredSubscriptionModule'), '应内嵌上游 UI 管理页');
-    assert.ok(src.includes('id="regionSection"') && src.includes('value="region"'), '地区筛选应是优选模块自己的模式');
-    assert.ok(src.includes('id="chainEntry"') && src.includes('...currentConfig.订阅转换配置'), '链式入口应是转换模块自己的字段且保存不丢键');
+    assert.ok(src.includes('id="regionSection"') && src.includes('value="region"') && src.includes('__ipfRegionDone'), '地区筛选应是优选模块自己的模式且呈现不拦用户切换');
+    assert.ok(src.includes('...currentConfig.订阅转换配置'), '转换模块保存应保留其不认识的配置键');
+    assert.ok(!src.includes('id="chainEntry"'), '链式入口字段已按用户要求取消, 不应再出现');
     assert.ok(!src.includes('ipfChainModule') && !src.includes('ipfToolsModule') && !src.includes('ipfRegionBlock') && !src.includes('本项目功能'), '不得再有运行时注入的独立模块与外来标签');
     assert.ok(src.includes('登录设置页面'), '应内嵌上游 UI 登录页');
 
@@ -435,7 +436,7 @@ test('上游 UI 管理台 (3.1): 页面自带零代理, 登录流与鉴权完整
     assert.equal(res.status, 200);
     body = await res.text();
     assert.ok(body.includes('preferredSubscriptionModule'), '/admin 应返回上游 UI 管理页');
-    assert.ok(body.includes('优选订阅生成') && body.includes('regionSection') && body.includes('chainEntry') && !body.includes('ipfChainModule'), '管理台应含上游模块与已融合的地区模式/链式字段');
+    assert.ok(body.includes('优选订阅生成') && body.includes('regionSection') && !body.includes('chainEntry') && !body.includes('ipfChainModule'), '管理台应含上游模块与已融合的地区模式, 且无链式入口字段');
     assert.equal(res.headers.get('cache-control'), 'no-store');
     // POST /login 正确密码 -> success + auth cookie (与校验同式)
     res = await callA('https://x.test/login', { method: 'POST', body: new URLSearchParams({ password: 'test-admin-pass' }) });

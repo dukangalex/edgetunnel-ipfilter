@@ -1,3 +1,10 @@
+## [integration 3.1.3] - 2026-11-02
+
+### Chain entry field removed from the conversion module
+
+- The chain-entry field added to the subscription-conversion module in 3.1.0 is removed again: a bare link box with no guidance was not usable — chaining belongs to the guided converter page (`/convert`), and the conversion module returns to the upstream field set. (The module's save still preserves config keys it does not know.)
+- 撤下 3.1.0 在订阅转换模块里加的链式入口字段：一个没有引导的裸链接框并不好用——链式转换归引导式的转换页（/convert），转换模块恢复上游原有字段集。（该模块保存时保留不认识的配置键这一修复保留。）
+
 ## [integration 3.1.2] - 2026-11-02
 
 ### Mode presentation no longer overrides the user
