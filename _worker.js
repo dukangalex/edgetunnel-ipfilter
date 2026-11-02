@@ -1,4 +1,4 @@
-﻿/* edgetunnel-ipfilter integration 3.1.7 */
+﻿/* edgetunnel-ipfilter integration 3.1.8 */
 const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -13344,6 +13344,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 								<div class="checkbox-group"><input type="checkbox" id="rg_TW" value="TW" onchange="markModified('sub')"><label for="rg_TW" class="checkbox-label">🇹🇼 台湾</label></div>
 								<div class="checkbox-group"><input type="checkbox" id="rg_KR" value="KR" onchange="markModified('sub')"><label for="rg_KR" class="checkbox-label">🇰🇷 韩国</label></div>
 							</div>
+							<select id="regionAddSelect" style="margin-top:10px;width:100%;box-sizing:border-box"><option value="">从全部国家/地区中添加…</option></select>
 							<input type="text" id="regionExtra" placeholder="其它地区代码，逗号分隔（如 DE,GB,FR）" style="margin-top:10px;width:100%;box-sizing:border-box" oninput="markModified('sub')">
 							<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:nowrap">
 								<span style="white-space:nowrap">每地区最多</span>
@@ -21076,7 +21077,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "整合版 3.1.7";
+				versionValue.textContent = "整合版 3.1.8";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21339,7 +21340,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = 30107;
+			const currentVersionNumber = 30108;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21417,7 +21418,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
 			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
-			currentVersionValueEl.textContent = '整合版 3.1.7';
+			currentVersionValueEl.textContent = '整合版 3.1.8';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -33202,6 +33203,26 @@ function composeRegionADD(){
   return [line].concat(rest).join('\\n')+'\\n';
 }
 document.addEventListener('DOMContentLoaded', function(){
+  var rsel=document.getElementById('regionAddSelect');
+  if(rsel){
+    fetch('/?get_regions=1').then(function(r){ return r.json(); }).then(function(codes){
+      var dn=null; try{ dn=new Intl.DisplayNames(['zh-CN'],{type:'region'}); }catch(e){}
+      codes.forEach(function(c){
+        if(IPF_POPULAR_REGIONS.indexOf(c)>=0) return;
+        var o=document.createElement('option'); o.value=c;
+        var nm=''; try{ nm=dn? dn.of(c):''; }catch(e){}
+        o.textContent=c+(nm&&nm!==c?(' '+nm):'');
+        rsel.appendChild(o);
+      });
+    }).catch(function(){});
+    rsel.addEventListener('change', function(){
+      var c=rsel.value; if(!c) return;
+      var ex=document.getElementById('regionExtra');
+      var cur=ex.value.split(/[,\\s]+/).map(function(x){ return x.trim().toUpperCase(); }).filter(Boolean);
+      if(cur.indexOf(c)<0){ cur.push(c); ex.value=cur.join(','); if(typeof markModified==='function') markModified('sub'); }
+      rsel.value='';
+    });
+  }
   fetch('/admin/config.json?_t='+Date.now()).then(function(r){ return r.json(); }).then(function(cfg){
     var sel=cfg['优选订阅生成'] && cfg['优选订阅生成']['本地IP库'] && cfg['优选订阅生成']['本地IP库']['地区筛选'];
     if(sel) __fillRegionUI(sel);
