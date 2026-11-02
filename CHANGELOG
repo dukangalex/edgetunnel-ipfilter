@@ -1,3 +1,10 @@
+## [integration 3.1.1] - 2026-11-02
+
+### Chain field layout fix
+
+- The chain-entry field in the subscription-conversion module rendered squeezed into columns (its wrapper inherited a flex row). It now uses the module's standard label + control row, with the hint and the fill/clear actions stacked below at full width — the same arrangement as the module's other fields.
+- 修复订阅转换模块里链式入口字段的排版：此前它被挤成多列，现改为与模块其它字段一致的标准行（标签 + 输入框），说明与填入/清空操作在下方整宽排列。
+
 ## [integration 3.1.0] - 2026-11-02
 
 ### Fused, not spliced: additions become the base features' own forms
