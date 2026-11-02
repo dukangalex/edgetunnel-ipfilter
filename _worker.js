@@ -13966,15 +13966,13 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 										<div class="form-group">
 						<label for="chainEntry">链式入口</label>
-						<div class="input-wrapper">
-							<textarea id="chainEntry" rows="3" placeholder="入口节点链接，多个用 | 分隔；留空表示不启用链式代理" oninput="markModified('convert')"></textarea>
-							<p style="font-size:12px;opacity:.75;margin:6px 0;line-height:1.6">启用后，本部署转换出的订阅先经入口节点、再由本部署节点落地。填入本部署自己的节点不会改变落地，只是多绕一圈，一般留空或填外部入口。修改后点本模块下方的「保存」生效。当前：<span id="chainEntryStat">读取中…</span></p>
-							<div style="display:flex;gap:8px;flex-wrap:wrap">
-								<button type="button" class="btn" id="chainFillOwn">填入本部署节点</button>
-								<button type="button" class="btn" id="chainClearBtn">清空</button>
-							</div>
-							<p style="font-size:12px;opacity:.75;margin:8px 0 0;line-height:1.6">把任意订阅转成链式订阅：<a href="/convert" target="_blank" rel="noopener">订阅链式转换</a>；检测节点与代理可用性：<a href="/socks5-ui" target="_blank" rel="noopener">代理检测</a>。</p>
-						</div>
+						<textarea id="chainEntry" rows="3" placeholder="入口节点链接，多个用 | 分隔；留空表示不启用链式代理" oninput="markModified('convert')"></textarea>
+					</div>
+					<div style="font-size:12px;opacity:.75;line-height:1.6;margin:-6px 0 10px">启用后，本部署转换出的订阅先经入口节点、再由本部署节点落地。填入本部署自己的节点不会改变落地，只是多绕一圈，一般留空或填外部入口。修改后点本模块下方的「保存」生效。当前：<span id="chainEntryStat">读取中…</span></div>
+					<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+						<button type="button" class="btn" id="chainFillOwn">填入本部署节点</button>
+						<button type="button" class="btn" id="chainClearBtn">清空</button>
+						<span style="font-size:12px;opacity:.75">把任意订阅转成链式订阅：<a href="/convert" target="_blank" rel="noopener">订阅链式转换</a>；检测节点与代理可用性：<a href="/socks5-ui" target="_blank" rel="noopener">代理检测</a>。</span>
 					</div>
 					<div class="module-footer">
 						<div class="btn-group">
@@ -22671,7 +22669,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		function updateIPMode() {
 			let mode = document.getElementById('ipMode').value;
-			if (mode === 'custom' && typeof currentConfig !== 'undefined' && currentConfig.优选订阅生成?.本地IP库?.地区筛选) {
+			if (mode === 'custom' && !window.__ipfRegionDone && typeof currentConfig !== 'undefined' && currentConfig.优选订阅生成?.本地IP库?.地区筛选) {
+				window.__ipfRegionDone = true;
 				mode = 'region';
 				document.getElementById('ipMode').value = 'region';
 				if (typeof __fillRegionUI === 'function') __fillRegionUI(currentConfig.优选订阅生成.本地IP库.地区筛选);
