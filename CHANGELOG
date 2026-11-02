@@ -2,8 +2,8 @@
 
 ### Integrated tools in the header
 
-- The header's empty middle space now hosts the integrated tools: 订阅转换 (converter page), 地区优选 (region IP picker) and SOCKS5 检测 (checker), opening in a new tab so the settings page is never lost.
-- 页眉中间的空白区现在放整合工具入口：订阅转换、地区优选、SOCKS5 检测，新标签页打开，不丢设置页状态。
+- The integrated tools get their own row under the header: 订阅转换 (converter page), 地区优选 (region IP picker) and SOCKS5 检测 (checker), opening in a new tab so the settings page is never lost.
+- 整合工具在页眉下方独占一行：订阅转换、地区优选、SOCKS5 检测，新标签页打开，不丢设置页状态。
 
 ## [integration 3.1.4] - 2026-11-02
 
