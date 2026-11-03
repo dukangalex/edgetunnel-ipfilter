@@ -1,4 +1,4 @@
-﻿/* edgetunnel-ipfilter integration 3.1.21 */
+﻿/* edgetunnel-ipfilter integration 3.1.22 */
 const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -817,13 +817,13 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 			--overlay-bg: rgba(255, 255, 255, 0.66);
 			--dim-bg: rgba(15, 23, 42, 0.55);
 			/* 品牌渐变（两模式一致） */
-			--accent-a: #faab41;
-			--accent-b: #f6821f;
-			--accent-grad: linear-gradient(135deg, #faab41 0, #f6821f 100%);
-			--accent-grad-h: linear-gradient(90deg, #faab41 0, #f6821f 50%, #faab41 100%);
+			--accent-a: #14b8a6;
+			--accent-b: #2563eb;
+			--accent-grad: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
+			--accent-grad-h: linear-gradient(90deg, #14b8a6 0, #2563eb 50%, #14b8a6 100%);
 			/* 焦点：亮=橙（与 admin 一致） */
-			--focus: #faab41;
-			--focus-ring: rgba(250, 171, 65, 0.12);
+			--focus: #14b8a6;
+			--focus-ring: rgba(20, 184, 166, 0.12);
 			/* 错误 */
 			--error: #ef4444;
 			--error-deep: #dc2626;
@@ -831,11 +831,11 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 			--banner-warn-border: #dc2626;
 			--banner-warn-text: #991b1b;
 			/* 代码 chip */
-			--chip-bg: rgba(246, 130, 31, 0.1);
+			--chip-bg: rgba(37, 99, 235, 0.1);
 			--chip-text: #c2410c;
 			/* 阴影 */
 			--shadow-card: 0 20px 60px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-			--icon-glow: 0 10px 30px rgba(246, 130, 31, 0.35)
+			--icon-glow: 0 10px 30px rgba(37, 99, 235, 0.35)
 		}
 
 		html.dark-mode {
@@ -853,15 +853,15 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 			--overlay-bg: rgba(7, 11, 18, 0.78);
 			--dim-bg: rgba(0, 0, 0, 0.7);
 			/* 焦点：夜=紫（与 admin html.dark-mode 一致） */
-			--focus: #7c3aed;
+			--focus: #2563eb;
 			--focus-ring: rgba(124, 58, 237, 0.12);
 			--banner-warn-bg: rgba(220, 38, 38, 0.12);
 			--banner-warn-border: #ef4444;
 			--banner-warn-text: #fca5a5;
-			--chip-bg: rgba(250, 171, 65, 0.12);
+			--chip-bg: rgba(20, 184, 166, 0.12);
 			--chip-text: #fbbf24;
 			--shadow-card: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-			--icon-glow: 0 10px 30px rgba(246, 130, 31, 0.22)
+			--icon-glow: 0 10px 30px rgba(37, 99, 235, 0.22)
 		}
 
 		* {
@@ -1022,7 +1022,7 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 			left: 0;
 			right: 0;
 			height: 4px;
-			background: linear-gradient(90deg, #faab41 0, #f6821f 50%, #faab41 100%);
+			background: linear-gradient(90deg, #14b8a6 0, #2563eb 50%, #14b8a6 100%);
 			background-size: 200% 100%;
 			animation: gradientShift 3s ease infinite
 		}
@@ -1055,7 +1055,7 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 		.page-title {
 			font-size: 28px;
 			font-weight: 700;
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			background-clip: text;
@@ -1255,9 +1255,9 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 		}
 
 		.btn-primary {
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			color: #fff;
-			box-shadow: 0 4px 15px rgba(246, 130, 31, 0.35)
+			box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35)
 		}
 
 		.btn-primary::before {
@@ -1277,12 +1277,12 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 
 		.btn-primary:hover {
 			transform: translateY(-2px);
-			box-shadow: 0 6px 25px rgba(246, 130, 31, 0.45)
+			box-shadow: 0 6px 25px rgba(37, 99, 235, 0.45)
 		}
 
 		.btn-primary:active {
 			transform: translateY(0);
-			box-shadow: 0 2px 10px rgba(246, 130, 31, 0.35)
+			box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35)
 		}
 
 		.btn:disabled {
@@ -1650,7 +1650,7 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 			border-radius: 0 0 14px 14px;
 			transform-origin: left;
 			animation: countdownProgress 5s linear forwards;
-			box-shadow: 0 0 8px #fff, 0 0 15px #f6821f;
+			box-shadow: 0 0 8px #fff, 0 0 15px #2563eb;
 			z-index: 2;
 		}
 
@@ -1694,11 +1694,11 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 
 			0%,
 			100% {
-				box-shadow: 0 8px 16px rgba(246, 130, 31, 0.2);
+				box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
 			}
 
 			50% {
-				box-shadow: 0 8px 25px rgba(246, 130, 31, 0.5);
+				box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
 			}
 		}
 
@@ -1867,7 +1867,7 @@ const IPF_登录页HTML = `<!DOCTYPE html>
 					let contentHTML = '';
 
 					// 按钮通用样式
-					const primaryBtnStyle = 'display: inline-block; background: linear-gradient(135deg, #faab41 0%, #f6821f 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 14px; font-weight: 700; font-size: 17px; box-shadow: 0 8px 16px rgba(246, 130, 31, 0.2); transition: all 0.3s ease; border: none; cursor: pointer; margin: 10px; outline: none; position: relative; overflow: hidden;';
+					const primaryBtnStyle = 'display: inline-block; background: linear-gradient(135deg, #14b8a6 0%, #2563eb 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 14px; font-weight: 700; font-size: 17px; box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2); transition: all 0.3s ease; border: none; cursor: pointer; margin: 10px; outline: none; position: relative; overflow: hidden;';
 					const secondaryBtnStyle = 'display: inline-block; background: var(--input-bg); color: var(--text-muted); text-decoration: none; padding: 14px 28px; border-radius: 14px; font-weight: 400; font-size: 14px; transition: all 0.3s ease; border: none; cursor: pointer; margin: 10px; outline: none;';
 
 					if (lang.toLowerCase().startsWith('zh')) {
@@ -2437,7 +2437,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			left: 0;
 			right: 0;
 			height: 4px;
-			background: linear-gradient(90deg, #faab41 0, #f6821f 50%, #faab41 100%);
+			background: linear-gradient(90deg, #14b8a6 0, #2563eb 50%, #14b8a6 100%);
 			background-size: 200% 100%;
 			animation: gradientShift 3s ease infinite
 		}
@@ -2452,7 +2452,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			width: 70px;
 			height: 70px;
 			margin: 0 auto 20px;
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			border-radius: 20px;
 			display: flex;
 			align-items: center;
@@ -2470,7 +2470,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		.page-title {
 			font-size: 32px;
 			font-weight: 700;
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			-webkit-background-clip: text;
 			background-clip: text;
 			-webkit-text-fill-color: transparent;
@@ -2597,8 +2597,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		.form-group select:focus,
 		.form-group textarea:focus {
 			outline: 0 !important;
-			border-color: #faab41 !important;
-			box-shadow: 0 0 0 4px rgba(250, 171, 65, 0.1) !important
+			border-color: #14b8a6 !important;
+			box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1) !important
 		}
 
 		.form-group input:focus+.input-icon {
@@ -2643,7 +2643,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-primary {
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			color: #fff;
 			box-shadow: 0 4px 15px rgba(255, 226, 96, 0.18)
 		}
@@ -2683,7 +2683,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-search-proxy {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff !important;
 			padding: 10px 16px;
 			font-size: 14px;
@@ -2722,14 +2722,14 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.footer-hint a {
-			color: #faab41;
+			color: #14b8a6;
 			text-decoration: none;
 			font-weight: 500;
 			transition: color .3s ease
 		}
 
 		.footer-hint a:hover {
-			color: #f6821f
+			color: #2563eb
 		}
 
 		/* 段落内链接样式 */
@@ -4064,7 +4064,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			left: 0;
 			right: 0;
 			bottom: 0;
-			background: linear-gradient(135deg, rgba(250, 171, 65, 0) 0%, rgba(246, 130, 31, 0) 100%);
+			background: linear-gradient(135deg, rgba(20, 184, 166, 0) 0%, rgba(37, 99, 235, 0) 100%);
 			opacity: 0;
 			transition: opacity 0.35s ease;
 			border-radius: 11px
@@ -4072,9 +4072,9 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.social-link:hover {
 			transform: translateY(-4px) scale(1.05);
-			border-color: rgba(250, 171, 65, 0.5);
-			box-shadow: 0 8px 24px rgba(250, 171, 65, 0.25), 0 4px 12px rgba(246, 130, 31, 0.15);
-			color: #f6821f
+			border-color: rgba(20, 184, 166, 0.5);
+			box-shadow: 0 8px 24px rgba(20, 184, 166, 0.25), 0 4px 12px rgba(37, 99, 235, 0.15);
+			color: #2563eb
 		}
 
 		.social-link:hover::before {
@@ -4083,7 +4083,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.social-link:active {
 			transform: translateY(-2px) scale(1.02);
-			box-shadow: 0 4px 12px rgba(250, 171, 65, 0.2)
+			box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2)
 		}
 
 		.social-link svg {
@@ -4104,11 +4104,11 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.social-link.theme-toggle:hover .sun-icon {
-			color: #faab41
+			color: #14b8a6
 		}
 
 		.social-link.theme-toggle:hover .moon-icon {
-			color: #7c3aed
+			color: #2563eb
 		}
 
 		/* GitHub图标样式 */
@@ -4170,7 +4170,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.social-link.social-version:focus-visible {
-			outline: 2px solid rgba(250, 171, 65, 0.65);
+			outline: 2px solid rgba(20, 184, 166, 0.65);
 			outline-offset: 2px;
 		}
 
@@ -4700,12 +4700,12 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.checkbox-group input[type="checkbox"]:hover {
-			border-color: #faab41
+			border-color: #14b8a6
 		}
 
 		.checkbox-group input[type="checkbox"]:checked {
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
-			border-color: #faab41
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
+			border-color: #14b8a6
 		}
 
 		.checkbox-group input[type="checkbox"]:checked::after {
@@ -5028,7 +5028,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		html.dark-mode .header {
 			background: rgba(39, 39, 39, 0.95);
-			border-image: linear-gradient(90deg, #faab41 0, #f6821f 50%, #faab41 100%) 1
+			border-image: linear-gradient(90deg, #14b8a6 0, #2563eb 50%, #14b8a6 100%) 1
 		}
 
 		html.dark-mode .module {
@@ -5056,7 +5056,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		html.dark-mode .form-group input:not([type="checkbox"]):focus,
 		html.dark-mode .form-group select:focus,
 		html.dark-mode .form-group textarea:focus {
-			border-color: #7c3aed !important;
+			border-color: #2563eb !important;
 			box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1) !important
 		}
 
@@ -5125,7 +5125,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		html.dark-mode .page-header {
 			background: var(--bg-secondary);
 			color: var(--text-primary);
-			border-image: linear-gradient(90deg, #7c3aed 0, #5b21b6 50%, #7c3aed 100%) 1 !important
+			border-image: linear-gradient(90deg, #2563eb 0, #5b21b6 50%, #2563eb 100%) 1 !important
 		}
 
 		html.dark-mode .page-title {
@@ -5442,13 +5442,13 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .checkbox-group input[type="checkbox"]:checked {
-			background: linear-gradient(135deg, #7c3aed 0, #5b21b6 100%);
-			border-color: #7c3aed
+			background: linear-gradient(135deg, #2563eb 0, #5b21b6 100%);
+			border-color: #2563eb
 		}
 
 		html.dark-mode .loading {
 			border-color: rgba(124, 58, 237, 0.3);
-			border-top-color: #7c3aed
+			border-top-color: #2563eb
 		}
 
 		html.dark-mode .message {
@@ -5464,7 +5464,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .collapse-btn {
-			color: #7c3aed
+			color: #2563eb
 		}
 
 		html.dark-mode .collapse-btn:hover {
@@ -5472,7 +5472,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .collapse-section {
-			border-left-color: #7c3aed;
+			border-left-color: #2563eb;
 			color: var(--text-primary)
 		}
 
@@ -5487,7 +5487,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .readonly-wrapper input[readonly]:hover {
-			border-color: #7c3aed;
+			border-color: #2563eb;
 			background-color: var(--input-bg);
 		}
 
@@ -5534,7 +5534,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .footer-hint a {
-			color: #7c3aed !important
+			color: #2563eb !important
 		}
 
 		html.dark-mode .footer-hint a:hover {
@@ -5641,13 +5641,13 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			padding: 25px 30px;
 			border-radius: 16px;
 			border-top: 4px solid;
-			border-image: linear-gradient(90deg, #faab41 0, #f6821f 50%, #faab41 100%) 1
+			border-image: linear-gradient(90deg, #14b8a6 0, #2563eb 50%, #14b8a6 100%) 1
 		}
 
 		.header-title h1 {
 			font-size: 28px;
 			font-weight: 700;
-			background: linear-gradient(135deg, #faab41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #14b8a6 0, #2563eb 100%);
 			-webkit-background-clip: text;
 			-webkit-text-fill-color: transparent;
 			background-clip: text;
@@ -5873,14 +5873,14 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.readonly-wrapper input[readonly]:hover {
-			border-color: #faab41;
+			border-color: #14b8a6;
 			background-color: #fff;
 		}
 
 		.readonly-wrapper input[readonly]:focus {
 			outline: 0 !important;
-			border-color: #faab41 !important;
-			box-shadow: 0 0 0 4px rgba(250, 171, 65, 0.1) !important;
+			border-color: #14b8a6 !important;
+			box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1) !important;
 		}
 
 		.copy-btn {
@@ -5909,14 +5909,14 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.collapse-section {
 			margin-top: 15px;
-			border-left: 3px solid #faab41;
+			border-left: 3px solid #14b8a6;
 			padding-left: 20px
 		}
 
 		.collapse-btn {
 			background: none;
 			border: none;
-			color: #faab41;
+			color: #14b8a6;
 			font-size: 14px;
 			font-weight: 600;
 			cursor: pointer;
@@ -5928,7 +5928,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.collapse-btn:hover {
-			color: #f6821f
+			color: #2563eb
 		}
 
 		.success-message,
@@ -5956,7 +5956,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			display: inline-block;
 			width: 16px;
 			height: 16px;
-			border: 2px solid #faab41;
+			border: 2px solid #14b8a6;
 			border-top-color: transparent;
 			border-radius: 50%;
 			animation: rotate 0.6s linear infinite
@@ -6895,7 +6895,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-chain-proxy {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff;
 			box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 		}
@@ -7191,7 +7191,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-chain-add:not([disabled]) {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			opacity: 1;
 			pointer-events: all;
 		}
@@ -7221,8 +7221,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		/* ===== 链式代理：来源切换与公开代理库 ===== */
 		.chain-proxy-modal {
-			--chain-accent: #8b5cf6;
-			--chain-accent-strong: #6d28d9;
+			--chain-accent: #3b82f6;
+			--chain-accent-strong: #1d4ed8;
 			--chain-accent-line: rgba(139, 92, 246, 0.35);
 			--chain-surface: #f8fafc;
 			--chain-surface-raised: #ffffff;
@@ -7389,7 +7389,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.chain-lib-protocol.is-active {
 			border-color: transparent;
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff;
 			box-shadow: 0 4px 12px rgba(139, 92, 246, 0.32);
 		}
@@ -7555,7 +7555,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			flex-shrink: 0;
 			padding: 3px 8px;
 			border-radius: 999px;
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff;
 			font-size: 10.5px;
 			font-weight: 700;
@@ -7795,7 +7795,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-path-template-config {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff !important;
 			padding: 10px 16px;
 			font-size: 14px;
@@ -7934,7 +7934,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.node-token {
-			background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+			background: linear-gradient(135deg, #3b82f6, #1d4ed8);
 		}
 
 		.logic-arrow {
@@ -8548,7 +8548,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .btn-path-template-config {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff !important;
 		}
 
@@ -8647,7 +8647,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .btn-chain-proxy {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff;
 		}
 
@@ -8705,7 +8705,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .btn-chain-add:not([disabled]) {
-			background: linear-gradient(135deg, #8b5cf6 0, #6d28d9 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #1d4ed8 100%);
 			color: #fff;
 		}
 
@@ -9350,7 +9350,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		/* 「稳定」徽章：橘黄色系，呼应 Cloudflare 品牌色 */
 		.optimize-card-badge-orange {
-			background: linear-gradient(135deg, #fbad41 0, #f6821f 100%);
+			background: linear-gradient(135deg, #fbad41 0, #2563eb 100%);
 		}
 
 		.optimize-card-online:hover {
@@ -9481,7 +9481,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.local-optimize-modal::-webkit-scrollbar-thumb:hover {
-			background: linear-gradient(180deg, #818cf8, #4f46e5);
+			background: linear-gradient(180deg, #818cf8, #2563eb);
 		}
 
 		.local-optimize-title {
@@ -9548,9 +9548,9 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.local-ui-filter-btn.is-active {
-			background: #4f46e5;
+			background: #2563eb;
 			color: #fff;
-			border-color: #4f46e5;
+			border-color: #2563eb;
 		}
 
 		@keyframes localToolFadeIn {
@@ -9603,7 +9603,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.local-tool-author {
 			font-size: 12px;
-			color: #4f46e5;
+			color: #2563eb;
 			background: #eef2ff;
 			padding: 2px 8px;
 			border-radius: 999px;
@@ -9764,9 +9764,9 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		html.dark-mode .local-ui-filter-btn.is-active {
-			background: #4f46e5;
+			background: #2563eb;
 			color: #fff;
-			border-color: #4f46e5;
+			border-color: #2563eb;
 		}
 
 		html.dark-mode .local-tool-card {
@@ -9915,7 +9915,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.btn-notification-config {
-			background: linear-gradient(135deg, #8b5cf6 0, #7c3aed 100%);
+			background: linear-gradient(135deg, #3b82f6 0, #2563eb 100%);
 			color: #fff;
 			box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 		}
@@ -10505,7 +10505,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			font-size: 20px;
 			font-weight: 800;
 			margin: 0;
-			background: linear-gradient(135deg, #f6821f 0%, #faab41 100%);
+			background: linear-gradient(135deg, #2563eb 0%, #14b8a6 100%);
 			-webkit-background-clip: text;
 			background-clip: text;
 			-webkit-text-fill-color: transparent;
@@ -10621,7 +10621,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		.ip-detail-section-title {
 			font-size: 14px;
 			font-weight: 700;
-			color: #f6821f;
+			color: #2563eb;
 			text-transform: uppercase;
 			letter-spacing: 1px;
 			margin-bottom: 16px;
@@ -10777,7 +10777,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			display: flex;
 			align-items: center;
 			gap: 4px;
-			color: #f6821f;
+			color: #2563eb;
 		}
 
 		.ip-detail-popup-item {
@@ -11478,8 +11478,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		.network-card:hover,
 		.latency-card:hover {
 			transform: translateY(-4px) scale(1.02);
-			border-color: #f6821f;
-			box-shadow: 0 12px 20px rgba(246, 130, 31, 0.15);
+			border-color: #2563eb;
+			box-shadow: 0 12px 20px rgba(37, 99, 235, 0.15);
 		}
 
 		.network-card-title {
@@ -11719,7 +11719,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.latency-card:hover .latency-card-icon-wrapper {
 			background: white;
-			border-color: #f6821f;
+			border-color: #2563eb;
 			transform: rotate(5deg);
 		}
 
@@ -11779,7 +11779,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			font-size: 1.6rem;
 			font-weight: 800;
 			font-style: italic;
-			color: #f6821f;
+			color: #2563eb;
 			text-shadow: var(--bg-secondary);
 			z-index: 3;
 		}
@@ -11813,7 +11813,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 		.ecg-path {
 			fill: none;
-			stroke: #f6821f;
+			stroke: #2563eb;
 			stroke-width: 3.5;
 			stroke-linecap: round;
 			stroke-linejoin: round;
@@ -11842,8 +11842,8 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		.ecg-cursor {
-			fill: #f6821f;
-			filter: drop-shadow(0 0 5px #f6821f);
+			fill: #2563eb;
+			filter: drop-shadow(0 0 5px #2563eb);
 		}
 
 		/* GitHub logo 在浅色模式下显示为黑色 */
@@ -12176,12 +12176,12 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			--hl-p-vless: #1a73e8;
 			--hl-p-vmess: #0891b2;
 			--hl-p-trojan: #dc2626;
-			--hl-p-ss: #8b5cf6;
+			--hl-p-ss: #3b82f6;
 			--hl-p-ssr: #d946ef;
 			--hl-p-hysteria2: #ea580c;
 			--hl-p-hysteria: #f97316;
 			--hl-p-tuic: #10b981;
-			--hl-p-net: #4f46e5;
+			--hl-p-net: #2563eb;
 			--hl-p-other: #0d9488;
 			--hl-p-comment: #d97706;
 			--hl-chain: #4d7c0f;
@@ -13245,9 +13245,15 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 					</svg>
 				</div>
 				<div class="form-group">
+					<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+						<button type="button" class="btn btn-qrcode" id="ipfLinkToggle">👁 显示链接</button>
+						<span style="font-size:12.5px;opacity:.75">本卡全部链接含 UUID 与订阅令牌，默认隐藏；复制与二维码不受影响。</span>
+					</div>
+				</div>
+				<div class="form-group">
 					<label for="LinkURL">节点链接格式</label>
 					<div class="input-wrapper subscription-link-wrapper">
-						<input type="text" id="LinkURL" title="节点链接格式" readonly>
+						<input type="password" id="LinkURL" autocomplete="off" title="节点链接格式" readonly>
 						<div class="btn-container">
 							<button type="button" class="btn btn-qrcode" onclick="showQRCode('LinkURL')">📱二维码</button>
 							<button type="button" class="btn btn-primary"
@@ -13262,7 +13268,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 							onclick="showAuthTokenHelpModal('token')" aria-label="查看订阅鉴权 TOKEN 说明">!</button>
 					</div>
 					<div class="input-wrapper subscription-link-wrapper">
-						<input type="text" id="subLink" title="自适应订阅" readonly>
+						<input type="password" id="subLink" autocomplete="off" title="自适应订阅" readonly>
 						<div class="btn-container">
 							<button type="button" class="btn btn-qrcode" onclick="showQRCode('subLink')">📱二维码</button>
 							<button type="button" class="btn btn-primary"
@@ -13274,7 +13280,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 					<div class="form-group">
 						<label for="base64Link">Base64订阅</label>
 						<div class="input-wrapper subscription-link-wrapper">
-							<input type="text" id="base64Link" title="Base64订阅" readonly>
+							<input type="password" id="base64Link" autocomplete="off" title="Base64订阅" readonly>
 							<div class="btn-container">
 								<button type="button" class="btn btn-qrcode"
 									onclick="showQRCode('base64Link')">📱二维码</button>
@@ -13286,7 +13292,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 					<div class="form-group">
 						<label for="clashLink">Clash订阅</label>
 						<div class="input-wrapper subscription-link-wrapper">
-							<input type="text" id="clashLink" title="Clash订阅" readonly>
+							<input type="password" id="clashLink" autocomplete="off" title="Clash订阅" readonly>
 							<div class="btn-container">
 								<button type="button" class="btn btn-qrcode"
 									onclick="showQRCode('clashLink')">📱二维码</button>
@@ -13298,7 +13304,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 					<div class="form-group">
 						<label for="singboxLink">SingBox订阅</label>
 						<div class="input-wrapper subscription-link-wrapper">
-							<input type="text" id="singboxLink" title="SingBox订阅" readonly>
+							<input type="password" id="singboxLink" autocomplete="off" title="SingBox订阅" readonly>
 							<div class="btn-container">
 								<button type="button" class="btn btn-qrcode"
 									onclick="showQRCode('singboxLink')">📱二维码</button>
@@ -19515,7 +19521,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 									<div class="proxyip-logo-row" aria-hidden="true">
 										<svg class="proxyip-logo proxyip-logo-cloudflare" viewBox="0 0 64 40"
 											focusable="false">
-											<path fill="#f6821f"
+											<path fill="#2563eb"
 												d="M46.2 16.8C44.8 9.5 38.4 4 30.8 4c-6 0-11.2 3.4-13.9 8.5C9.7 13 4 19 4 26.3c0 1.3.2 2.6.6 3.8h40.8c4.9 0 8.8-4 8.8-8.9 0-4.6-3.5-8.4-8-8.4Z" />
 											<path fill="#faae40"
 												d="M55.2 30.1c2.9-1.5 4.8-4.5 4.8-8 0-4.8-3.7-8.8-8.4-9.1C49.9 7.8 46.2 3.7 41.4 1.7c2 2.4 3.2 5.5 3.2 8.8 0 2.1-.5 4.1-1.3 5.9h2.1c4.9 0 8.8 4 8.8 8.9 0 1.7-.5 3.4-1.4 4.8h2.4Z" />
@@ -19585,7 +19591,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 									<div class="proxyip-logo-row" aria-hidden="true">
 										<svg class="proxyip-logo proxyip-logo-cloudflare" viewBox="0 0 64 40"
 											focusable="false">
-											<path fill="#f6821f"
+											<path fill="#2563eb"
 												d="M46.2 16.8C44.8 9.5 38.4 4 30.8 4c-6 0-11.2 3.4-13.9 8.5C9.7 13 4 19 4 26.3c0 1.3.2 2.6.6 3.8h40.8c4.9 0 8.8-4 8.8-8.9 0-4.6-3.5-8.4-8-8.4Z" />
 											<path fill="#faae40"
 												d="M55.2 30.1c2.9-1.5 4.8-4.5 4.8-8 0-4.8-3.7-8.8-8.4-9.1C49.9 7.8 46.2 3.7 41.4 1.7c2 2.4 3.2 5.5 3.2 8.8 0 2.1-.5 4.1-1.3 5.9h2.1c4.9 0 8.8 4 8.8 8.9 0 1.7-.5 3.4-1.4 4.8h2.4Z" />
@@ -19599,7 +19605,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 									<div class="proxyip-logo-row" aria-hidden="true">
 										<svg class="proxyip-logo proxyip-logo-proxy" viewBox="0 0 48 48"
 											focusable="false">
-											<rect x="7" y="8" width="34" height="28" rx="7" fill="#7c3aed" />
+											<rect x="7" y="8" width="34" height="28" rx="7" fill="#2563eb" />
 											<path d="M16 18h16M16 25h16M18 36v4M30 36v4M14 40h20" fill="none"
 												stroke="#fff" stroke-width="3" stroke-linecap="round" />
 											<circle cx="16" cy="25" r="1.8" fill="#ddd6fe" />
@@ -20886,7 +20892,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 					valueElement.style.color = 'var(--latency-999)';
 				} else {
 					valueElement.innerHTML = '...<span class="unit">ms</span>';
-					valueElement.style.color = '#f6821f';
+					valueElement.style.color = '#2563eb';
 				}
 			} else {
 				const siteState = latencyUIState[siteName] || { current: targetValue, timer: null };
@@ -21079,7 +21085,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "整合版 3.1.21";
+				versionValue.textContent = "整合版 3.1.22";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21342,7 +21348,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = 30121;
+			const currentVersionNumber = 30122;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21420,7 +21426,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
 			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
-			currentVersionValueEl.textContent = '整合版 3.1.21';
+			currentVersionValueEl.textContent = '整合版 3.1.22';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -25962,7 +25968,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 
 			const typeMap = {
 				'Admin_Login': { text: '登录后台', color: '#f59e0b' },
-				'Save_Config': { text: '保存配置', color: '#8b5cf6' },
+				'Save_Config': { text: '保存配置', color: '#3b82f6' },
 				'Init_Config': { text: '重置配置', color: '#ef4444' },
 				'Save_Custom_IPs': { text: '自定义优选', color: '#06b6d4' }
 			};
@@ -33240,6 +33246,21 @@ document.addEventListener('DOMContentLoaded', function(){
     var sel=cfg['优选订阅生成'] && cfg['优选订阅生成']['本地IP库'] && cfg['优选订阅生成']['本地IP库']['地区筛选'];
     if(sel) __fillRegionUI(sel);
   }).catch(function(){});
+});
+</script>
+
+
+<script>
+// ---- edgetunnel-ipfilter privacy: link fields masked by default ----
+document.addEventListener('DOMContentLoaded', function(){
+  var ids=['LinkURL','subLink','base64Link','clashLink','singboxLink'];
+  var b=document.getElementById('ipfLinkToggle'); if(!b) return;
+  var open=false;
+  b.addEventListener('click', function(){
+    open=!open;
+    ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.type=open?'text':'password'; });
+    b.textContent=open?'🙈 隐藏链接':'👁 显示链接';
+  });
 });
 </script>
 
@@ -46096,7 +46117,7 @@ const DST_SET = new Set(MANIFEST.map((e) => e.dst));
 const STAGE = { cur: "-" };
 const ECH_CFG_CACHE = new Map();
 
-const PAGE = "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>订阅转换</title>\n<style>\n:root{color-scheme:dark}\n*{box-sizing:border-box}\nbody{font-family:Inter,system-ui,-apple-system,\"Segoe UI\",Roboto,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:#060809;color:#eef6f5;margin:0;padding:24px 16px 40px}\n.wrap{max-width:600px;margin:0 auto}\nh1{font-size:31px;font-weight:800;letter-spacing:.05em;text-align:center;margin:0 0 8px;background:linear-gradient(90deg,#2dd4bf,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}\n.sub{color:#a3bab5;font-size:14px;margin:0;text-align:center}\n.hero{text-align:center;margin:10px 0 22px}\n.hero-badge{display:inline-block;font-size:11px;letter-spacing:.28em;color:#5eead4;border:1px solid rgba(45,212,191,.45);background:rgba(20,184,166,.10);padding:5px 12px 5px 15px;border-radius:999px;margin-bottom:14px}\n.hero::after{content:\"\";display:block;width:64px;height:3px;border-radius:2px;margin:16px auto 0;background:linear-gradient(90deg,#2dd4bf,#3b82f6)}\n.card{background:#0c1113;border:1px solid #1f2a2f;border-radius:12px;padding:16px;margin-bottom:16px}\n.card h2{font-size:15px;margin:0 0 10px;color:#eef6f5}\n.restore{display:flex;gap:8px}\n.restore input{flex:1}\n.tabs{display:flex;gap:8px;margin-bottom:16px}\n.tabs button{flex:1;padding:11px;border:1px solid #31424a;border-radius:10px;background:#11181b;color:#c3d2d0;font-size:15px;cursor:pointer}\n.tabs button.on{background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff;border-color:#14b8a6}\nlabel{display:block;margin:16px 0 6px;color:#c3d2d0;font-size:14px}\nlabel:first-of-type{margin-top:4px}\nselect,textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid #31424a;background:#11181b;color:#eef6f5;font-size:15px}\nselect:focus,textarea:focus,input:focus{outline:2px solid #14b8a6;border-color:#14b8a6}\ntextarea{resize:vertical;font-family:inherit;line-height:1.5}\n.ta-wrap{position:relative}\n.clear{position:absolute;top:6px;right:6px;padding:3px 10px;border:1px solid #31424a;border-radius:6px;background:#162024;color:#a3bab5;font-size:12px;cursor:pointer}\n.go{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff;font-size:16px;cursor:pointer}\n.go:disabled{opacity:.55;cursor:wait}\n.err{display:none;color:#ef4444;font-size:14px;margin-top:10px}\n.ok{display:none;color:#22c55e;font-size:14px;margin-top:10px}\n.out{margin-top:18px;display:none}\n.link-row{background:#11181b;border:1px solid #1f2a2f;border-radius:10px;padding:12px;margin-top:10px}\n.link-row .tag{font-size:12px;color:#2dd4bf;margin-bottom:6px}\n.link-row .u{word-break:break-all;font-size:13px;color:#eef6f5;font-family:\"JetBrains Mono\",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.link-row .ops{display:flex;gap:8px;margin-top:10px}\n.link-row .ops button,.link-row .ops a{flex:1;padding:9px;border:0;border-radius:8px;background:#1b272c;color:#eef6f5;font-size:14px;text-align:center;text-decoration:none;cursor:pointer}\n.link-row .ops a.imp{background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff}\n.note{color:#a3bab5;font-size:13px;margin-top:10px;line-height:1.6}\n.hide{display:none}\n.rgchip{padding:4px 11px;border-radius:999px;border:1px solid #31424a;background:#11181b;color:#c3d2d0;font-size:13px;cursor:pointer}\n.rgchip.on{border-color:#14b8a6;background:rgba(20,184,166,.2);color:#fff;font-weight:700}\nfooter{color:#5d726d;font-size:13px;margin-top:24px;line-height:1.6}\n/* 结构层 (2.2): 双列 — 主表单左, 恢复卡右轨 */\n.wrap{max-width:860px}\n.wrap>.card{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;margin-bottom:16px}\n.wrap>.card h2{margin:0;font-size:14px;white-space:nowrap}\n.wrap>.card .restore{flex:1;min-width:220px}\n.wrap>.card .err,.wrap>.card .ok{flex-basis:100%;margin-top:2px}\n</style>\n</head>\n<body>\n<div class=\"wrap\">\n<header class=\"hero\">\n<div class=\"hero-badge\">SUBSCRIPTION CONVERTER</div>\n<h1>订阅转换</h1>\n<p class=\"sub\">把节点、订阅转成客户端能直接用的订阅链接，支持普通转换与链式代理。</p>\n</header>\n\n<div class=\"card\">\n<h2>已有短链？恢复上次的填写</h2>\n<div class=\"restore\">\n<input id=\"rcode\" placeholder=\"粘贴短码或完整链接\">\n<button class=\"go\" style=\"margin-top:0;width:auto;padding:10px 18px\" onclick=\"restore()\">恢复</button>\n</div>\n<div class=\"err\" id=\"rerr\">没找到这个短码</div>\n<div class=\"ok\" id=\"rok\">已恢复到下方表单，可修改后重新生成</div>\n</div>\n\n<div class=\"tabs\">\n<button id=\"tabN\" class=\"on\" onclick=\"mode('n')\">普通转换</button>\n<button id=\"tabC\" onclick=\"mode('c')\">链式代理</button>\n</div>\n\n<div id=\"secN\">\n<label>节点 / 订阅（每行一个，可任意混填）</label>\n<div class=\"ta-wrap\"><textarea id=\"u\" rows=\"6\" placeholder=\"ss://...&#10;trojan://...&#10;https://订阅地址\"></textarea><button class=\"clear\" onclick=\"clr('u')\">清空</button></div>\n<label>目标格式</label>\n<select id=\"t\">\n<option value=\"clash\">Clash / Mihomo</option>\n<option value=\"singbox\">sing-box</option>\n<option value=\"v2ray\">V2Ray</option>\n<option value=\"surge\">Surge</option>\n<option value=\"loon\">Loon</option>\n<option value=\"quanx\">Quantumult X</option>\n</select>\n<label>只保留这些地区的节点（可选，不选 = 全部保留）</label>\n<div id=\"rgChips\" style=\"display:flex;flex-wrap:wrap;gap:6px\"></div>\n<input id=\"rgExtra\" placeholder=\"其它地区代码，逗号分隔（如 DE,GB）\" style=\"margin-top:8px\">\n<label>自定义后缀（可选，不填则随机）</label>\n<input id=\"codeN\" placeholder=\"如 home，只用字母、数字、-、_\">\n<button class=\"go\" id=\"goN\" onclick=\"genN()\">生成转换链接</button>\n<div class=\"err\" id=\"errN\"></div>\n<div class=\"out\" id=\"outN\"></div>\n</div>\n\n<div id=\"secC\" class=\"hide\">\n<label>入口（每行一个，可混填节点与订阅）</label>\n<div class=\"ta-wrap\"><textarea id=\"ein\" rows=\"4\" placeholder=\"链的第一站，如日本入口节点或入口订阅\"></textarea><button class=\"clear\" onclick=\"clr('ein')\">清空</button></div>\n<label>出口（每行一个，可混填节点与订阅）</label>\n<div class=\"ta-wrap\"><textarea id=\"eout\" rows=\"4\" placeholder=\"链的第二站，如美国出口节点或出口订阅\"></textarea><button class=\"clear\" onclick=\"clr('eout')\">清空</button></div>\n<label>目标格式</label>\n<select id=\"tc\">\n<option value=\"singbox\">sing-box</option>\n<option value=\"clash\">Mihomo / Clash</option>\n<option value=\"surge\">Surge</option>\n<option value=\"loon\">Loon</option>\n<option value=\"quanx\">Quantumult X</option>\n</select>\n<label>自定义后缀（可选，不填则随机）</label>\n<input id=\"codeC\" placeholder=\"如 chain，只用字母、数字、-、_\">\n<button class=\"go\" id=\"goC\" onclick=\"genC()\">生成链式订阅链接</button>\n<div class=\"err\" id=\"errC\"></div>\n<div class=\"out\" id=\"outC\"></div>\n<p class=\"note\">生成的链接可直接当订阅地址填进客户端，每次更新都会重新按入口到出口串好。短链里的字母代表格式：/m/ 是 Mihomo、/s/ 是 sing-box，同一个码改字母就能切换格式，不用重新生成。</p>\n</div>\n\n<footer>运行在你自己的 Cloudflare 账号上（Workers + KV），订阅内容只保存在你的 KV 中，不经过任何第三方。</footer>\n</div>\n<script>\nfunction $(id){return document.getElementById(id)}\nfunction mode(m){\n  $(\"secN\").className = m===\"n\" ? \"\" : \"hide\";\n  $(\"secC\").className = m===\"c\" ? \"\" : \"hide\";\n  $(\"tabN\").className = m===\"n\" ? \"on\" : \"\";\n  $(\"tabC\").className = m===\"c\" ? \"on\" : \"\";\n}\nfunction clr(id){$(id).value=\"\";$(id).focus()}\nfunction lines(id){\n  return $(id).value.split(/\\n+/).map(function(s){return s.trim()}).filter(function(s){return s.length>0});\n}\nfunction showErr(id,msg){var e=$(id);e.textContent=msg;e.style.display=\"block\"}\nfunction hideErr(id){$(id).style.display=\"none\"}\nfunction extractCode(s){\n  s=(s||\"\").trim();\n  if(!s) return \"\";\n  s=s.split(/[?#]/)[0];\n  var parts=s.split(\"/\").filter(function(p){return p.length>0});\n  return parts.length?parts[parts.length-1]:\"\";\n}\nfunction restore(){\n  var code=extractCode($(\"rcode\").value);\n  $(\"rerr\").style.display=\"none\";$(\"rok\").style.display=\"none\";\n  if(!code){$(\"rerr\").style.display=\"block\";return}\n  fetch(\"/api/link/\"+encodeURIComponent(code)).then(function(r){\n    if(!r.ok) throw new Error(\"nf\");\n    return r.json();\n  }).then(function(rec){\n    if(rec.kind===\"chain\"){\n      mode(\"c\");\n      $(\"ein\").value=(rec.entry||\"\").split(\"|\").join(\"\\n\");\n      $(\"eout\").value=(rec.exit||\"\").split(\"|\").join(\"\\n\");\n      if(rec.target) $(\"tc\").value=rec.target;\n      $(\"codeC\").value=code;\n    }else{\n      mode(\"n\");\n      $(\"u\").value=(rec.url||\"\").split(\"|\").join(\"\\n\");\n      if(rec.target) $(\"t\").value=rec.target; RGSEL={};(rec.regions||[]).forEach(function(c){RGSEL[c]=1});rgSync();\n      $(\"codeN\").value=code;\n    }\n    $(\"rok\").style.display=\"block\";\n  }).catch(function(){\n    $(\"rerr\").style.display=\"block\";\n  });\n}\nfunction copyText(btn,txt){\n  function done(){var o=btn.textContent;btn.textContent=\"已复制\";setTimeout(function(){btn.textContent=o},1200)}\n  if(navigator.clipboard&&navigator.clipboard.writeText){\n    navigator.clipboard.writeText(txt).then(done).catch(function(){fallback()});\n  }else{fallback()}\n  function fallback(){\n    var ta=document.createElement(\"textarea\");\n    ta.value=txt;document.body.appendChild(ta);ta.select();\n    try{document.execCommand(\"copy\");done()}catch(e){}\n    document.body.removeChild(ta);\n  }\n}\nfunction linkRow(tag,url,imp){\n  var row=document.createElement(\"div\");row.className=\"link-row\";\n  var t=document.createElement(\"div\");t.className=\"tag\";t.textContent=tag;row.appendChild(t);\n  var u=document.createElement(\"div\");u.className=\"u\";u.textContent=url;row.appendChild(u);\n  var ops=document.createElement(\"div\");ops.className=\"ops\";\n  var cp=document.createElement(\"button\");cp.textContent=\"复制链接\";\n  cp.onclick=function(){copyText(cp,url)};\n  ops.appendChild(cp);\n  var op=document.createElement(\"button\");op.textContent=\"打开链接\";\n  op.onclick=function(){location.href=url};\n  ops.appendChild(op);\n  if(imp){\n    var a=document.createElement(\"a\");a.className=\"imp\";a.textContent=imp.label;a.href=imp.href;\n    ops.appendChild(a);\n  }\n  row.appendChild(ops);\n  return row;\n}\nfunction render(outId,rows,note){\n  var out=$(outId);out.innerHTML=\"\";\n  rows.forEach(function(r){out.appendChild(linkRow(r.tag,r.url,r.imp))});\n  if(note){\n    var n=document.createElement(\"div\");n.className=\"note\";n.textContent=note;out.appendChild(n);\n  }\n  out.style.display=\"block\";\n}\nfunction shorten(body){\n  return fetch(\"/shorten\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify(body)})\n    .then(function(r){return r.text().then(function(t){return {ok:r.ok,text:t}})});\n}\nvar RGSEL={};\nfunction rgSync(){document.querySelectorAll(\".rgchip\").forEach(function(ch){ch.className=RGSEL[ch.getAttribute(\"data-c\")]?\"rgchip on\":\"rgchip\"})}\nfunction rgSel(){var s={};for(var k in RGSEL)if(RGSEL[k])s[k]=1;var ex=$(\"rgExtra\");if(ex)ex.value.split(/[,\\s]+/).forEach(function(x){x=x.trim().toUpperCase();if(x)s[x]=1});return Object.keys(s)}\nfunction rgBuild(codes){var box=$(\"rgChips\");if(!box)return;box.innerHTML=\"\";codes.forEach(function(c){var b=document.createElement(\"button\");b.type=\"button\";b.className=\"rgchip\";b.setAttribute(\"data-c\",c);b.textContent=c;b.onclick=function(){RGSEL[c]=!RGSEL[c];rgSync()};box.appendChild(b)});rgSync()}\n(function(){var pop=[\"JP\",\"HK\",\"SG\",\"US\",\"TW\",\"KR\",\"DE\",\"GB\",\"FR\",\"NL\",\"CA\",\"AU\"];rgBuild(pop);fetch(\"/?get_regions=1\").then(function(r){return r.json()}).then(function(cs){if(cs&&cs.length)rgBuild(cs)}).catch(function(){})})();\nfunction genN(){\n  var it=lines(\"u\");hideErr(\"errN\");\n  if(!it.length){showErr(\"errN\",\"先粘贴节点或订阅链接\");return}\n  var tg=$(\"t\").value, cd=$(\"codeN\").value.trim();\n  var body={target:tg,url:it.join(\"|\")}; if(cd)body.code=cd; var rgs=rgSel(); if(rgs.length)body.regions=rgs.join(\"-\");\n  var btn=$(\"goN\");btn.disabled=true;btn.textContent=\"生成中…\";\n  shorten(body).then(function(res){\n    if(res.ok){\n      var url=res.text.trim(), code=extractCode(url);\n      if((tg===\"clash\"||tg===\"singbox\")&&code){\n        var rows=[\n          {tag:\"生成时格式\",url:location.origin+\"/c/\"+code},\n          {tag:\"Mihomo\",url:location.origin+\"/m/\"+code,imp:tg===\"clash\"?{label:\"一键导入 Clash\",href:\"clash://install-config?url=\"+encodeURIComponent(location.origin+\"/m/\"+code)}:null},\n          {tag:\"sing-box\",url:location.origin+\"/s/\"+code,imp:tg===\"singbox\"?{label:\"一键导入 sing-box\",href:\"sing-box://import-remote-profile?url=\"+encodeURIComponent(location.origin+\"/s/\"+code)}:null}\n        ];\n        render(\"outN\",rows,\"\");\n      }else{\n        render(\"outN\",[{tag:\"订阅链接\",url:url}],\"\");\n      }\n    }else if(cd){\n      showErr(\"errN\",res.text||\"生成失败\");\n    }else{\n      var base=(tg===\"clash\"||tg===\"singbox\")?\"/conv\":\"/sub\";\n      var u2=location.origin+base+\"?target=\"+tg+\"&url=\"+encodeURIComponent(it.join(\"|\"));\n      render(\"outN\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).catch(function(){\n    if(cd){showErr(\"errN\",\"生成失败，请稍后再试\")}\n    else{\n      var base=(tg===\"clash\"||tg===\"singbox\")?\"/conv\":\"/sub\";\n      var u2=location.origin+base+\"?target=\"+tg+\"&url=\"+encodeURIComponent(it.join(\"|\"));\n      render(\"outN\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).finally(function(){btn.disabled=false;btn.textContent=\"生成转换链接\"});\n}\nfunction genC(){\n  var a=lines(\"ein\"), b=lines(\"eout\");hideErr(\"errC\");\n  if(!a.length||!b.length){showErr(\"errC\",\"入口和出口都要填\");return}\n  var tg=$(\"tc\").value, cd=$(\"codeC\").value.trim();\n  var body={target:tg,entry:a.join(\"|\"),exit:b.join(\"|\")}; if(cd)body.code=cd;\n  var btn=$(\"goC\");btn.disabled=true;btn.textContent=\"生成中…\";\n  shorten(body).then(function(res){\n    if(res.ok){\n      var url=res.text.trim(), code=extractCode(url);\n      if(code){\n        var rows=[\n          {tag:\"生成时格式\",url:location.origin+\"/c/\"+code},\n          {tag:\"Mihomo\",url:location.origin+\"/m/\"+code,imp:tg===\"clash\"?{label:\"一键导入 Clash\",href:\"clash://install-config?url=\"+encodeURIComponent(location.origin+\"/m/\"+code)}:null},\n          {tag:\"sing-box\",url:location.origin+\"/s/\"+code,imp:tg===\"singbox\"?{label:\"一键导入 sing-box\",href:\"sing-box://import-remote-profile?url=\"+encodeURIComponent(location.origin+\"/s/\"+code)}:null}\n        ];\n        render(\"outC\",rows,\"\");\n      }else{\n        render(\"outC\",[{tag:\"订阅链接\",url:url}],\"\");\n      }\n    }else if(cd){\n      showErr(\"errC\",res.text||\"生成失败\");\n    }else{\n      var u2=location.origin+\"/chain?target=\"+tg+\"&entry=\"+encodeURIComponent(a.join(\"|\"))+\"&exit=\"+encodeURIComponent(b.join(\"|\"));\n      render(\"outC\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).catch(function(){\n    if(cd){showErr(\"errC\",\"生成失败，请稍后再试\")}\n    else{\n      var u2=location.origin+\"/chain?target=\"+tg+\"&entry=\"+encodeURIComponent(a.join(\"|\"))+\"&exit=\"+encodeURIComponent(b.join(\"|\"));\n      render(\"outC\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).finally(function(){btn.disabled=false;btn.textContent=\"生成链式订阅链接\"});\n}\n</script>\n</body>\n</html>\n";
+const PAGE = "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>订阅转换</title>\n<style>\n:root{color-scheme:dark}\n*{box-sizing:border-box}\nbody{font-family:Inter,system-ui,-apple-system,\"Segoe UI\",Roboto,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:#060809;color:#eef6f5;margin:0;padding:24px 16px 40px}\n.wrap{max-width:600px;margin:0 auto}\nh1{font-size:31px;font-weight:800;letter-spacing:.05em;text-align:center;margin:0 0 8px;background:linear-gradient(90deg,#2dd4bf,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}\n.sub{color:#a3bab5;font-size:14px;margin:0;text-align:center}\n.hero{text-align:center;margin:10px 0 22px}\n.hero-badge{display:inline-block;font-size:11px;letter-spacing:.28em;color:#5eead4;border:1px solid rgba(45,212,191,.45);background:rgba(20,184,166,.10);padding:5px 12px 5px 15px;border-radius:999px;margin-bottom:14px}\n.hero::after{content:\"\";display:block;width:64px;height:3px;border-radius:2px;margin:16px auto 0;background:linear-gradient(90deg,#2dd4bf,#3b82f6)}\n.card{background:#0c1113;border:1px solid #1f2a2f;border-radius:12px;padding:16px;margin-bottom:16px}\n.card h2{font-size:15px;margin:0 0 10px;color:#eef6f5}\n.restore{display:flex;gap:8px}\n.restore input{flex:1}\n.tabs{display:flex;gap:8px;margin-bottom:16px}\n.tabs button{flex:1;padding:11px;border:1px solid #31424a;border-radius:10px;background:#11181b;color:#c3d2d0;font-size:15px;cursor:pointer}\n.tabs button.on{background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff;border-color:#14b8a6}\nlabel{display:block;margin:16px 0 6px;color:#c3d2d0;font-size:14px}\nlabel:first-of-type{margin-top:4px}\nselect,textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid #31424a;background:#11181b;color:#eef6f5;font-size:15px}\nselect:focus,textarea:focus,input:focus{outline:2px solid #14b8a6;border-color:#14b8a6}\ntextarea{resize:vertical;font-family:inherit;line-height:1.5}\n.ta-wrap{position:relative}\n.clear{position:absolute;top:6px;right:6px;padding:3px 10px;border:1px solid #31424a;border-radius:6px;background:#162024;color:#a3bab5;font-size:12px;cursor:pointer}\n.go{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff;font-size:16px;cursor:pointer}\n.go:disabled{opacity:.55;cursor:wait}\n.err{display:none;color:#ef4444;font-size:14px;margin-top:10px}\n.ok{display:none;color:#22c55e;font-size:14px;margin-top:10px}\n.out{margin-top:18px;display:none}\n.link-row{background:#11181b;border:1px solid #1f2a2f;border-radius:10px;padding:12px;margin-top:10px}\n.link-row .tag{font-size:12px;color:#2dd4bf;margin-bottom:6px}\n.link-row .u{word-break:break-all;font-size:13px;color:#eef6f5;font-family:\"JetBrains Mono\",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}\n.link-row .ops{display:flex;gap:8px;margin-top:10px}\n.link-row .ops button,.link-row .ops a{flex:1;padding:9px;border:0;border-radius:8px;background:#1b272c;color:#eef6f5;font-size:14px;text-align:center;text-decoration:none;cursor:pointer}\n.link-row .ops a.imp{background:linear-gradient(135deg,#14b8a6,#2563eb);color:#fff}\n.note{color:#a3bab5;font-size:13px;margin-top:10px;line-height:1.6}\n.hide{display:none}\n.rgchip{padding:4px 11px;border-radius:999px;border:1px solid #31424a;background:#11181b;color:#c3d2d0;font-size:13px;cursor:pointer}\n.rgchip.on{border-color:#14b8a6;background:rgba(20,184,166,.2);color:#fff;font-weight:700}\nfooter{color:#5d726d;font-size:13px;margin-top:24px;line-height:1.6}\n/* 结构层 (2.2): 双列 — 主表单左, 恢复卡右轨 */\n.wrap{max-width:860px}\n.wrap>.card{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 16px;margin-bottom:16px}\n.wrap>.card h2{margin:0;font-size:14px;white-space:nowrap}\n.wrap>.card .restore{flex:1;min-width:220px}\n.wrap>.card .err,.wrap>.card .ok{flex-basis:100%;margin-top:2px}\n</style>\n</head>\n<body>\n<div class=\"wrap\">\n<header class=\"hero\">\n<div class=\"hero-badge\">SUBSCRIPTION CONVERTER</div>\n<h1>订阅转换</h1>\n<p class=\"sub\">把节点、订阅转成客户端能直接用的订阅链接，支持普通转换与链式代理。</p>\n</header>\n\n<div class=\"card\">\n<h2>已有短链？恢复上次的填写</h2>\n<div class=\"restore\">\n<input id=\"rcode\" placeholder=\"粘贴短码或完整链接\">\n<button class=\"go\" style=\"margin-top:0;width:auto;padding:10px 18px\" onclick=\"restore()\">恢复</button>\n</div>\n<div class=\"err\" id=\"rerr\">没找到这个短码</div>\n<div class=\"ok\" id=\"rok\">已恢复到下方表单，可修改后重新生成</div>\n</div>\n\n<div class=\"tabs\">\n<button id=\"tabN\" class=\"on\" onclick=\"mode('n')\">普通转换</button>\n<button id=\"tabC\" onclick=\"mode('c')\">链式代理</button>\n</div>\n\n<div id=\"secN\">\n<label>节点 / 订阅（每行一个，可任意混填）</label>\n<div class=\"ta-wrap\"><textarea id=\"u\" rows=\"6\" placeholder=\"ss://...&#10;trojan://...&#10;https://订阅地址\"></textarea><button class=\"clear\" onclick=\"clr('u')\">清空</button></div>\n<label>目标格式</label>\n<select id=\"t\">\n<option value=\"clash\">Clash / Mihomo</option>\n<option value=\"singbox\">sing-box</option>\n<option value=\"v2ray\">V2Ray</option>\n<option value=\"surge\">Surge</option>\n<option value=\"loon\">Loon</option>\n<option value=\"quanx\">Quantumult X</option>\n</select>\n<label>只保留这些地区的节点（可选，不选 = 全部保留）</label>\n<div id=\"rgChips\" style=\"display:flex;flex-wrap:wrap;gap:6px\"></div>\n<input id=\"rgExtra\" placeholder=\"其它地区代码，逗号分隔（如 DE,GB）\" style=\"margin-top:8px\">\n<label>自定义后缀（可选，不填则随机）</label>\n<input id=\"codeN\" placeholder=\"如 home，只用字母、数字、-、_\">\n<button class=\"go\" id=\"goN\" onclick=\"genN()\">生成转换链接</button>\n<div class=\"err\" id=\"errN\"></div>\n<div class=\"out\" id=\"outN\"></div>\n</div>\n\n<div id=\"secC\" class=\"hide\">\n<label>入口（每行一个，可混填节点与订阅）</label>\n<div class=\"ta-wrap\"><textarea id=\"ein\" rows=\"4\" placeholder=\"链的第一站，如日本入口节点或入口订阅\"></textarea><button class=\"clear\" onclick=\"clr('ein')\">清空</button></div>\n<label>出口（每行一个，可混填节点与订阅）</label>\n<div class=\"ta-wrap\"><textarea id=\"eout\" rows=\"4\" placeholder=\"链的第二站，如美国出口节点或出口订阅\"></textarea><button class=\"clear\" onclick=\"clr('eout')\">清空</button></div>\n<label>目标格式</label>\n<select id=\"tc\">\n<option value=\"singbox\">sing-box</option>\n<option value=\"clash\">Mihomo / Clash</option>\n<option value=\"surge\">Surge</option>\n<option value=\"loon\">Loon</option>\n<option value=\"quanx\">Quantumult X</option>\n</select>\n<label>自定义后缀（可选，不填则随机）</label>\n<input id=\"codeC\" placeholder=\"如 chain，只用字母、数字、-、_\">\n<button class=\"go\" id=\"goC\" onclick=\"genC()\">生成链式订阅链接</button>\n<div class=\"err\" id=\"errC\"></div>\n<div class=\"out\" id=\"outC\"></div>\n<p class=\"note\">生成的链接可直接当订阅地址填进客户端，每次更新都会重新按入口到出口串好。短链里的字母代表格式：/m/ 是 Mihomo、/s/ 是 sing-box，同一个码改字母就能切换格式，不用重新生成。</p>\n</div>\n\n<footer>运行在你自己的 Cloudflare 账号上（Workers + KV），订阅内容只保存在你的 KV 中，不经过任何第三方。</footer>\n</div>\n<script>\nfunction $(id){return document.getElementById(id)}\nfunction mode(m){\n  $(\"secN\").className = m===\"n\" ? \"\" : \"hide\";\n  $(\"secC\").className = m===\"c\" ? \"\" : \"hide\";\n  $(\"tabN\").className = m===\"n\" ? \"on\" : \"\";\n  $(\"tabC\").className = m===\"c\" ? \"on\" : \"\";\n}\nfunction clr(id){$(id).value=\"\";$(id).focus()}\nfunction lines(id){\n  return $(id).value.split(/\\n+/).map(function(s){return s.trim()}).filter(function(s){return s.length>0});\n}\nfunction showErr(id,msg){var e=$(id);e.textContent=msg;e.style.display=\"block\"}\nfunction hideErr(id){$(id).style.display=\"none\"}\nfunction extractCode(s){\n  s=(s||\"\").trim();\n  if(!s) return \"\";\n  s=s.split(/[?#]/)[0];\n  var parts=s.split(\"/\").filter(function(p){return p.length>0});\n  return parts.length?parts[parts.length-1]:\"\";\n}\nfunction restore(){\n  var code=extractCode($(\"rcode\").value);\n  $(\"rerr\").style.display=\"none\";$(\"rok\").style.display=\"none\";\n  if(!code){$(\"rerr\").style.display=\"block\";return}\n  fetch(\"/api/link/\"+encodeURIComponent(code)).then(function(r){\n    if(!r.ok) throw new Error(\"nf\");\n    return r.json();\n  }).then(function(rec){\n    if(rec.kind===\"chain\"){\n      mode(\"c\");\n      $(\"ein\").value=(rec.entry||\"\").split(\"|\").join(\"\\n\");\n      $(\"eout\").value=(rec.exit||\"\").split(\"|\").join(\"\\n\");\n      if(rec.target) $(\"tc\").value=rec.target;\n      $(\"codeC\").value=code;\n    }else{\n      mode(\"n\");\n      $(\"u\").value=(rec.url||\"\").split(\"|\").join(\"\\n\");\n      if(rec.target) $(\"t\").value=rec.target; RGSEL={};(rec.regions||[]).forEach(function(c){RGSEL[c]=1});rgSync();\n      $(\"codeN\").value=code;\n    }\n    $(\"rok\").style.display=\"block\";\n  }).catch(function(){\n    $(\"rerr\").style.display=\"block\";\n  });\n}\nfunction copyText(btn,txt){\n  function done(){var o=btn.textContent;btn.textContent=\"已复制\";setTimeout(function(){btn.textContent=o},1200)}\n  if(navigator.clipboard&&navigator.clipboard.writeText){\n    navigator.clipboard.writeText(txt).then(done).catch(function(){fallback()});\n  }else{fallback()}\n  function fallback(){\n    var ta=document.createElement(\"textarea\");\n    ta.value=txt;document.body.appendChild(ta);ta.select();\n    try{document.execCommand(\"copy\");done()}catch(e){}\n    document.body.removeChild(ta);\n  }\n}\nfunction linkRow(tag,url,imp){\n  var row=document.createElement(\"div\");row.className=\"link-row\";\n  var t=document.createElement(\"div\");t.className=\"tag\";t.textContent=tag;row.appendChild(t);\n  var u=document.createElement(\"div\");u.className=\"u\";u.textContent=url;row.appendChild(u);\n  var ops=document.createElement(\"div\");ops.className=\"ops\";\n  var cp=document.createElement(\"button\");cp.textContent=\"复制链接\";\n  cp.onclick=function(){copyText(cp,url)};\n  ops.appendChild(cp);\n  var op=document.createElement(\"button\");op.textContent=\"打开链接\";\n  op.onclick=function(){location.href=url};\n  ops.appendChild(op);\n  if(imp){\n    var a=document.createElement(\"a\");a.className=\"imp\";a.textContent=imp.label;a.href=imp.href;\n    ops.appendChild(a);\n  }\n  row.appendChild(ops);\n  return row;\n}\nfunction render(outId,rows,note){\n  var out=$(outId);out.innerHTML=\"\";\n  rows.forEach(function(r){out.appendChild(linkRow(r.tag,r.url,r.imp))});\n  if(note){\n    var n=document.createElement(\"div\");n.className=\"note\";n.textContent=note;out.appendChild(n);\n  }\n  out.style.display=\"block\";\n}\nfunction shorten(body){\n  return fetch(\"/shorten\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify(body)})\n    .then(function(r){return r.text().then(function(t){return {ok:r.ok,status:r.status,text:t}})});\n}\nvar RGSEL={};\nfunction rgSync(){document.querySelectorAll(\".rgchip\").forEach(function(ch){ch.className=RGSEL[ch.getAttribute(\"data-c\")]?\"rgchip on\":\"rgchip\"})}\nfunction rgSel(){var s={};for(var k in RGSEL)if(RGSEL[k])s[k]=1;var ex=$(\"rgExtra\");if(ex)ex.value.split(/[,\\s]+/).forEach(function(x){x=x.trim().toUpperCase();if(x)s[x]=1});return Object.keys(s)}\nfunction rgBuild(codes){var box=$(\"rgChips\");if(!box)return;box.innerHTML=\"\";codes.forEach(function(c){var b=document.createElement(\"button\");b.type=\"button\";b.className=\"rgchip\";b.setAttribute(\"data-c\",c);b.textContent=c;b.onclick=function(){RGSEL[c]=!RGSEL[c];rgSync()};box.appendChild(b)});rgSync()}\n(function(){var pop=[\"JP\",\"HK\",\"SG\",\"US\",\"TW\",\"KR\",\"DE\",\"GB\",\"FR\",\"NL\",\"CA\",\"AU\"];rgBuild(pop);fetch(\"/?get_regions=1\").then(function(r){return r.json()}).then(function(cs){if(cs&&cs.length)rgBuild(cs)}).catch(function(){})})();\nfunction askOverwrite(sec,code,retry,codeInputId){\n  var out=$(sec===\"N\"?\"outN\":\"outC\");out.innerHTML=\"\";\n  var box=document.createElement(\"div\");box.className=\"link-row\";\n  var t=document.createElement(\"div\");t.className=\"tag\";t.textContent=\"这个后缀已经有短链了\";box.appendChild(t);\n  var u=document.createElement(\"div\");u.className=\"u\";u.style.fontFamily=\"inherit\";u.textContent=\"后缀「\"+code+\"」已被占用。如果这是你自己的链接，继续会用这次填写的内容覆盖它：订阅地址保持不变，已经导入的客户端不用改，下次更新就会拿到新内容。\";box.appendChild(u);\n  var ops=document.createElement(\"div\");ops.className=\"ops\";\n  var b1=document.createElement(\"button\");b1.textContent=\"覆盖更新\";b1.onclick=function(){retry()};\n  var b2=document.createElement(\"button\");b2.textContent=\"换个后缀\";b2.onclick=function(){out.style.display=\"none\";var i=$(codeInputId);i.focus();i.select();showErr(sec===\"N\"?\"errN\":\"errC\",\"已取消覆盖。换个后缀会生成新地址，旧链接不受影响\")};\n  ops.appendChild(b1);ops.appendChild(b2);box.appendChild(ops);out.appendChild(box);out.style.display=\"block\";\n}\nfunction genN(){attemptN(false)}\nfunction attemptN(force){\n  var it=lines(\"u\");hideErr(\"errN\");\n  if(!it.length){showErr(\"errN\",\"先粘贴节点或订阅链接\");return}\n  var tg=$(\"t\").value, cd=$(\"codeN\").value.trim();\n  var body={target:tg,url:it.join(\"|\")}; if(cd)body.code=cd; if(force)body.force=true; var rgs=rgSel(); if(rgs.length)body.regions=rgs.join(\"-\");\n  var btn=$(\"goN\");btn.disabled=true;btn.textContent=\"生成中…\";\n  shorten(body).then(function(res){\n    if(res.ok){\n      var url=res.text.trim(), code=extractCode(url);\n      if((tg===\"clash\"||tg===\"singbox\")&&code){\n        var rows=[\n          {tag:\"生成时格式\",url:location.origin+\"/c/\"+code},\n          {tag:\"Mihomo\",url:location.origin+\"/m/\"+code,imp:tg===\"clash\"?{label:\"一键导入 Clash\",href:\"clash://install-config?url=\"+encodeURIComponent(location.origin+\"/m/\"+code)}:null},\n          {tag:\"sing-box\",url:location.origin+\"/s/\"+code,imp:tg===\"singbox\"?{label:\"一键导入 sing-box\",href:\"sing-box://import-remote-profile?url=\"+encodeURIComponent(location.origin+\"/s/\"+code)}:null}\n        ];\n        render(\"outN\",rows,force?\"已覆盖更新：订阅地址没有变，客户端下次更新就会拿到新内容\":\"\");\n      }else{\n        render(\"outN\",[{tag:\"订阅链接\",url:url}],force?\"已覆盖更新：订阅地址没有变，客户端下次更新就会拿到新内容\":\"\");\n      }\n    }else if(cd){\n      if(res.status===409&&!force){askOverwrite(\"N\",cd,function(){attemptN(true)},\"codeN\")}else{showErr(\"errN\",res.text||\"生成失败\")}\n    }else{\n      var base=(tg===\"clash\"||tg===\"singbox\")?\"/conv\":\"/sub\";\n      var u2=location.origin+base+\"?target=\"+tg+\"&url=\"+encodeURIComponent(it.join(\"|\"));\n      render(\"outN\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).catch(function(){\n    if(cd){showErr(\"errN\",\"生成失败，请稍后再试\")}\n    else{\n      var base=(tg===\"clash\"||tg===\"singbox\")?\"/conv\":\"/sub\";\n      var u2=location.origin+base+\"?target=\"+tg+\"&url=\"+encodeURIComponent(it.join(\"|\"));\n      render(\"outN\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).finally(function(){btn.disabled=false;btn.textContent=\"生成转换链接\"});\n}\nfunction genC(){attemptC(false)}\nfunction attemptC(force){\n  var a=lines(\"ein\"), b=lines(\"eout\");hideErr(\"errC\");\n  if(!a.length||!b.length){showErr(\"errC\",\"入口和出口都要填\");return}\n  var tg=$(\"tc\").value, cd=$(\"codeC\").value.trim();\n  var body={target:tg,entry:a.join(\"|\"),exit:b.join(\"|\")}; if(cd)body.code=cd; if(force)body.force=true;\n  var btn=$(\"goC\");btn.disabled=true;btn.textContent=\"生成中…\";\n  shorten(body).then(function(res){\n    if(res.ok){\n      var url=res.text.trim(), code=extractCode(url);\n      if(code){\n        var rows=[\n          {tag:\"生成时格式\",url:location.origin+\"/c/\"+code},\n          {tag:\"Mihomo\",url:location.origin+\"/m/\"+code,imp:tg===\"clash\"?{label:\"一键导入 Clash\",href:\"clash://install-config?url=\"+encodeURIComponent(location.origin+\"/m/\"+code)}:null},\n          {tag:\"sing-box\",url:location.origin+\"/s/\"+code,imp:tg===\"singbox\"?{label:\"一键导入 sing-box\",href:\"sing-box://import-remote-profile?url=\"+encodeURIComponent(location.origin+\"/s/\"+code)}:null}\n        ];\n        render(\"outC\",rows,force?\"已覆盖更新：订阅地址没有变，客户端下次更新就会拿到新内容\":\"\");\n      }else{\n        render(\"outC\",[{tag:\"订阅链接\",url:url}],force?\"已覆盖更新：订阅地址没有变，客户端下次更新就会拿到新内容\":\"\");\n      }\n    }else if(cd){\n      if(res.status===409&&!force){askOverwrite(\"C\",cd,function(){attemptC(true)},\"codeC\")}else{showErr(\"errC\",res.text||\"生成失败\")}\n    }else{\n      var u2=location.origin+\"/chain?target=\"+tg+\"&entry=\"+encodeURIComponent(a.join(\"|\"))+\"&exit=\"+encodeURIComponent(b.join(\"|\"));\n      render(\"outC\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).catch(function(){\n    if(cd){showErr(\"errC\",\"生成失败，请稍后再试\")}\n    else{\n      var u2=location.origin+\"/chain?target=\"+tg+\"&entry=\"+encodeURIComponent(a.join(\"|\"))+\"&exit=\"+encodeURIComponent(b.join(\"|\"));\n      render(\"outC\",[{tag:\"订阅链接（长链接）\",url:u2}],\"短链服务暂不可用，已生成长链接\");\n    }\n  }).finally(function(){btn.disabled=false;btn.textContent=\"生成链式订阅链接\"});\n}\n</script>\n</body>\n</html>\n";
 
 // ------------------------------------------------------------ utilities
 const _enc = new TextEncoder();
@@ -47354,16 +47375,16 @@ async function mergeTextChain(target, entryItems, exitItems) {
     // link set of the EXIT tier — the entry hop is dropped, the
     // exit endpoints stay reachable. Entries are not even fetched.
     STAGE.cur = "exit-convert";
-    const xnodes = await gather(exitItems);
+    const xnodes = chainPool(await gather(exitItems));
     if (!xnodes.length) throw new Error("没有可用节点");
     STAGE.cur = "merge";
     return buildTextPlain("v2ray", xnodes);
   }
   STAGE.cur = "entry-convert";
-  const enodes = await gather(entryItems);
+  const enodes = chainPool(await gather(entryItems));
   if (!enodes.length) throw new Error("没有可用节点");
   STAGE.cur = "exit-convert";
-  const xnodes = await gather(exitItems);
+  const xnodes = chainPool(await gather(exitItems));
   if (!xnodes.length) throw new Error("没有可用节点");
   STAGE.cur = "merge";
   const entries = renderPairs(target, enodes,
@@ -47811,13 +47832,25 @@ function finishChainSingbox(body) {
   return body;
 }
 
+// Chain pools never contain built-in endpoints: a source config's
+// direct / reject entries are configuration artifacts, not nodes —
+// as exits they would break the two-hop lock (an exit picked as
+// DIRECT leaves the chain at the entry side), and as entries they
+// silently degrade the chain to one hop.
+function chainPool(nodes) {
+  return nodes.filter((n) => {
+    const t = String(n.type ?? "").toLowerCase();
+    return t !== "direct" && t !== "reject";
+  });
+}
+
 async function mergeSingbox(entryItems, exitItems, origin) {
   STAGE.cur = "entry-convert";
-  const enodesRaw = await gather(entryItems);
+  const enodesRaw = chainPool(await gather(entryItems));
   if (!enodesRaw.length) throw new Error("没有可用节点");
   const enodes = enodesRaw.map(sbEmit);
   STAGE.cur = "exit-convert";
-  const xnodesRaw = await gather(exitItems);
+  const xnodesRaw = chainPool(await gather(exitItems));
   if (!xnodesRaw.length) throw new Error("没有可用节点");
   const xnodes = xnodesRaw.map(sbEmit);
   STAGE.cur = "merge";
@@ -47830,11 +47863,11 @@ async function mergeSingbox(entryItems, exitItems, origin) {
 
 async function mergeClash(entryItems, exitItems, origin) {
   STAGE.cur = "entry-convert";
-  const eproxRaw = await gather(entryItems);
+  const eproxRaw = chainPool(await gather(entryItems));
   if (!eproxRaw.length) throw new Error("没有可用节点");
   const eprox = eproxRaw.map(clashEmit);
   STAGE.cur = "exit-convert";
-  const xproxRaw = await gather(exitItems);
+  const xproxRaw = chainPool(await gather(exitItems));
   if (!xproxRaw.length) throw new Error("没有可用节点");
   const xprox = xproxRaw.map(clashEmit);
   STAGE.cur = "merge";
