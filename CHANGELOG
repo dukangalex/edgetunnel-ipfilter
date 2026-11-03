@@ -1,3 +1,10 @@
+## [integration 3.1.23] - 2026-11-03
+
+### Extra-region picker folds away
+
+- The settings page's region mode no longer lays out all sixty-plus extra-region chips at once: the picker now sits behind an "其它地区" fold that is collapsed by default, with the selected count shown on the fold header. When saved extra regions exist, the fold opens on load so the current selection is visible.
+- 设置页地区模式的「其它地区」点选区改为折叠式：默认收起，表头显示已选数量；已有保存的其它地区时打开页面自动展开，不藏已选项。
+
 ## [integration 3.1.22] - 2026-11-03
 
 ### Settings page wears the project colors; credential links masked by default
