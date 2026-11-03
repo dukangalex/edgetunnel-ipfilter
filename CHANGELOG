@@ -1,3 +1,11 @@
+## [integration 3.1.22] - 2026-11-03
+
+### Settings page wears the project colors; credential links masked by default
+
+- The vendored settings and login pages no longer wear the upstream orange/violet brand palette: brand gradients, accents and glows now use this project's teal-to-blue token system, matching the console, filter, converter and checker pages. Functional colors (red danger, amber warning, green success) are unchanged.
+- In the settings page's "Get node links" card, all five link fields (node link, adaptive / Base64 / Clash / sing-box subscriptions) are masked by default — they carry the node UUID and the subscription token — with one "Show links" toggle to reveal them. Copy and QR code read the underlying value and are unaffected.
+- 设置与登录页不再使用上游的橙紫品牌色：品牌渐变、强调色与光晕统一改为本项目的青绿到蓝令牌，与控制台、筛选、转换、检测各页一致；功能色（红危险、黄警告、绿成功）不变。设置页「获取节点链接」卡片的五个链接框（节点链接与自适应、Base64、Clash、sing-box 订阅）默认掩码隐藏（内含节点 UUID 与订阅令牌），一个「显示链接」开关统一展开；复制与二维码读底层真实值、不受影响。
+
 ## [integration 3.1.21] - 2026-11-02
 
 ### Region groups first; converter upgraded to the full HiClash script design
