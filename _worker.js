@@ -1,4 +1,4 @@
-﻿/* edgetunnel-ipfilter integration 3.1.22 */
+﻿/* edgetunnel-ipfilter integration 3.1.23 */
 const Version = '2026-10-08 22:23:27';
 let config_JSON, 缓存SOCKS5白名单 = null, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -13350,10 +13350,10 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 								<div class="checkbox-group"><input type="checkbox" id="rg_TW" value="TW" onchange="markModified('sub')"><label for="rg_TW" class="checkbox-label">🇹🇼 台湾</label></div>
 								<div class="checkbox-group"><input type="checkbox" id="rg_KR" value="KR" onchange="markModified('sub')"><label for="rg_KR" class="checkbox-label">🇰🇷 韩国</label></div>
 							</div>
-							<div style="margin-top:10px;font-size:12.5px;opacity:.75">点选添加其它地区（再点取消）：</div>
+							<div id="regionMoreHead" onclick="window.__toggleRegionMore&&window.__toggleRegionMore()" style="margin-top:10px;font-size:12.5px;opacity:.85;cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px"><span>其它地区（点选添加，再点取消）</span><span id="regionSelCount" style="color:#14b8a6;font-weight:700"></span><span id="regionMoreState" style="margin-left:auto">展开 ▾</span></div>
 							<style>.ipf-rchip{padding:4px 11px;border-radius:999px;border:1px solid rgba(128,128,128,.4);background:rgba(128,128,128,.12);color:inherit;font-size:12.5px;cursor:pointer;line-height:1.5}.ipf-rchip.on{border-color:#14b8a6;background:rgba(20,184,166,.2);font-weight:700}</style>
-							<div id="regionAddChips" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
-							<input type="text" id="regionExtra" placeholder="其它地区代码，逗号分隔（如 DE,GB,FR）" style="margin-top:10px;width:100%;box-sizing:border-box" oninput="markModified('sub')">
+							<div id="regionMoreBody" style="display:none"><div id="regionAddChips" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
+							<input type="text" id="regionExtra" placeholder="其它地区代码，逗号分隔（如 DE,GB,FR）" style="margin-top:10px;width:100%;box-sizing:border-box" oninput="markModified('sub')"></div>
 							<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:nowrap">
 								<span style="white-space:nowrap">每地区最多</span>
 								<input type="number" id="regionLimit" min="0" max="50" value="10" style="width:84px" oninput="markModified('sub')">
@@ -21085,7 +21085,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 				cachedCurrentVersionFullText = text;
 				cachedCurrentVersionNumber = parseVersionNumber(text);
 				const shortText = text.slice(0, 8);
-				versionValue.textContent = "整合版 3.1.22";
+				versionValue.textContent = "整合版 3.1.23";
 				versionBadge.dataset.health = '';
 				versionBadge.hidden = false;
 				versionBadge.style.display = 'flex';
@@ -21348,7 +21348,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 		}
 
 		async function updateVersionBadgeHealthByLatest(currentVersion) {
-			const currentVersionNumber = 30122;
+			const currentVersionNumber = 30123;
 			const latestVersionNumber = await fetchLatestOnlineVersionNumber();
 			const diff = currentVersionNumber - latestVersionNumber;
 			console.log(\`[Version] 版本比较: current=\${currentVersionNumber}, latest=\${latestVersionNumber}, diff=\${diff}\`);
@@ -21426,7 +21426,7 @@ const IPF_管理台HTML = `﻿<!DOCTYPE html>
 			const currentVersion = parseVersionNumber(currentVersionFullText);
 			const latestVersion = cachedLatestOnlineVersion || 0;
 			latestVersionValueEl.textContent = latestVersion ? \`整合版 \${Math.floor(latestVersion / 10000)}.\${Math.floor(latestVersion / 100) % 100}.\${latestVersion % 100}\` : '未知';
-			currentVersionValueEl.textContent = '整合版 3.1.22';
+			currentVersionValueEl.textContent = '整合版 3.1.23';
 
 			let healthKey = versionBadge.dataset.health || '';
 			if (!healthKey) {
@@ -33175,6 +33175,7 @@ function __fillRegionUI(sel){
     if(cb && IPF_POPULAR_REGIONS.indexOf(c)>=0) cb.checked=true; else if(c) extra.push(c);
   });
   var ex=document.getElementById('regionExtra'); if(ex) ex.value=extra.join(',');
+  if(extra.length && typeof window.__toggleRegionMore==='function') window.__toggleRegionMore(true);
   if(typeof window.__syncRegionChips==='function') window.__syncRegionChips();
   var lim=document.getElementById('regionLimit'); if(lim && sel.数量 !== undefined && sel.数量 !== null) lim.value=sel.数量;
 }
@@ -33214,10 +33215,17 @@ function composeRegionADD(){
 document.addEventListener('DOMContentLoaded', function(){
   var rbox=document.getElementById('regionAddChips');
   if(rbox){
+    window.__toggleRegionMore=function(force){
+      var b=document.getElementById('regionMoreBody'); if(!b) return;
+      var open=(typeof force==='boolean')? force : (b.style.display==='none');
+      b.style.display=open?'block':'none';
+      var st=document.getElementById('regionMoreState'); if(st) st.textContent=open?'收起 ▴':'展开 ▾';
+    };
     window.__syncRegionChips=function(){
       var ex=document.getElementById('regionExtra'); if(!ex) return;
       var cur=ex.value.split(/[,\\s]+/).map(function(x){ return x.trim().toUpperCase(); }).filter(Boolean);
       rbox.querySelectorAll('.ipf-rchip').forEach(function(ch){ ch.classList.toggle('on', cur.indexOf(ch.dataset.code)>=0); });
+      var cnt=document.getElementById('regionSelCount'); if(cnt) cnt.textContent=cur.length?('已选 '+cur.length):'';
     };
     fetch('/?get_regions=1').then(function(r){ return r.json(); }).then(function(codes){
       var dn=null; try{ dn=new Intl.DisplayNames(['zh-CN'],{type:'region'}); }catch(e){}
