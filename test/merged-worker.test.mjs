@@ -704,7 +704,7 @@ test('一体化: 转换按国家筛选 (名称判定 + IP 数据集反查 + 未�
     const page = await worker.fetch(pageReq, env, { waitUntil() {} });
     const html = await page.text();
     assert.ok(!html.includes('ipf-conv-bar'), '转换页不应再有外挂筛选条');
-    assert.ok(html.includes('rgChips') && html.includes('只保留这些地区的节点'), '地区筛选应融进普通转换表单自身');
+    assert.ok(!html.includes('rgChips'), '转换页跟随独立版: 普通表单不再带地区点选 (筛选走链接参数与短链记录)');
     assert.ok(html.includes('ipf-contact-footer'), '转换页应带页脚联系方式');
     assert.ok(html.includes('github.com/dukangalex/edgetunnel-ipfilter'), '页脚应含项目仓库链接');
     assert.ok(html.includes('t.me/AngelaNexus'), '页脚应含交流频道链接');

@@ -1,3 +1,12 @@
+## [integration 3.1.24] - 2026-11-04
+
+### Converter: the gentler duplicate-suffix prompt arrives
+
+- The bundled converter's short-link flow now matches the standalone converter: when a custom suffix turns out to be one you used before, the page says so ("这个后缀已经有你的一条链接了"), shows a summary of the old link (kind, input count, first source host, creation date), and lets you keep the suffix (updated in place, same address) or pick a new one — instead of the older, blunter overwrite prompt.
+- 内置转换同步独立版的新版重复后缀询问：撞到自己以前用过的后缀时，页面会说明这是你自己的旧链接并附摘要（类型、输入条数、第一条来源主机、生成日期），可选继续用这个后缀（原地更新、地址不变）或换个后缀，取代旧版生硬的覆盖提示。
+- Following the standalone converter, the /convert page's plain form no longer carries the in-form region chip picker; region filtering still works through link parameters and short-link records.
+- 转换页跟随独立版：普通表单去掉地区点选块；地区筛选仍可通过链接参数与短链记录使用。
+
 ## [integration 3.1.23] - 2026-11-03
 
 ### Extra-region picker folds away
