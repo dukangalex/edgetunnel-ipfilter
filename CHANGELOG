@@ -1,3 +1,11 @@
+## [integration 3.1.25] - 2026-11-05
+
+### Short links: every format gets a letter; /c/ adapts to the client
+
+- Syncing the standalone converter (v1.0.1 + v1.1.0): short-link letters now cover all formats — m = Mihomo/Clash, s = sing-box, g = Surge, l = Loon, q = Quantumult X, v = V2Ray — and the converter page lists every format a record can produce instead of one ambiguous row.
+- /c/ is now the adaptive link: it detects the fetching client's User-Agent (only unambiguous clients: sing-box, Surge, Loon, Quantumult X, V2Ray, Clash family) and serves that format, falling back to the format the link was created with; /shorten returns the /c/ link, and the page lists it first as the recommended one. A format a record cannot produce is never silently faked — generation either succeeds in that format or reports an error.
+- 同步独立版 v1.0.1 与 v1.1.0：短链字母补全到全部格式（m/s/g/l/q/v）；/c/ 改为自适应链接，按取订阅客户端的 User-Agent 出对应格式（只认无歧义客户端），认不出回退记录的生成格式；生成结果以「自适应（推荐）」为首行并逐条列出全部格式链接。出不了的格式不静默冒充，只会如实报错。
+
 ## [integration 3.1.24] - 2026-11-04
 
 ### Converter: the gentler duplicate-suffix prompt arrives

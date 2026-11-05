@@ -334,7 +334,7 @@ test('订阅转换 (CHN): 页面/直出/链式/短链/规则懒镜像', async ()
         assert.equal(shorten.status, 200);
         const shortUrl = await shorten.text();
         const code = shortUrl.split('/').pop();
-        assert.ok(shortUrl.includes('/s/' + code), '短链应为 /s/<code> 形式: ' + shortUrl);
+        assert.ok(shortUrl.includes('/c/' + code), '短链应为 /c/<code> 自适应形式: ' + shortUrl);
 
         const viaShort = await worker.fetch(reqCHN('/s/' + code), env, ctx);
         assert.equal(viaShort.status, 200);
@@ -345,6 +345,20 @@ test('订阅转换 (CHN): 页面/直出/链式/短链/规则懒镜像', async ()
         assert.equal(viaShortClash.status, 200);
         assert.ok((await viaShortClash.text()).includes('dialer-proxy'), '同码换 /m/ 应出 Clash 版');
 
+        const viaAdaptiveSb = await worker.fetch(reqCHN('/c/' + code, { headers: { 'User-Agent': 'sing-box/1.11' } }), env, ctx);
+        assert.equal(viaAdaptiveSb.status, 200);
+        assert.ok(JSON.parse(await viaAdaptiveSb.text()).outbounds.some((o) => o.detour === '⛓ 入口优选'), '/c/ 带 sing-box UA 应自适应出 sing-box 链式');
+
+        const viaAdaptiveFallback = await worker.fetch(reqCHN('/c/' + code, { headers: { 'User-Agent': 'SomeUnknownClient/1.0' } }), env, ctx);
+        assert.equal(viaAdaptiveFallback.status, 200);
+        assert.ok(JSON.parse(await viaAdaptiveFallback.text()).outbounds, '/c/ 认不出 UA 应回退记录的生成格式 (singbox)');
+
+        const viaLoon = await worker.fetch(reqCHN('/l/' + code), env, ctx);
+        assert.equal(viaLoon.status, 200, '同码换 /l/ 应出 Loon 版');
+
+        const viaSurge = await worker.fetch(reqCHN('/g/' + code), env, ctx);
+        assert.equal(viaSurge.status, 502, '/g/ 遇 Surge 无法原生承载的 VLESS 链应如实报错, 不冒充其它格式');
+
         const linkInfo = await worker.fetch(reqCHN('/api/link/' + code), env, ctx);
         assert.equal(linkInfo.status, 200);
         const rec = JSON.parse(await linkInfo.text());
@@ -352,7 +366,7 @@ test('订阅转换 (CHN): 页面/直出/链式/短链/规则懒镜像', async ()
         assert.equal(rec.entry, 'https://subs.test/entry');
 
         const shorten2 = await worker.fetch(reqCHN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'clash', entry: 'https://subs.test/entry', exit: 'https://subs.test/exit' }) }), env, ctx);
-        assert.equal(await shorten2.text(), shortUrl.replace('/s/', '/m/'), '同内容换 target 应复用同一短码');
+        assert.equal(await shorten2.text(), shortUrl, '同内容换 target 应复用同一短码且同为 /c/ 自适应链接');
 
         const rule = await worker.fetch(reqCHN('/rules/clash/private.mrs'), env, ctx);
         assert.equal(rule.status, 200, '规则首次访问应懒镜像成功');
