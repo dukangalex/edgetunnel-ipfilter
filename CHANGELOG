@@ -1,3 +1,14 @@
+## [integration 3.1.26] - 2026-11-17
+
+### Converter: .mrs rule-set behavior mapping fixed (T206)
+
+- Syncing the standalone converter (v1.1.1 / v1.1.2): six rule-providers in the bundled skeleton pointed at files of the wrong class — telegram_ip, twitter_ip, netflix_ip, google_ip and private_ip (declared ipcidr) pointed at geosite files, and cn (declared domain) shared the geoip file with cn_ip — which makes the core reject the whole provider with "invalid behavior". The five IP providers now point at their geoip .mrs files and cn at the new clash/cn-domain.mrs; the rule mirror grows from 76 to 82 files.
+- The rule mirror's store-time validation now also checks class consistency: a clash .mrs whose source class (geosite = domain, geoip = ipcidr) does not match the behavior declared in the skeleton is refused instead of mirrored.
+- Data: best-cf-tools.json refreshed from upstream (star/fork counts only).
+- 修复 .mrs 规则集 behavior 映射交叉（双仓 T206，同步独立版 v1.1.1 / v1.1.2）：骨架中 telegram_ip、twitter_ip、netflix_ip、google_ip、private_ip 五个声明 ipcidr 的 provider 原误指 geosite 文件，cn（声明 domain）原与 cn_ip 共用 geoip 文件，内核会报 invalid behavior 整组拒收；现五个 IP 类改指 geoip 同名 .mrs、cn 改指新增的 clash/cn-domain.mrs，规则镜像由 76 条增至 82 条。
+- 规则镜像存入前新增类别校验：clash .mrs 的来源类别（geosite=domain、geoip=ipcidr）与骨架声明不一致时拒存，不再把错类文件镜像进来。
+- 数据：best-cf-tools.json 按上游刷新（仅星数/forks 变化）。
+
 ## [integration 3.1.25] - 2026-11-05
 
 ### Short links: every format gets a letter; /c/ adapts to the client
