@@ -772,3 +772,83 @@ test('本项目指向: /api/ipinfo 由本部署回答 (登录把关, 字段与�
     assert.equal(data.asn, 'AS64500');
     assert.equal(data.as_name, 'Test Org');
 });
+
+test('订阅转换 (CHN): 远控工具组 DIRECT + 订阅名双头', async () => {
+    const kvStore = {};
+    const env = {
+        UUID: '11111111-2222-4333-8444-555555555555',
+        KV: {
+            async get(k, opts) {
+                const v = kvStore[k];
+                if (v === undefined) return null;
+                if (opts && opts.type === 'arrayBuffer') return v instanceof ArrayBuffer ? v : new TextEncoder().encode(String(v)).buffer;
+                return typeof v === 'string' ? v : null;
+            },
+            async put(k, v) { kvStore[k] = v; },
+        },
+    };
+    const ctx = { waitUntil() {} };
+    const reqN = (path, init) => {
+        const r = new Request('https://x.test' + path, init);
+        Object.defineProperty(r, 'cf', { value: { colo: 'NRT', country: 'JP' } });
+        return r;
+    };
+    const prevFetch = globalThis.fetch;
+    const exitText = [CHN_VLESS('exit1.example.com', '🇯🇵 日本-出口'), CHN_VLESS('exit2.example.com', '🇺🇸 美国-出口')].join('\n');
+    const entryText = [CHN_VLESS('entry1.example.com', '🇭🇰 香港-入口')].join('\n');
+    globalThis.fetch = async (input) => {
+        const u = typeof input === 'string' ? input : input.url;
+        if (u.startsWith('https://subs.test/exit')) return new Response(Buffer.from(exitText, 'utf8').toString('base64'), { status: 200 });
+        if (u.startsWith('https://subs.test/entry')) return new Response(Buffer.from(entryText, 'utf8').toString('base64'), { status: 200 });
+        if (u.includes('raw.githubusercontent.com')) return new Response(new Uint8Array(256).fill(7), { status: 200 });
+        return new Response('not found', { status: 404 });
+    };
+    const remoteGroupOrder = (text) => {
+        const i = text.indexOf('name: 远控工具');
+        assert.ok(i >= 0, '应有远控工具组定义');
+        const block = text.slice(i, i + 400);
+        const a = block.indexOf('默认代理'), b = block.indexOf('DIRECT'), c = block.indexOf('REJECT-DROP');
+        assert.ok(a >= 0 && b > a && c > b, '远控工具成员顺序应为 默认代理 → DIRECT → REJECT-DROP');
+    };
+    try {
+        const conv = await worker.fetch(reqN('/conv?target=clash&url=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(conv.status, 200);
+        remoteGroupOrder(await conv.text());
+
+        const chain = await worker.fetch(reqN('/chain?target=clash&entry=' + encodeURIComponent('https://subs.test/entry') + '&exit=' + encodeURIComponent('https://subs.test/exit')), env, ctx);
+        assert.equal(chain.status, 200);
+        remoteGroupOrder(await chain.text());
+
+        const shorten = await worker.fetch(reqN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'clash', url: 'https://subs.test/exit', name: 'UR丹佛' }) }), env, ctx);
+        assert.equal(shorten.status, 200);
+        const link = await shorten.text();
+        const code = link.split('/c/')[1];
+        assert.ok(code, '应返回 /c/ 短链');
+
+        const info = await worker.fetch(reqN('/api/link/' + code), env, ctx);
+        const rec = JSON.parse(await info.text());
+        assert.equal(rec.name, 'UR丹佛', '记录应存订阅名');
+
+        const via = await worker.fetch(reqN('/m/' + code, { headers: { 'User-Agent': 'ClashMeta/1.19' } }), env, ctx);
+        assert.equal(via.status, 200);
+        assert.equal(via.headers.get('content-disposition'), "attachment; filename*=UTF-8''" + encodeURIComponent('UR丹佛'), '应带 Content-Disposition 名');
+        assert.equal(via.headers.get('profile-title'), 'base64:' + Buffer.from('UR丹佛', 'utf8').toString('base64'), '应带 profile-title 名');
+        await via.text();
+
+        const again = await worker.fetch(reqN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'clash', url: 'https://subs.test/exit', name: '新名字' }) }), env, ctx);
+        assert.equal((await again.text()).split('/c/')[1], code, '同内容应命中同一短链');
+        const info2 = await worker.fetch(reqN('/api/link/' + code), env, ctx);
+        assert.equal(JSON.parse(await info2.text()).name, '新名字', '重生成带名应同步到旧记录');
+
+        const named = await worker.fetch(reqN('/conv?target=clash&url=' + encodeURIComponent('https://subs.test/exit') + '&name=' + encodeURIComponent('长链名')), env, ctx);
+        assert.equal(named.headers.get('profile-title'), 'base64:' + Buffer.from('长链名', 'utf8').toString('base64'), '长链 name 参数应带名');
+        await named.text();
+
+        const dirty = await worker.fetch(reqN('/shorten', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target: 'clash', url: 'https://subs.test/entry', name: 'a"b\nc' }) }), env, ctx);
+        const dirtyCode = (await dirty.text()).split('/c/')[1];
+        const dirtyInfo = await worker.fetch(reqN('/api/link/' + dirtyCode), env, ctx);
+        assert.equal(JSON.parse(await dirtyInfo.text()).name, 'a b c', '名字应清洗引号与控制字符');
+    } finally {
+        globalThis.fetch = prevFetch;
+    }
+});

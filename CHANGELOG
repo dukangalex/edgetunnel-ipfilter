@@ -1,3 +1,18 @@
+## [integration 3.1.27] - 2026-11-23
+
+### Remote-control group gains DIRECT; converter sync batch (standalone v1.1.2–v1.1.6)
+
+- The generated Mihomo/Clash config's "远控工具" selector now offers DIRECT between "默认代理" and "REJECT-DROP" (default unchanged), so Tailscale / AnyDesk / RustDesk class traffic can go direct instead of detouring through a proxy hop where hole-punching fails and falls back to relays. sing-box outputs already offered the direct selector. Same 口径 as AngelaMihomo T289 (HiClash fixedProxies).
+- Chain failover tuning: health-check interval 60s → 20s across skeleton, code-built and text-format groups; entry-group tolerance 100 → 50 (single-hop, low jitter); exit-group tolerance stays 100 (two-hop jitter); skeleton url-test groups gain max-failed-times 3.
+- HTTP(S) proxy endpoint links (bare https://host:port, as handed out by URnetwork-class providers) are now supported end to end: strict endpoint shape in the parser, gather parses before fetching, sing-box emitter and share-link generator handle http nodes; bogus "None"/"null" string credentials are dropped.
+- Paste robustness: a pasted base64 subscription block is classified like fetched content instead of being dropped, and a whole pasted Clash YAML / sing-box JSON document is kept as one input (line-splitting would break its structure).
+- Subscription display names: the convert form takes an optional name; short-link records store it (cleaned: no control characters or quotes, max 80 chars; re-generating the same content with a name updates the stored name) and subscription responses carry both Content-Disposition (filename*=UTF-8) and profile-title headers so clients import with that name; the long links /sub, /conv and /chain accept ?name= too.
+- 「远控工具」组补 DIRECT 直连选项（位于默认代理与 REJECT-DROP 之间，默认仍为默认代理）：Tailscale、AnyDesk、RustDesk 这类流量可直连，不再被迫绕代理一跳、打洞失败退中继；sing-box 输出此前已有直连选项。与 AngelaMihomo T289（HiClash fixedProxies）同一口径。
+- 链式故障切换调参：检测间隔 60 秒统一降到 20 秒（骨架、代码建组、文本格式全覆盖）；入口组容差 100→50（单跳抖动小），出口组保持 100（双跳抖动大）；骨架 url-test 组补 max-failed-times 3。
+- 新增 HTTP(S) 代理端点链接支持（URnetwork 这类服务发放的裸 https://主机:端口）：解析只认严格端点形态，gather 先解析再抓取，sing-box 生成与分享链接补 http 分支，并清掉字符串 "None"/"null" 伪凭据。
+- 粘贴更宽容：整块 base64 订阅内容按抓取订阅同一路径解码分类，不再被丢弃；整块 Clash YAML / sing-box JSON 粘贴时整份作一条输入，不逐行切分（会拆坏文档结构）。
+- 新增「订阅名」：生成表单可填可选订阅名，短链记录存名（入库前清洗：去控制字符与引号、折叠空白、上限 80 字；同内容重生成带名会把名字同步到旧记录），出订阅响应头同时带 Content-Disposition 与 profile-title，客户端导入即以该名命名；长链 /sub、/conv、/chain 支持 name 参数。
+
 ## [integration 3.1.26] - 2026-11-17
 
 ### Converter: .mrs rule-set behavior mapping fixed (T206)
