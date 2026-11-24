@@ -85,6 +85,20 @@ test('/ips-ui 筛选界面可访问', async () => {
     assert.ok(body.includes('viewBox="0 0 24 24"'), '图标应已内联为 SVG');
 });
 
+test('angela-uxui 四件: 转换页四件齐全 + 优选页复制变勾', async () => {
+    const conv = await call('https://x.test/convert');
+    assert.equal(conv.status, 200);
+    assert.ok(conv.body.includes('Lucian UX/UI Prompt #008, #244, #434, #438'), '转换页应带组件署名');
+    assert.ok(conv.body.includes('button.cp.is-copied'), '#008 复制变勾样式应在转换页');
+    assert.ok(conv.body.includes('goState') && conv.body.includes('data-s'), '#438 生成按钮两段状态应在转换页');
+    assert.ok(conv.body.includes('flagField'), '#244 报错定位应在转换页');
+    assert.ok(conv.body.includes('.is-bad'), '#434 输入状态统一应在转换页');
+    const ips = await call('https://x.test/ips-ui');
+    assert.equal(ips.status, 200);
+    assert.ok(ips.body.includes('id="copyAllBtn"') && ips.body.includes('flashCopyBtn'), '#008 复制变勾应在优选页');
+    assert.ok(ips.body.includes('Lucian UX/UI Prompt #008 · MIT License'), '优选页应带 #008 署名');
+});
+
 test('设计令牌: 转换页使用本项目视觉令牌', async () => {
     const { status, body } = await call('https://x.test/convert');
     assert.equal(status, 200);

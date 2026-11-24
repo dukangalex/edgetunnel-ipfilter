@@ -1,3 +1,12 @@
+## [integration 3.1.28] - 2026-11-24
+
+### Convert and IP-filter pages gain the angela-uxui interaction quartet
+
+- The /convert page (syncing the standalone converter v1.1.8) gains four interaction components from the project's own angela-uxui library (Lucian UX/UI Prompt, MIT): copy buttons morph into a drawn check on success (#008); the generate buttons run a two-stage busy → done state with spinner and check (#438); an invalid field is highlighted, shaken and scrolled into focus (#244); and field error states are unified into one red-ring treatment (#434). Presentation layer only — conversion output is unchanged.
+- The /ips-ui page's "Copy all" button gains the same #008 feedback: its copy icon morphs into a drawn check and the button tints green for 1.8 s on a successful copy (the existing toast stays). The admin and login pages already give equivalent toast / error-banner feedback and are unchanged; /socks5-ui already highlights the copied result card in place and shows progress during checks, so it is unchanged too.
+- 转换页与优选页落地自有组件库 angela-uxui 四件（源出 Lucian UX/UI Prompt，MIT）：转换页同步独立版 v1.1.8——复制按钮点击后图标变勾并描画呈现（#008）、生成按钮两段状态忙碌→完成（转圈后变勾，#438）、填错的字段红框高亮＋抖动并自动滚动聚焦（#244）、输入框报错状态统一为同一套红环样式（#434）；只动表现层，转换产物不变。
+- /ips-ui 的「复制全部」按钮补同款 #008 反馈：复制成功后图标变勾、按钮泛绿 1.8 秒（原有 toast 保留）。管理页与登录页已有等效的 toast／错误横幅反馈，不重复造；/socks5-ui 的结果卡复制已有原位高亮、检测中已有进度呈现，同样不动。
+
 ## [integration 3.1.27] - 2026-11-23
 
 ### Remote-control group gains DIRECT; converter sync batch (standalone v1.1.2–v1.1.6)
