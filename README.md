@@ -1,6 +1,6 @@
 <div align="center">
 
-# edgetunnel-ipfilter
+# edgetunnel-ipfilter（开明）
 
 **edgetunnel + country-specific Cloudflare IP filter, merged into ONE single-file Worker.**
 
